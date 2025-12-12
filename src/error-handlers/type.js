@@ -14,7 +14,7 @@ const type = async (normalizedErrors, instance, localization) => {
   const errors = [];
 
   if (normalizedErrors["https://json-schema.org/keyword/type"]) {
-    let allowedTypes = new Set(ALL_TYPES);
+    let allowedTypes = ALL_TYPES;
     const failedTypeLocations = [];
 
     for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/type"]) {
