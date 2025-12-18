@@ -151,9 +151,27 @@ const anyOfErrorHandler = async (normalizedErrors, instance, localization) => {
           }
           // Discriminator identified, but none of the alternatives match
           if (discriminatedAlternatives.length === 0) {
-            // TODO: For now, it will use the schema description strategy
-          }
+            const discriminatorLocation = [...discriminator][0];
 
+            const messageSet = new Set();
+            for (const alternative of allAlternatives) {
+              if (discriminatorLocation in alternative) {
+                const errorObjects = await getErrors({ [discriminatorLocation]: alternative[discriminatorLocation] }, instance, localization);
+                for (const errorObject of errorObjects) {
+                  messageSet.add(errorObject.message);
+                }
+              }
+            }
+
+            if (messageSet.size > 0) {
+              errors.push({
+                message: [...messageSet].join(" or "),
+                instanceLocation: discriminatorLocation,
+                schemaLocation
+              });
+              continue;
+            }
+          }
           // Last resort, select the alternative with the most properties matching the instance
           const instanceProperties = new Set(Instance.values(instance).map((node) => Instance.uri(node)));
           let maxMatches = -1;

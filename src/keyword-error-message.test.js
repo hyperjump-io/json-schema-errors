@@ -976,7 +976,7 @@ describe("Error messages", async () => {
     ]);
   });
 
-  test.skip("anyOf - discriminator with no matches", async () => {
+  test("anyOf - discriminator with no matches", async () => {
     registerSchema({
       $schema: "https://json-schema.org/draft/2020-12/schema",
       anyOf: [
