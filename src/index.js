@@ -61,6 +61,7 @@ import uniqueItemsErrorHandler from "./error-handlers/uniqueItems.js";
 import stringErrorHandler from "./error-handlers/string-handler.js";
 import patternErrorHandler from "./error-handlers/pattern.js";
 import propertiesRangeHandler from "./error-handlers/properties-range-handler.js";
+import validationErrorHandler from "./error-handlers/validation.js";
 
 /**
  * @import { betterJsonSchemaErrors } from "./index.d.ts"
@@ -134,6 +135,7 @@ addErrorHandler(uniqueItemsErrorHandler);
 addErrorHandler(stringErrorHandler);
 addErrorHandler(patternErrorHandler);
 addErrorHandler(propertiesRangeHandler);
+addErrorHandler(validationErrorHandler);
 
 export { setNormalizationHandler } from "./normalized-output.js";
 export { addErrorHandler } from "./error-handling.js";
