@@ -4,6 +4,7 @@ import { addErrorHandler, setNormalizationHandler } from "./json-schema-errors.j
 import constNormalizationHandler from "./normalization-handlers/const.js";
 import definitionsNormalizationHandler from "./normalization-handlers/definitions.js";
 import enumNormalizationHandler from "./normalization-handlers/enum.js";
+import exclusiveMaximumNormalizationHandler from "./normalization-handlers/exclusiveMaximum.js";
 import minimumNormalizationHandler from "./normalization-handlers/minimum.js";
 import propertiesNormalizationHandler from "./normalization-handlers/properties.js";
 import refNormalizationHandler from "./normalization-handlers/ref.js";
@@ -14,11 +15,13 @@ import constErrorHandler from "./error-handlers/const.js";
 import enumErrorHandler from "./error-handlers/enum.js";
 import booleanSchemaErrorHandler from "./error-handlers/boolean-schema.js";
 import typeErrorHandler from "./error-handlers/type.js";
+import exclusiveMaximumErrorHandler from "./error-handlers/exclusiveMaximum.js";
 import minimumErrorHandler from "./error-handlers/minimum.js";
 
 setNormalizationHandler("https://json-schema.org/keyword/const", constNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/definitions", definitionsNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/enum", enumNormalizationHandler);
+setNormalizationHandler("https://json-schema.org/keyword/exclusiveMaximum", exclusiveMaximumNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/minimum", minimumNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/properties", propertiesNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/ref", refNormalizationHandler);
@@ -28,6 +31,7 @@ addErrorHandler(constErrorHandler);
 addErrorHandler(enumErrorHandler);
 addErrorHandler(booleanSchemaErrorHandler);
 addErrorHandler(typeErrorHandler);
+addErrorHandler(exclusiveMaximumErrorHandler);
 addErrorHandler(minimumErrorHandler);
 
 export { addErrorHandler, jsonSchemaErrors, setNormalizationHandler } from "./json-schema-errors.js";

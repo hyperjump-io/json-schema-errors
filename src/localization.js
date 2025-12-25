@@ -66,6 +66,11 @@ export class Localization {
     });
   }
 
+  /** @type (exclusiveMaximum: number) => string */
+  getExclusiveMaximumErrorMessage(exclusiveMaximum) {
+    return this.#formatMessage("exclusiveMaximum-error", { exclusiveMaximum });
+  }
+
   /** @type (minimum: number) => string */
   getMinimumErrorMessage(minimum) {
     return this.#formatMessage("minimum-error", { minimum });
