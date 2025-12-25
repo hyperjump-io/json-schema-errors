@@ -1,0 +1,51 @@
+{
+  "name": "@hyperjump/json-schema-errors",
+  "version": "0.1.0",
+  "description": "Get human friendly error messages from any of the standard JSON Schema output formats",
+  "type": "module",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "scripts": {
+    "lint": "eslint src",
+    "test": "vitest --watch=false",
+    "type-check": "tsc --noEmit",
+    "docs": "typedoc --excludeExternals"
+  },
+  "repository": "github:hyperjump-io/json-schema-errors",
+  "keywords": [
+    "Hyperjump",
+    "JSON Schema",
+    "errors",
+    "output format",
+    "basic",
+    "detailed",
+    "verbose",
+    "localization",
+    "l18n"
+  ],
+  "contributors": [
+    "Jason Desrosiers <jdesrosi@gmail.com>",
+    "Arpit Kuriyal <arpitkuriyal2002@gmail.com>"
+  ],
+  "license": "MIT",
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/hyperump-io"
+  },
+  "devDependencies": {
+    "@stylistic/eslint-plugin": "*",
+    "@types/node": "*",
+    "@vitest/coverage-v8": "^4.0.16",
+    "eslint-import-resolver-typescript": "*",
+    "eslint-plugin-import": "*",
+    "typedoc": "*",
+    "typescript-eslint": "*",
+    "vitest": "*"
+  },
+  "dependencies": {
+    "@fluent/bundle": "^0.19.1",
+    "@hyperjump/json-schema": "^1.17.2"
+  }
+}
