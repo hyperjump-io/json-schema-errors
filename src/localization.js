@@ -51,6 +51,13 @@ export class Localization {
     });
   }
 
+  /** @type (expected: Json) => string */
+  getConstErrorMessage(expected) {
+    return this.#formatMessage("const-error", {
+      expected: JSON.stringify(expected, null, "  ")
+    });
+  }
+
   /** @type (minimum: number) => string */
   getMinimumErrorMessage(minimum) {
     return this.#formatMessage("minimum-error", { minimum });
