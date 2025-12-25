@@ -12,6 +12,7 @@ import maximumNormalizationHandler from "./normalization-handlers/maximum.js";
 import minimumNormalizationHandler from "./normalization-handlers/minimum.js";
 import propertiesNormalizationHandler from "./normalization-handlers/properties.js";
 import refNormalizationHandler from "./normalization-handlers/ref.js";
+import requiredNormalizationHandler from "./normalization-handlers/required.js";
 import typeNormalizationHandler from "./normalization-handlers/type.js";
 
 // Error Handlers
@@ -25,6 +26,7 @@ import exclusiveMinimumErrorHandler from "./error-handlers/exclusiveMinimum.js";
 import maximumErrorHandler from "./error-handlers/maximum.js";
 import minimumErrorHandler from "./error-handlers/minimum.js";
 import formatErrorHandler from "./error-handlers/format.js";
+import requiredErrorHandler from "./error-handlers/required.js";
 
 setNormalizationHandler("https://json-schema.org/keyword/const", constNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/dependentRequired", dependentRequiredNormalizationHandler);
@@ -43,6 +45,7 @@ setNormalizationHandler("https://json-schema.org/keyword/maximum", maximumNormal
 setNormalizationHandler("https://json-schema.org/keyword/minimum", minimumNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/properties", propertiesNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/ref", refNormalizationHandler);
+setNormalizationHandler("https://json-schema.org/keyword/required", requiredNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/type", typeNormalizationHandler);
 
 addErrorHandler(constErrorHandler);
@@ -55,5 +58,6 @@ addErrorHandler(exclusiveMinimumErrorHandler);
 addErrorHandler(minimumErrorHandler);
 addErrorHandler(maximumErrorHandler);
 addErrorHandler(formatErrorHandler);
+addErrorHandler(requiredErrorHandler);
 
 export { addErrorHandler, jsonSchemaErrors, setNormalizationHandler } from "./json-schema-errors.js";
