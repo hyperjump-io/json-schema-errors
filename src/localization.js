@@ -132,6 +132,11 @@ export class Localization {
     return this.#formatMessage("maxProperties-error", { maxProperties });
   }
 
+  /** @type (minProperties: number) => string */
+  getMinPropertiesErrorMessage(minProperties) {
+    return this.#formatMessage("minProperties-error", { minProperties });
+  }
+
   /** @type (required: string[]) => string */
   getRequiredErrorMessage(required) {
     return this.#formatMessage("required-error", {

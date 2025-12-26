@@ -24,6 +24,7 @@ uniqueItems-error = Duplicated item
 
 // Object keywords
 maxProperties-error = Expected an object with at most {$maxProperties} properties
+minProperties-error = Expected an object with at least {$minProperties} properties
 required-error = Required {$count ->
   [one] property {$required} is
  *[other] properties {$required} are
