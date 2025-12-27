@@ -36,6 +36,7 @@ export type JsonSchemaErrors = ErrorObject[];
 
 export type ErrorObject = {
   message: string;
+  alternatives?: ErrorObject[][];
   instanceLocation: string;
   schemaLocations: string[];
 };

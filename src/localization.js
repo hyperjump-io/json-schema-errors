@@ -144,4 +144,9 @@ export class Localization {
       count: required.length
     });
   }
+
+  /** @type () => string */
+  getAnyOfErrorMessage() {
+    return this.#formatMessage("anyOf-error", {});
+  }
 }

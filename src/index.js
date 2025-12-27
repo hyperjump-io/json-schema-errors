@@ -1,6 +1,7 @@
 import { addErrorHandler, setNormalizationHandler } from "./json-schema-errors.js";
 
 // Normalization Handlers
+import anyOfNormalizationHandler from "./normalization-handlers/anyOf.js";
 import constNormalizationHandler from "./normalization-handlers/const.js";
 import definitionsNormalizationHandler from "./normalization-handlers/definitions.js";
 import dependentRequiredNormalizationHandler from "./normalization-handlers/dependentRequired.js";
@@ -26,6 +27,7 @@ import typeNormalizationHandler from "./normalization-handlers/type.js";
 import uniqueItemsNormalizationHandler from "./normalization-handlers/uniqueItems.js";
 
 // Error Handlers
+import anyOfErrorHandler from "./error-handlers/anyOf.js";
 import booleanSchemaErrorHandler from "./error-handlers/boolean-schema.js";
 import constErrorHandler from "./error-handlers/const.js";
 import dependentRequiredErrorHandler from "./error-handlers/dependentRequired.js";
@@ -47,6 +49,7 @@ import requiredErrorHandler from "./error-handlers/required.js";
 import typeErrorHandler from "./error-handlers/type.js";
 import uniqueItemsErrorHandler from "./error-handlers/uniqueItems.js";
 
+setNormalizationHandler("https://json-schema.org/keyword/anyOf", anyOfNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/const", constNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/definitions", definitionsNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/dependentRequired", dependentRequiredNormalizationHandler);
@@ -77,6 +80,7 @@ setNormalizationHandler("https://json-schema.org/keyword/required", requiredNorm
 setNormalizationHandler("https://json-schema.org/keyword/type", typeNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/uniqueItems", uniqueItemsNormalizationHandler);
 
+addErrorHandler(anyOfErrorHandler);
 addErrorHandler(booleanSchemaErrorHandler);
 addErrorHandler(constErrorHandler);
 addErrorHandler(dependentRequiredErrorHandler);

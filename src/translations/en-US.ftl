@@ -29,3 +29,6 @@ required-error = Required {$count ->
   [one] property {$required} is
  *[other] properties {$required} are
 } missing
+
+// Applicators
+anyOf-error = None of the alternatives match
