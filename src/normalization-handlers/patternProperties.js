@@ -3,14 +3,14 @@ import * as Instance from "@hyperjump/json-schema/instance/experimental";
 
 /**
  * @import { KeywordHandler, NormalizedOutput } from "../index.d.ts"
- * @import { EvaluatedPropertiesContext } from "./unevaluatedProperties.js"
  */
 
-/** @type KeywordHandler<[RegExp, string][], EvaluatedPropertiesContext> */
+/** @type KeywordHandler<[RegExp, string][]> */
 const patternPropertiesNormalizationHandler = {
   evaluate(patternProperties, instance, context) {
     /** @type NormalizedOutput[] */
     const outputs = [];
+
     if (Instance.typeOf(instance) !== "object") {
       return outputs;
     }
@@ -22,10 +22,10 @@ const patternPropertiesNormalizationHandler = {
         const propertyName = /** @type string */ (Instance.value(propertyNameNode));
         if (regex.test(propertyName)) {
           outputs.push(evaluateSchema(schemaLocation, propertyValue, context));
-          context.evaluatedProperties?.add(propertyName);
         }
       }
     }
+
     return outputs;
   },
   simpleApplicator: true

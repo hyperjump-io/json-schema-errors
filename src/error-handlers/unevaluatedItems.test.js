@@ -60,6 +60,30 @@ describe("unevaluatedItems keyword", async () => {
     ]);
   });
 
+  test("unevaluatedItems with contains", async () => {
+    registerSchema({
+      $schema: "https://json-schema.org/draft/2020-12/schema",
+      allOf: [
+        {
+          contains: { type: "string" }
+        }
+      ],
+      unevaluatedItems: { type: "number" }
+    }, schemaUri);
+
+    const instance = [42, "foo", true];
+    const output = await validate(schemaUri, instance, BASIC);
+    const errors = await jsonSchemaErrors(output, schemaUri, instance);
+
+    expect(errors).to.eql([
+      {
+        message: localization.getTypeErrorMessage(["number"]),
+        instanceLocation: "#/2",
+        schemaLocations: [`${schemaUri}#/unevaluatedItems/type`]
+      }
+    ]);
+  });
+
   test("unevaluatedItems on a non-array", async () => {
     registerSchema({
       $schema: "https://json-schema.org/draft/2020-12/schema",

@@ -4,10 +4,9 @@ import * as Pact from "@hyperjump/pact";
 
 /**
  * @import { KeywordHandler, NormalizedOutput } from "../index.d.ts"
- * @import { EvaluatedItemsContext } from "./unevaluatedItems.js"
  */
 
-/** @type KeywordHandler<[number, string], EvaluatedItemsContext> */
+/** @type KeywordHandler<[number, string]> */
 const itemsNormalizationHandler = {
   evaluate([numberOfPrefixItems, items], instance, context) {
     /** @type NormalizedOutput[] */

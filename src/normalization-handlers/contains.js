@@ -1,9 +1,8 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
-import { evaluateSchema, isSchemaValid } from "../json-schema-errors.js";
+import { evaluateSchema } from "../json-schema-errors.js";
 
 /**
  * @import { KeywordHandler, NormalizedOutput } from "../index.d.ts"
- * @import { EvaluatedItemsContext } from "./unevaluatedItems.js"
  */
 
 /**
@@ -14,7 +13,7 @@ import { evaluateSchema, isSchemaValid } from "../json-schema-errors.js";
  * }} ContainsAst
  */
 
-/** @type KeywordHandler<ContainsAst, EvaluatedItemsContext> */
+/** @type KeywordHandler<ContainsAst> */
 const containsNormalizationHandler = {
   evaluate({ contains }, instance, context) {
     /** @type NormalizedOutput[] */
@@ -24,16 +23,8 @@ const containsNormalizationHandler = {
       return output;
     }
 
-    let index = 0;
     for (const item of Instance.iter(instance)) {
-      const itemOutput = evaluateSchema(contains, item, context);
-      output.push(itemOutput);
-
-      if (isSchemaValid(itemOutput)) {
-        context.evaluatedItems?.add(index);
-      }
-
-      index++;
+      output.push(evaluateSchema(contains, item, context));
     }
 
     return output;

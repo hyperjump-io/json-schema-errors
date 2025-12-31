@@ -11,13 +11,11 @@ const booleanSchemaErrorHandler = async (normalizedErrors, instance, localizatio
   const errors = [];
 
   for (const schemaLocation in normalizedErrors["https://json-schema.org/validation"]) {
-    if (!normalizedErrors["https://json-schema.org/validation"][schemaLocation]) {
-      errors.push({
-        message: localization.getBooleanSchemaErrorMessage(),
-        instanceLocation: Instance.uri(instance),
-        schemaLocations: [schemaLocation]
-      });
-    }
+    errors.push({
+      message: localization.getBooleanSchemaErrorMessage(),
+      instanceLocation: Instance.uri(instance),
+      schemaLocations: [schemaLocation]
+    });
   }
 
   return errors;

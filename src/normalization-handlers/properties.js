@@ -4,14 +4,14 @@ import * as JsonPointer from "@hyperjump/json-pointer";
 
 /**
  * @import { KeywordHandler, NormalizedOutput } from "../index.d.ts"
- * @import { EvaluatedPropertiesContext } from "./unevaluatedProperties.js"
  */
 
-/** @type KeywordHandler<Record<string, string>, EvaluatedPropertiesContext> */
+/** @type KeywordHandler<Record<string, string>> */
 const propertiesNormalizationHandler = {
   evaluate(properties, instance, context) {
     /** @type NormalizedOutput[] */
     const outputs = [];
+
     if (Instance.typeOf(instance) !== "object") {
       return outputs;
     }
@@ -24,7 +24,6 @@ const propertiesNormalizationHandler = {
         });
       } else {
         outputs.push(evaluateSchema(properties[propertyName], propertyNode, context));
-        context.evaluatedProperties?.add(propertyName);
       }
     }
 

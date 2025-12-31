@@ -3,14 +3,14 @@ import * as Instance from "@hyperjump/json-schema/instance/experimental";
 
 /**
  * @import { KeywordHandler, NormalizedOutput } from "../index.d.ts"
- * @import { EvaluatedItemsContext } from "./unevaluatedItems.js"
  */
 
-/** @type KeywordHandler<string[], EvaluatedItemsContext> */
+/** @type KeywordHandler<string[]> */
 const prefixItemsNormalizationHandler = {
   evaluate(prefixItems, instance, context) {
     /** @type NormalizedOutput[] */
     const outputs = [];
+
     if (Instance.typeOf(instance) !== "array") {
       return outputs;
     }
@@ -19,7 +19,6 @@ const prefixItemsNormalizationHandler = {
       const itemNode = Instance.step(String(index), instance);
       if (itemNode) {
         outputs.push(evaluateSchema(schemaLocation, itemNode, context));
-        context.evaluatedItems?.add(index);
       }
     }
 

@@ -3,14 +3,14 @@ import * as Instance from "@hyperjump/json-schema/instance/experimental";
 
 /**
  * @import { KeywordHandler, NormalizedOutput } from "../index.d.ts"
- * @import { EvaluatedPropertiesContext } from "./unevaluatedProperties.js"
  */
 
-/** @type KeywordHandler<[RegExp, string], EvaluatedPropertiesContext> */
+/** @type KeywordHandler<[RegExp, string]> */
 const additionalPropertiesNormalizationHandler = {
   evaluate([isDefinedProperty, additionalProperties], instance, context) {
     /** @type NormalizedOutput[] */
     const outputs = [];
+
     if (Instance.typeOf(instance) !== "object") {
       return outputs;
     }
@@ -22,8 +22,8 @@ const additionalPropertiesNormalizationHandler = {
       }
 
       outputs.push(evaluateSchema(additionalProperties, property, context));
-      context.evaluatedProperties?.add(propertyName);
     }
+
     return outputs;
   },
   simpleApplicator: true

@@ -100,11 +100,13 @@ export const evaluateSchema = (schemaLocation, instance, context) => {
 
   const schemaNode = context.ast[schemaLocation];
   if (typeof schemaNode === "boolean") {
-    output[instanceLocation] = {
-      "https://json-schema.org/validation": {
-        [schemaLocation]: schemaNode
-      }
-    };
+    if (context.errorIndex[schemaLocation]?.[instanceLocation]) {
+      output[instanceLocation] = {
+        "https://json-schema.org/validation": {
+          [schemaLocation]: schemaNode
+        }
+      };
+    }
   } else {
     for (const node of schemaNode) {
       const [keywordUri, keywordLocation, keywordValue] = node;
@@ -188,26 +190,4 @@ export const errorHandlers = [];
 /** @type API.addErrorHandler */
 export const addErrorHandler = (errorHandler) => {
   errorHandlers.push(errorHandler);
-};
-
-/** @type (output: API.NormalizedOutput) => boolean */
-export const isSchemaValid = (output) => {
-  for (const instanceLocation in output) {
-    for (const keywordUri in output[instanceLocation]) {
-      for (const schemaLocation in output[instanceLocation][keywordUri]) {
-        if (typeof output[instanceLocation][keywordUri][schemaLocation] === "boolean") {
-          if (!output[instanceLocation][keywordUri][schemaLocation]) {
-            return false;
-          }
-        } else {
-          // Empty array is valid
-          if (output[instanceLocation][keywordUri][schemaLocation].length > 0) {
-            return false;
-          }
-        }
-      }
-    }
-  }
-
-  return true;
 };

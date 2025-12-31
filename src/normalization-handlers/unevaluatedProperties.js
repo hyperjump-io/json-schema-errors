@@ -2,17 +2,10 @@ import { evaluateSchema } from "../json-schema-errors.js";
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
 
 /**
- * @import { EvaluationContext, KeywordHandler, NormalizedOutput } from "../index.d.ts"
+ * @import { KeywordHandler, NormalizedOutput } from "../index.d.ts"
  */
 
-/**
- * @typedef {{
- *   evaluatedProperties: Set<string>;
- *   schemaEvaluatedProperties: Set<string>;
- * } & EvaluationContext} EvaluatedPropertiesContext
- */
-
-/** @type KeywordHandler<string, EvaluatedPropertiesContext> */
+/** @type KeywordHandler<string> */
 const unevaluatedPropertiesNormalizationHandler = {
   evaluate(unevaluatedProperties, instance, context) {
     /** @type NormalizedOutput[] */
@@ -22,16 +15,8 @@ const unevaluatedPropertiesNormalizationHandler = {
       return outputs;
     }
 
-    const evaluatedProperties = context.schemaEvaluatedProperties;
-
-    for (const [propertyNameNode, property] of Instance.entries(instance)) {
-      const propertyName = /** @type string */ (Instance.value(propertyNameNode));
-      if (evaluatedProperties.has(propertyName)) {
-        continue;
-      }
-
+    for (const property of Instance.values(instance)) {
       outputs.push(evaluateSchema(unevaluatedProperties, property, context));
-      context.evaluatedProperties?.add(propertyName);
     }
 
     return outputs;
