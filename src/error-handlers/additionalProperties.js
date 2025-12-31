@@ -1,8 +1,4 @@
-/**
- * This handler no longer emits messages for boolean `false` schemas — those
- * are handled centrally. Keep signature parameters but prefix with underscores
- * so lint doesn't complain about unused args.
- */
+import * as Instance from "@hyperjump/json-schema/instance/experimental";
 
 /**
  * @import { ErrorHandler, ErrorObject } from "../index.d.ts"
@@ -10,12 +6,21 @@
 
 /** @type ErrorHandler */
 // eslint-disable-next-line @typescript-eslint/require-await
-const additionalProperties = async (_normalizedErrors, _instance, _localization) => {
+const additionalProperties = async (normalizedErrors, instance, localization) => {
   /** @type ErrorObject[] */
   const errors = [];
-  // additionalProperties false-schema cases are handled centrally by the
-  // `https://json-schema.org/validation` error handler to avoid duplicating
-  // boolean-schema messaging logic across multiple handlers.
+  if (normalizedErrors["https://json-schema.org/validation"]) {
+    for (const schemaLocation in normalizedErrors["https://json-schema.org/validation"]) {
+      if (!normalizedErrors["https://json-schema.org/validation"][schemaLocation] && schemaLocation.endsWith("/additionalProperties")) {
+        const notAllowedValue = /** @type string */ (Instance.uri(instance).split("/").pop());
+        errors.push({
+          message: localization.getAdditionalPropertiesErrorMessage(notAllowedValue),
+          instanceLocation: Instance.uri(instance),
+          schemaLocation: schemaLocation
+        });
+      }
+    }
+  }
   return errors;
 };
 

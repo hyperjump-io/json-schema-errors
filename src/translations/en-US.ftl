@@ -63,6 +63,3 @@ contains-error-min-max = The array must contain at least {$minContains} and at m
 anyOf-error = The instance must pass at least one of the given schemas.
 anyOf-error-bullets = The value must be either of {$constraints}
 not-error = The instance is not allowed to be used in this schema.
-
-# Generic boolean-schema failure message (used when a schema is simply `false`)
-boolean-schema-error = The instance is not allowed by the schema.
