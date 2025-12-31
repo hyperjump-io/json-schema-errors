@@ -230,6 +230,11 @@ export class Localization {
     return this._formatMessage("not-error");
   }
 
+  /** @type () => string */
+  getBooleanSchemaErrorMessage() {
+    return this._formatMessage("boolean-schema-error");
+  }
+
   /** @type (propertyName: string) => string */
   getAdditionalPropertiesErrorMessage(propertyName) {
     return this._formatMessage("additional-properties-error", { propertyName });

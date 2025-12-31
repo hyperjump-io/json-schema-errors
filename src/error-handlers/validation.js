@@ -12,14 +12,10 @@ const validation = async (normalizedErrors, instance, localization) => {
 
   if (normalizedErrors["https://json-schema.org/validation"]) {
     for (const schemaLocation in normalizedErrors["https://json-schema.org/validation"]) {
-      // additionalProperties has its own specific error handler; avoid duplicate messages
-      if (schemaLocation.endsWith("/additionalProperties")) {
-        continue;
-      }
-      const value = normalizedErrors["https://json-schema.org/validation"][schemaLocation];
-      if (value === false) {
+      const isValid = normalizedErrors["https://json-schema.org/validation"][schemaLocation];
+      if (!isValid) {
         errors.push({
-          message: localization.getNotErrorMessage(),
+          message: localization.getBooleanSchemaErrorMessage(),
           instanceLocation: Instance.uri(instance),
           schemaLocation
         });

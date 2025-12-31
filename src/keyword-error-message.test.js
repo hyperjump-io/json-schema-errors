@@ -2297,12 +2297,12 @@ describe("Error messages", async () => {
     expect(result.errors).to.eql([
       {
         instanceLocation: "#/unknown_property",
-        message: localization.getAdditionalPropertiesErrorMessage("unknown_property"),
+        message: localization.getBooleanSchemaErrorMessage(),
         schemaLocation: "https://example.com/main#/additionalProperties"
       },
       {
         instanceLocation: "#/unknown_property1",
-        message: localization.getAdditionalPropertiesErrorMessage("unknown_property1"),
+        message: localization.getBooleanSchemaErrorMessage(),
         schemaLocation: "https://example.com/main#/additionalProperties"
       }
     ]);
