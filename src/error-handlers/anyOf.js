@@ -151,24 +151,35 @@ const anyOfErrorHandler = async (normalizedErrors, instance, localization) => {
           }
           // Discriminator identified, but none of the alternatives match
           if (discriminatedAlternatives.length === 0) {
-            const discriminatorLocation = [...discriminator][0];
-
-            const messageSet = new Set();
-            for (const alternative of allAlternatives) {
-              if (discriminatorLocation in alternative) {
-                const errorObjects = await getErrors({ [discriminatorLocation]: alternative[discriminatorLocation] }, instance, localization);
-                for (const errorObject of errorObjects) {
-                  messageSet.add(errorObject.message);
+            let discriminatorErrorFound = false;
+            for (const discriminatorLocation of discriminator) {
+              /** @type Set<string> */
+              const messageSet = new Set();
+              let matchesAny = false;
+              for (const alternative of allAlternatives) {
+                if (discriminatorLocation in alternative) {
+                  const errorObjects = await getErrors({ [discriminatorLocation]: alternative[discriminatorLocation] }, instance, localization);
+                  if (errorObjects.length === 0) {
+                    matchesAny = true;
+                    break;
+                  }
+                  for (const errorObject of errorObjects) {
+                    messageSet.add(errorObject.message);
+                  }
                 }
+              }
+
+              if (!matchesAny) {
+                discriminatorErrorFound = true;
+                errors.push({
+                  message: localization.getAnyOfBulletsErrorMessage([...messageSet]),
+                  instanceLocation: discriminatorLocation,
+                  schemaLocation
+                });
               }
             }
 
-            if (messageSet.size > 0) {
-              errors.push({
-                message: [...messageSet].join(" or "),
-                instanceLocation: discriminatorLocation,
-                schemaLocation
-              });
+            if (discriminatorErrorFound) {
               continue;
             }
           }
