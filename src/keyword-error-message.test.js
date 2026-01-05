@@ -976,7 +976,7 @@ describe("Error messages", async () => {
     ]);
   });
 
-  test.skip("anyOf - discriminator with no matches", async () => {
+  test("anyOf - discriminator with no matches", async () => {
     registerSchema({
       $schema: "https://json-schema.org/draft/2020-12/schema",
       anyOf: [
@@ -1020,6 +1020,10 @@ describe("Error messages", async () => {
           instanceLocation: "#/type"
         },
         {
+          absoluteKeywordLocation: `https://example.com/main#/anyOf/1/properties/box/type`,
+          instanceLocation: "#/box"
+        },
+        {
           absoluteKeywordLocation: `https://example.com/main#/anyOf`,
           instanceLocation: "#"
         }
@@ -1032,7 +1036,10 @@ describe("Error messages", async () => {
       {
         schemaLocation: `https://example.com/main#/anyOf`,
         instanceLocation: "#/type",
-        message: `Invalid value. Expected "a", "b". Found "d".`
+        message: localization.getAnyOfBulletsErrorMessage([
+          localization.getConstErrorMessage("a"),
+          localization.getConstErrorMessage("b")
+        ])
       }
     ]);
   });

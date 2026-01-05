@@ -151,9 +151,38 @@ const anyOfErrorHandler = async (normalizedErrors, instance, localization) => {
           }
           // Discriminator identified, but none of the alternatives match
           if (discriminatedAlternatives.length === 0) {
-            // TODO: For now, it will use the schema description strategy
-          }
+            let discriminatorErrorFound = false;
+            for (const discriminatorLocation of discriminator) {
+              /** @type Set<string> */
+              const messageSet = new Set();
+              let matchesAny = false;
+              for (const alternative of allAlternatives) {
+                if (discriminatorLocation in alternative) {
+                  const errorObjects = await getErrors({ [discriminatorLocation]: alternative[discriminatorLocation] }, instance, localization);
+                  if (errorObjects.length === 0) {
+                    matchesAny = true;
+                    break;
+                  }
+                  for (const errorObject of errorObjects) {
+                    messageSet.add(errorObject.message);
+                  }
+                }
+              }
 
+              if (!matchesAny) {
+                discriminatorErrorFound = true;
+                errors.push({
+                  message: localization.getAnyOfBulletsErrorMessage([...messageSet]),
+                  instanceLocation: discriminatorLocation,
+                  schemaLocation
+                });
+              }
+            }
+
+            if (discriminatorErrorFound) {
+              continue;
+            }
+          }
           // Last resort, select the alternative with the most properties matching the instance
           const instanceProperties = new Set(Instance.values(instance).map((node) => Instance.uri(node)));
           let maxMatches = -1;
