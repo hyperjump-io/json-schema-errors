@@ -146,4 +146,9 @@ addErrorHandler(typeErrorHandler);
 addErrorHandler(uniqueItemsErrorHandler);
 addErrorHandler(unknownErrorHandler);
 
-export { addErrorHandler, jsonSchemaErrors, setNormalizationHandler } from "./json-schema-errors.js";
+export {
+  addErrorHandler,
+  evaluateSchema,
+  jsonSchemaErrors,
+  setNormalizationHandler
+} from "./json-schema-errors.js";

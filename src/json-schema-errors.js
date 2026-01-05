@@ -86,7 +86,7 @@ function normalizeInstanceLocation(location) {
   return instanceLocation.replace(/(#|^)\*\//, "$1/");
 }
 
-/** @type (schemaLocation: string, instance: JsonNode, context: API.EvaluationContext) => API.NormalizedOutput */
+/** @type API.evaluateSchema */
 export const evaluateSchema = (schemaLocation, instance, context) => {
   const instanceLocation = Instance.uri(instance);
 
