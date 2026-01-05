@@ -12,23 +12,25 @@ const requiredErrorHandler = async (normalizedErrors, instance, localization) =>
   const errors = [];
 
   for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/required"]) {
-    if (!normalizedErrors["https://json-schema.org/keyword/required"][schemaLocation]) {
-      const keyword = await getSchema(schemaLocation);
-      const required = /** @type string[] */ (Schema.value(keyword));
-
-      const missingRequired = [];
-      for (const propertyName of required) {
-        if (!Instance.has(propertyName, instance)) {
-          missingRequired.push(propertyName);
-        }
-      }
-
-      errors.push({
-        message: localization.getRequiredErrorMessage(missingRequired),
-        instanceLocation: Instance.uri(instance),
-        schemaLocations: [schemaLocation]
-      });
+    if (normalizedErrors["https://json-schema.org/keyword/required"][schemaLocation]) {
+      continue;
     }
+
+    const keyword = await getSchema(schemaLocation);
+    const required = /** @type string[] */ (Schema.value(keyword));
+
+    const missingRequired = [];
+    for (const propertyName of required) {
+      if (!Instance.has(propertyName, instance)) {
+        missingRequired.push(propertyName);
+      }
+    }
+
+    errors.push({
+      message: localization.getRequiredErrorMessage(missingRequired),
+      instanceLocation: Instance.uri(instance),
+      schemaLocations: [schemaLocation]
+    });
   }
 
   return errors;

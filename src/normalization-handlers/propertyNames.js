@@ -10,6 +10,7 @@ const propertyNamesNormalizationHandler = {
   evaluate(propertyNames, instance, context) {
     /** @type NormalizedOutput[] */
     const outputs = [];
+
     if (Instance.typeOf(instance) !== "object") {
       return outputs;
     }

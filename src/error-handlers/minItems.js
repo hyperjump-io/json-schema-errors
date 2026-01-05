@@ -12,16 +12,18 @@ const minItemsErrorHandler = async (normalizedErrors, instance, localization) =>
   const errors = [];
 
   for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/minItems"]) {
-    if (!normalizedErrors["https://json-schema.org/keyword/minItems"][schemaLocation]) {
-      const keyword = await getSchema(schemaLocation);
-      const minItems = /** @type number */ (Schema.value(keyword));
-
-      errors.push({
-        message: localization.getMinItemsErrorMessage(minItems),
-        instanceLocation: Instance.uri(instance),
-        schemaLocations: [schemaLocation]
-      });
+    if (normalizedErrors["https://json-schema.org/keyword/minItems"][schemaLocation]) {
+      continue;
     }
+
+    const keyword = await getSchema(schemaLocation);
+    const minItems = /** @type number */ (Schema.value(keyword));
+
+    errors.push({
+      message: localization.getMinItemsErrorMessage(minItems),
+      instanceLocation: Instance.uri(instance),
+      schemaLocations: [schemaLocation]
+    });
   }
 
   return errors;

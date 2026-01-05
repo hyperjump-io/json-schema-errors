@@ -12,16 +12,18 @@ const minLengthErrorHandler = async (normalizedErrors, instance, localization) =
   const errors = [];
 
   for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/minLength"]) {
-    if (!normalizedErrors["https://json-schema.org/keyword/minLength"][schemaLocation]) {
-      const keyword = await getSchema(schemaLocation);
-      const minLength = /** @type number */ (Schema.value(keyword));
-
-      errors.push({
-        message: localization.getMinLengthErrorMessage(minLength),
-        instanceLocation: Instance.uri(instance),
-        schemaLocations: [schemaLocation]
-      });
+    if (normalizedErrors["https://json-schema.org/keyword/minLength"][schemaLocation]) {
+      continue;
     }
+
+    const keyword = await getSchema(schemaLocation);
+    const minLength = /** @type number */ (Schema.value(keyword));
+
+    errors.push({
+      message: localization.getMinLengthErrorMessage(minLength),
+      instanceLocation: Instance.uri(instance),
+      schemaLocations: [schemaLocation]
+    });
   }
 
   return errors;

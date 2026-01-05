@@ -12,16 +12,18 @@ const maxPropertiesErrorHandler = async (normalizedErrors, instance, localizatio
   const errors = [];
 
   for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/maxProperties"]) {
-    if (!normalizedErrors["https://json-schema.org/keyword/maxProperties"][schemaLocation]) {
-      const keyword = await getSchema(schemaLocation);
-      const maxProperties = /** @type number */ (Schema.value(keyword));
-
-      errors.push({
-        message: localization.getMaxPropertiesErrorMessage(maxProperties),
-        instanceLocation: Instance.uri(instance),
-        schemaLocations: [schemaLocation]
-      });
+    if (normalizedErrors["https://json-schema.org/keyword/maxProperties"][schemaLocation]) {
+      continue;
     }
+
+    const keyword = await getSchema(schemaLocation);
+    const maxProperties = /** @type number */ (Schema.value(keyword));
+
+    errors.push({
+      message: localization.getMaxPropertiesErrorMessage(maxProperties),
+      instanceLocation: Instance.uri(instance),
+      schemaLocations: [schemaLocation]
+    });
   }
 
   return errors;

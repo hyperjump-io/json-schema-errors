@@ -12,16 +12,18 @@ const maxLengthErrorHandler = async (normalizedErrors, instance, localization) =
   const errors = [];
 
   for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/maxLength"]) {
-    if (!normalizedErrors["https://json-schema.org/keyword/maxLength"][schemaLocation]) {
-      const keyword = await getSchema(schemaLocation);
-      const maxLength = /** @type number */ (Schema.value(keyword));
-
-      errors.push({
-        message: localization.getMaxLengthErrorMessage(maxLength),
-        instanceLocation: Instance.uri(instance),
-        schemaLocations: [schemaLocation]
-      });
+    if (normalizedErrors["https://json-schema.org/keyword/maxLength"][schemaLocation]) {
+      continue;
     }
+
+    const keyword = await getSchema(schemaLocation);
+    const maxLength = /** @type number */ (Schema.value(keyword));
+
+    errors.push({
+      message: localization.getMaxLengthErrorMessage(maxLength),
+      instanceLocation: Instance.uri(instance),
+      schemaLocations: [schemaLocation]
+    });
   }
 
   return errors;

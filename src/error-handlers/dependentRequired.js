@@ -12,28 +12,30 @@ const dependentRequiredErrorHandler = async (normalizedErrors, instance, localiz
   const errors = [];
 
   for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/dependentRequired"]) {
-    if (!normalizedErrors["https://json-schema.org/keyword/dependentRequired"][schemaLocation]) {
-      const keyword = await getSchema(schemaLocation);
-      const dependentRequired = /** @type Record<string, string[]> */ (Schema.value(keyword));
+    if (normalizedErrors["https://json-schema.org/keyword/dependentRequired"][schemaLocation]) {
+      continue;
+    }
 
-      /** @type Set<string> */
-      const required = new Set();
-      for (const propertyName in dependentRequired) {
-        if (Instance.has(propertyName, instance)) {
-          for (const requiredPropertyName of dependentRequired[propertyName]) {
-            if (!Instance.has(requiredPropertyName, instance)) {
-              required.add(requiredPropertyName);
-            }
+    const keyword = await getSchema(schemaLocation);
+    const dependentRequired = /** @type Record<string, string[]> */ (Schema.value(keyword));
+
+    /** @type Set<string> */
+    const required = new Set();
+    for (const propertyName in dependentRequired) {
+      if (Instance.has(propertyName, instance)) {
+        for (const requiredPropertyName of dependentRequired[propertyName]) {
+          if (!Instance.has(requiredPropertyName, instance)) {
+            required.add(requiredPropertyName);
           }
         }
       }
-
-      errors.push({
-        message: localization.getRequiredErrorMessage([...required]),
-        instanceLocation: Instance.uri(instance),
-        schemaLocations: [schemaLocation]
-      });
     }
+
+    errors.push({
+      message: localization.getRequiredErrorMessage([...required]),
+      instanceLocation: Instance.uri(instance),
+      schemaLocations: [schemaLocation]
+    });
   }
 
   return errors;

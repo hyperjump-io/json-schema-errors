@@ -12,16 +12,18 @@ const exclusiveMaximumErrorHandler = async (normalizedErrors, instance, localiza
   const errors = [];
 
   for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/exclusiveMaximum"]) {
-    if (!normalizedErrors["https://json-schema.org/keyword/exclusiveMaximum"][schemaLocation]) {
-      const keyword = await getSchema(schemaLocation);
-      const exclusiveMaximum = /** @type number */ (Schema.value(keyword));
-
-      errors.push({
-        message: localization.getExclusiveMaximumErrorMessage(exclusiveMaximum),
-        instanceLocation: Instance.uri(instance),
-        schemaLocations: [schemaLocation]
-      });
+    if (normalizedErrors["https://json-schema.org/keyword/exclusiveMaximum"][schemaLocation]) {
+      continue;
     }
+
+    const keyword = await getSchema(schemaLocation);
+    const exclusiveMaximum = /** @type number */ (Schema.value(keyword));
+
+    errors.push({
+      message: localization.getExclusiveMaximumErrorMessage(exclusiveMaximum),
+      instanceLocation: Instance.uri(instance),
+      schemaLocations: [schemaLocation]
+    });
   }
 
   return errors;

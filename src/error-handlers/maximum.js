@@ -12,16 +12,18 @@ const maximumErrorHandler = async (normalizedErrors, instance, localization) => 
   const errors = [];
 
   for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/maximum"]) {
-    if (!normalizedErrors["https://json-schema.org/keyword/maximum"][schemaLocation]) {
-      const keyword = await getSchema(schemaLocation);
-      const maximum = /** @type number */ (Schema.value(keyword));
-
-      errors.push({
-        message: localization.getMaximumErrorMessage(maximum),
-        instanceLocation: Instance.uri(instance),
-        schemaLocations: [schemaLocation]
-      });
+    if (normalizedErrors["https://json-schema.org/keyword/maximum"][schemaLocation]) {
+      continue;
     }
+
+    const keyword = await getSchema(schemaLocation);
+    const maximum = /** @type number */ (Schema.value(keyword));
+
+    errors.push({
+      message: localization.getMaximumErrorMessage(maximum),
+      instanceLocation: Instance.uri(instance),
+      schemaLocations: [schemaLocation]
+    });
   }
 
   return errors;

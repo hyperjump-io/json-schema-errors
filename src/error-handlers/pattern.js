@@ -12,16 +12,18 @@ const patternErrorHandler = async (normalizedErrors, instance, localization) => 
   const errors = [];
 
   for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/pattern"]) {
-    if (!normalizedErrors["https://json-schema.org/keyword/pattern"][schemaLocation]) {
-      const keyword = await getSchema(schemaLocation);
-      const pattern = /** @type string */ (Schema.value(keyword));
-
-      errors.push({
-        message: localization.getPatternErrorMessage(pattern),
-        instanceLocation: Instance.uri(instance),
-        schemaLocations: [schemaLocation]
-      });
+    if (normalizedErrors["https://json-schema.org/keyword/pattern"][schemaLocation]) {
+      continue;
     }
+
+    const keyword = await getSchema(schemaLocation);
+    const pattern = /** @type string */ (Schema.value(keyword));
+
+    errors.push({
+      message: localization.getPatternErrorMessage(pattern),
+      instanceLocation: Instance.uri(instance),
+      schemaLocations: [schemaLocation]
+    });
   }
 
   return errors;

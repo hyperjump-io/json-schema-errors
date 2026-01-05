@@ -12,16 +12,18 @@ const constErrorHandler = async (normalizedErrors, instance, localization) => {
   const errors = [];
 
   for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/const"]) {
-    if (!normalizedErrors["https://json-schema.org/keyword/const"][schemaLocation]) {
-      const keyword = await getSchema(schemaLocation);
-      const expected = /** @type Json */ (Schema.value(keyword));
-
-      errors.push({
-        message: localization.getConstErrorMessage(expected),
-        instanceLocation: Instance.uri(instance),
-        schemaLocations: [schemaLocation]
-      });
+    if (normalizedErrors["https://json-schema.org/keyword/const"][schemaLocation]) {
+      continue;
     }
+
+    const keyword = await getSchema(schemaLocation);
+    const expected = /** @type Json */ (Schema.value(keyword));
+
+    errors.push({
+      message: localization.getConstErrorMessage(expected),
+      instanceLocation: Instance.uri(instance),
+      schemaLocations: [schemaLocation]
+    });
   }
 
   return errors;

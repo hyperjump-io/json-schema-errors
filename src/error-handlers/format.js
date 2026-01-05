@@ -22,16 +22,18 @@ const formatErrorHandler = async (normalizedErrors, instance, localization) => {
   ];
   for (const keywordUri of keywordUris) {
     for (const schemaLocation in normalizedErrors[keywordUri]) {
-      if (!normalizedErrors[keywordUri][schemaLocation]) {
-        const keyword = await getSchema(schemaLocation);
-        const format = /** @type string */ (Schema.value(keyword));
-
-        errors.push({
-          message: localization.getFormatErrorMessage(format),
-          instanceLocation: Instance.uri(instance),
-          schemaLocations: [schemaLocation]
-        });
+      if (normalizedErrors[keywordUri][schemaLocation]) {
+        continue;
       }
+
+      const keyword = await getSchema(schemaLocation);
+      const format = /** @type string */ (Schema.value(keyword));
+
+      errors.push({
+        message: localization.getFormatErrorMessage(format),
+        instanceLocation: Instance.uri(instance),
+        schemaLocations: [schemaLocation]
+      });
     }
   }
 

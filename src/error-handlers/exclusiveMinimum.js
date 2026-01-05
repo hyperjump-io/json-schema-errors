@@ -12,16 +12,18 @@ const exclusiveMinimumErrorHandler = async (normalizedErrors, instance, localiza
   const errors = [];
 
   for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/exclusiveMinimum"]) {
-    if (!normalizedErrors["https://json-schema.org/keyword/exclusiveMinimum"][schemaLocation]) {
-      const keyword = await getSchema(schemaLocation);
-      const exclusiveMinimum = /** @type number */ (Schema.value(keyword));
-
-      errors.push({
-        message: localization.getExclusiveMinimumErrorMessage(exclusiveMinimum),
-        instanceLocation: Instance.uri(instance),
-        schemaLocations: [schemaLocation]
-      });
+    if (normalizedErrors["https://json-schema.org/keyword/exclusiveMinimum"][schemaLocation]) {
+      continue;
     }
+
+    const keyword = await getSchema(schemaLocation);
+    const exclusiveMinimum = /** @type number */ (Schema.value(keyword));
+
+    errors.push({
+      message: localization.getExclusiveMinimumErrorMessage(exclusiveMinimum),
+      instanceLocation: Instance.uri(instance),
+      schemaLocations: [schemaLocation]
+    });
   }
 
   return errors;

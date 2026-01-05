@@ -9,6 +9,7 @@ const allOfNormalizationHandler = {
   evaluate(allOf, instance, context) {
     /** @type NormalizedOutput[] */
     const outputs = [];
+
     for (const schemaLocation of allOf) {
       outputs.push(evaluateSchema(schemaLocation, instance, context));
     }

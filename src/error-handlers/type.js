@@ -12,18 +12,20 @@ const typeErrorHandler = async (normalizedErrors, instance, localization) => {
   const errors = [];
 
   for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/type"]) {
-    if (!normalizedErrors["https://json-schema.org/keyword/type"][schemaLocation]) {
-      const keyword = await getSchema(schemaLocation);
-      const expectedTypes = /** @type string[] */ (Schema.typeOf(keyword) === "array"
-        ? Schema.value(keyword)
-        : [Schema.value(keyword)]);
-
-      errors.push({
-        message: localization.getTypeErrorMessage(expectedTypes),
-        instanceLocation: Instance.uri(instance),
-        schemaLocations: [schemaLocation]
-      });
+    if (normalizedErrors["https://json-schema.org/keyword/type"][schemaLocation]) {
+      continue;
     }
+
+    const keyword = await getSchema(schemaLocation);
+    const expectedTypes = /** @type string[] */ (Schema.typeOf(keyword) === "array"
+      ? Schema.value(keyword)
+      : [Schema.value(keyword)]);
+
+    errors.push({
+      message: localization.getTypeErrorMessage(expectedTypes),
+      instanceLocation: Instance.uri(instance),
+      schemaLocations: [schemaLocation]
+    });
   }
 
   return errors;

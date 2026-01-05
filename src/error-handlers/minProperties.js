@@ -12,16 +12,18 @@ const minPropertiesErrorHandler = async (normalizedErrors, instance, localizatio
   const errors = [];
 
   for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/minProperties"]) {
-    if (!normalizedErrors["https://json-schema.org/keyword/minProperties"][schemaLocation]) {
-      const keyword = await getSchema(schemaLocation);
-      const minProperties = /** @type number */ (Schema.value(keyword));
-
-      errors.push({
-        message: localization.getMinPropertiesErrorMessage(minProperties),
-        instanceLocation: Instance.uri(instance),
-        schemaLocations: [schemaLocation]
-      });
+    if (normalizedErrors["https://json-schema.org/keyword/minProperties"][schemaLocation]) {
+      continue;
     }
+
+    const keyword = await getSchema(schemaLocation);
+    const minProperties = /** @type number */ (Schema.value(keyword));
+
+    errors.push({
+      message: localization.getMinPropertiesErrorMessage(minProperties),
+      instanceLocation: Instance.uri(instance),
+      schemaLocations: [schemaLocation]
+    });
   }
 
   return errors;

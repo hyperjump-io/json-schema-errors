@@ -12,16 +12,18 @@ const enumErrorHandler = async (normalizedErrors, instance, localization) => {
   const errors = [];
 
   for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/enum"]) {
-    if (!normalizedErrors["https://json-schema.org/keyword/enum"][schemaLocation]) {
-      const keyword = await getSchema(schemaLocation);
-      const expected = /** @type Json[] */ (Schema.value(keyword));
-
-      errors.push({
-        message: localization.getEnumErrorMessage(expected),
-        instanceLocation: Instance.uri(instance),
-        schemaLocations: [schemaLocation]
-      });
+    if (normalizedErrors["https://json-schema.org/keyword/enum"][schemaLocation]) {
+      continue;
     }
+
+    const keyword = await getSchema(schemaLocation);
+    const expected = /** @type Json[] */ (Schema.value(keyword));
+
+    errors.push({
+      message: localization.getEnumErrorMessage(expected),
+      instanceLocation: Instance.uri(instance),
+      schemaLocations: [schemaLocation]
+    });
   }
 
   return errors;

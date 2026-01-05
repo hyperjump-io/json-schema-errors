@@ -12,25 +12,27 @@ const uniqueItemsErrorHandler = async (normalizedErrors, instance, localization)
   const errors = [];
 
   for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/uniqueItems"]) {
-    if (!normalizedErrors["https://json-schema.org/keyword/uniqueItems"][schemaLocation]) {
-      /** @type Record<string, { instanceLocations: string[], count: number }> */
-      const itemCounts = {};
-      for (const item of Instance.iter(instance)) {
-        const key = jsonStringify(Instance.value(item));
-        itemCounts[key] ??= { instanceLocations: [], count: 0 };
-        itemCounts[key].instanceLocations.push(Instance.uri(item));
-        itemCounts[key].count++;
-      }
+    if (normalizedErrors["https://json-schema.org/keyword/uniqueItems"][schemaLocation]) {
+      continue;
+    }
 
-      for (const key in itemCounts) {
-        if (itemCounts[key].count > 1) {
-          for (const instanceLocation of itemCounts[key].instanceLocations) {
-            errors.push({
-              message: localization.getUniqueItemsErrorMessage(),
-              instanceLocation: instanceLocation,
-              schemaLocations: [schemaLocation]
-            });
-          }
+    /** @type Record<string, { instanceLocations: string[], count: number }> */
+    const itemCounts = {};
+    for (const item of Instance.iter(instance)) {
+      const key = jsonStringify(Instance.value(item));
+      itemCounts[key] ??= { instanceLocations: [], count: 0 };
+      itemCounts[key].instanceLocations.push(Instance.uri(item));
+      itemCounts[key].count++;
+    }
+
+    for (const key in itemCounts) {
+      if (itemCounts[key].count > 1) {
+        for (const instanceLocation of itemCounts[key].instanceLocations) {
+          errors.push({
+            message: localization.getUniqueItemsErrorMessage(),
+            instanceLocation: instanceLocation,
+            schemaLocations: [schemaLocation]
+          });
         }
       }
     }
