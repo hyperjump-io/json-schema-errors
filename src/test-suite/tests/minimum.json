@@ -12,7 +12,7 @@
       "errors": [
         {
           "messageId": "minimum-message",
-          "messageParams": { "minimum": 3 },
+          "messageParams": { "minimum": "3" },
           "instanceLocation": "#",
           "schemaLocations": ["#/minimum"]
         }

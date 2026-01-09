@@ -14,7 +14,7 @@
         {
           "messageId": "contains-message",
           "messageParams": {
-            "minContains": 1
+            "minContains": "1"
           },
           "instanceLocation": "#",
           "schemaLocations": ["#/contains"]
@@ -33,7 +33,7 @@
         {
           "messageId": "contains-message",
           "messageParams": {
-            "minContains": 2
+            "minContains": "2"
           },
           "instanceLocation": "#",
           "schemaLocations": ["#/contains", "#/minContains"]
@@ -52,8 +52,8 @@
         {
           "messageId": "contains-exact-message",
           "messageParams": {
-            "minContains": 1,
-            "maxContains": 1
+            "minContains": "1",
+            "maxContains": "1"
           },
           "instanceLocation": "#",
           "schemaLocations": ["#/contains", "#/maxContains"]
@@ -72,8 +72,8 @@
         {
           "messageId": "contains-range-message",
           "messageParams": {
-            "minContains": 1,
-            "maxContains": 2
+            "minContains": "1",
+            "maxContains": "2"
           },
           "instanceLocation": "#",
           "schemaLocations": ["#/contains", "#/maxContains"]

@@ -13,7 +13,7 @@
         {
           "messageId": "minLength-message",
           "messageParams": {
-            "minLength": 3
+            "minLength": "3"
           },
           "instanceLocation": "#",
           "schemaLocations": ["#/minLength"]

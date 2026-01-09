@@ -13,7 +13,7 @@
         {
           "messageId": "maxLength-message",
           "messageParams": {
-            "maxLength": 3
+            "maxLength": "3"
           },
           "instanceLocation": "#",
           "schemaLocations": ["#/maxLength"]

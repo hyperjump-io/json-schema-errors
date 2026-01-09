@@ -13,7 +13,7 @@
         {
           "messageId": "required-message",
           "messageParams": {
-            "count": 1,
+            "count": "1",
             "required": { "or": ["bar"] }
           },
           "instanceLocation": "#",

@@ -13,7 +13,7 @@
         {
           "messageId": "minProperties-message",
           "messageParams": {
-            "minProperties": 2
+            "minProperties": "2"
           },
           "instanceLocation": "#",
           "schemaLocations": ["#/minProperties"]

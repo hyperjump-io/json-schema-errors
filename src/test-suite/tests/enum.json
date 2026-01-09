@@ -14,7 +14,7 @@
           "messageId": "enum-message",
           "messageParams": {
             "expected": { "or": ["\"foo\"", "\"bar\""] },
-            "count": 2
+            "count": "2"
           },
           "instanceLocation": "#",
           "schemaLocations": ["#/enum"]

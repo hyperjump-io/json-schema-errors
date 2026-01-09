@@ -12,7 +12,7 @@
       "errors": [
         {
           "messageId": "multipleOf-message",
-          "messageParams": { "multipleOf": 3 },
+          "messageParams": { "multipleOf": "3" },
           "instanceLocation": "#",
           "schemaLocations": ["#/multipleOf"]
         }

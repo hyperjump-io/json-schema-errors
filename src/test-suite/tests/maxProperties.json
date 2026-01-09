@@ -13,7 +13,7 @@
         {
           "messageId": "maxProperties-message",
           "messageParams": {
-            "maxProperties": 1
+            "maxProperties": "1"
           },
           "instanceLocation": "#",
           "schemaLocations": ["#/maxProperties"]

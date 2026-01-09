@@ -16,7 +16,7 @@
         {
           "messageId": "minimum-message",
           "messageParams": {
-            "minimum": 3
+            "minimum": "3"
           },
           "instanceLocation": "#",
           "schemaLocations": ["#/allOf/1/minimum"]

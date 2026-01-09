@@ -15,7 +15,7 @@
       "errors": [
         {
           "messageId": "oneOf-message",
-          "messageParams": { "matchCount": 0 },
+          "messageParams": { "matchCount": "0" },
           "alternatives": [
             [
               {
@@ -56,7 +56,7 @@
         {
           "messageId": "oneOf-message",
           "messageParams": {
-            "matchCount": 2
+            "matchCount": "2"
           },
           "instanceLocation": "#",
           "schemaLocations": ["#/oneOf"]

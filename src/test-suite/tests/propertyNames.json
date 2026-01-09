@@ -14,7 +14,7 @@
         {
           "messageId": "minLength-message",
           "messageParams": {
-            "minLength": 5
+            "minLength": "5"
           },
           "instanceLocation": "#/foo",
           "schemaLocations": ["#/propertyNames/minLength"]
@@ -32,7 +32,7 @@
         {
           "messageId": "minLength-message",
           "messageParams": {
-            "minLength": 5
+            "minLength": "5"
           },
           "instanceLocation": "#/foo",
           "schemaLocations": ["#/propertyNames/minLength"]

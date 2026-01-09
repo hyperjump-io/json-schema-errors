@@ -13,7 +13,7 @@
         {
           "messageId": "exclusiveMinimum-message",
           "messageParams": {
-            "exclusiveMinimum": 3
+            "exclusiveMinimum": "3"
           },
           "instanceLocation": "#",
           "schemaLocations": ["#/exclusiveMinimum"]

@@ -13,7 +13,7 @@
         {
           "messageId": "maximum-message",
           "messageParams": {
-            "maximum": 3
+            "maximum": "3"
           },
           "instanceLocation": "#",
           "schemaLocations": ["#/maximum"]

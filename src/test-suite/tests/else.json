@@ -15,7 +15,7 @@
         {
           "messageId": "multipleOf-message",
           "messageParams": {
-            "multipleOf": 5
+            "multipleOf": "5"
           },
           "instanceLocation": "#",
           "schemaLocations": ["#/else/multipleOf"]

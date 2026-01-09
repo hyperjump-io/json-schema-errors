@@ -14,7 +14,7 @@
         {
           "messageId": "const-message",
           "messageParams": {
-            "expected": 42
+            "expected": "42"
           },
           "instanceLocation": "#",
           "schemaLocations": ["#/const"]
