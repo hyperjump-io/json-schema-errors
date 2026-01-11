@@ -25,7 +25,7 @@ import { FluentBundle, FluentResource } from "@fluent/bundle";
  *   and: string[]
  * }} AndParam
  *
- * @typedef {Record<string, string | OrParam | AndParam>} MessageParams
+ * @typedef {Record<string, string | number | OrParam | AndParam>} MessageParams
  *
  * @typedef {{
  *   messageId: string;
