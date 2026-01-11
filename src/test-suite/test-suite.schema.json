@@ -78,7 +78,7 @@
             "maxProperties": 1
           },
           "else": {
-            "type": ["string", "number", "boolean", "null"]
+            "type": ["string", "number"]
           }
         }
       }
