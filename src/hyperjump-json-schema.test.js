@@ -25,7 +25,7 @@ import { FluentBundle, FluentResource } from "@fluent/bundle";
  *   and: string[]
  * }} AndParam
  *
- * @typedef {Record<string, string | OrParam | AndParam>} MessageParams
+ * @typedef {Record<string, string | number | boolean | null | OrParam | AndParam>} MessageParams
  *
  * @typedef {{
  *   messageId: string;
@@ -161,7 +161,7 @@ const getMessage = await (async function () {
 
   return (messageId, messageParams) => {
     for (const paramId in messageParams) {
-      if (typeof messageParams[paramId] === "object") {
+      if (typeof messageParams[paramId] === "object" && messageParams[paramId]) {
         if ("or" in messageParams[paramId]) {
           messageParams[paramId] = disjunction.format(messageParams[paramId].or);
         } else {
@@ -175,7 +175,7 @@ const getMessage = await (async function () {
       throw Error(`Message '${messageId}' not found.`);
     }
 
-    return bundle.formatPattern(message.value, messageParams);
+    return bundle.formatPattern(message.value, /** @type {*} */(messageParams));
   };
 }());
 
