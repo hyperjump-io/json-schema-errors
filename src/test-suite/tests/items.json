@@ -58,6 +58,47 @@
       },
       "instance": [42, "foo"],
       "errors": []
+    },
+    {
+      "description": "items as schemas (draft-04)",
+      "compatibility": "=4",
+      "schema": {
+        "items": {
+          "type": "number"
+        }
+      },
+      "instance": [1,"foo"],
+      "errors": [
+        {
+          "messageId": "type-message",
+          "messageParams": {
+            "expectedTypes": {"or": ["number"] }
+          },
+          "instanceLocation": "#/1",
+          "schemaLocations": ["#/items/type"]
+        }
+      ]
+    },
+    {
+      "description": "items as array of schemas (draft-04)",
+      "compatibility": "=4",
+      "schema": {
+        "items": [
+          {"type": "number"},
+          {"type": "string"}
+        ]
+      },
+      "instance": [1,2],
+      "errors": [
+        {
+          "messageId": "type-message",
+          "messageParams": {
+            "expectedTypes": {"or": ["string"] }
+          },
+          "instanceLocation": "#/1",
+          "schemaLocations": ["#/items/1/type"]
+        }
+      ]
     }
   ]
 }

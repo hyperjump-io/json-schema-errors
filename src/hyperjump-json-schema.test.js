@@ -10,6 +10,7 @@ import "@hyperjump/json-schema/formats";
 import { BASIC } from "@hyperjump/json-schema/experimental";
 import { jsonSchemaErrors } from "../src/index.js";
 import { FluentBundle, FluentResource } from "@fluent/bundle";
+import "@hyperjump/json-schema/draft-04";
 
 /**
  * @import { SchemaObject } from "@hyperjump/json-schema"
@@ -183,4 +184,4 @@ runTests("https://json-schema.org/draft/2020-12/schema", 2020);
 // runTests("https://json-schema.org/draft/2019-09/schema", 2019);
 // runTests("http://json-schema.org/draft-07/schema", 7);
 // runTests("http://json-schema.org/draft-06/schema", 6);
-// runTests("http://json-schema.org/draft-04/schema", 4);
+runTests("http://json-schema.org/draft-04/schema", 4);

@@ -1,0 +1,99 @@
+{
+    "$schema": "../test-suite.schema.json",
+    "description": "The additionalItems keyword",
+    "tests": [
+        {
+            "description": "additionalItems with true",
+            "compatibility": "=4",
+            "schema": {
+                "items": [
+                    {
+                        "type": "number"
+                    }
+                ],
+                "additionalItems": true
+            },
+            "instance": [
+                1,
+                "foo"
+            ],
+            "errors": []
+        },
+        {
+            "description": "additionalItems with false",
+            "compatibility": "=4",
+            "schema": {
+                "items": [
+                    {
+                        "type": "number"
+                    }
+                ],
+                "additionalItems": false
+            },
+            "instance": [
+                1,
+                "foo"
+            ],
+            "errors": [
+                {
+                    "messageId": "boolean-schema-message",
+                    "messageParams": {},
+                    "instanceLocation": "#/1",
+                    "schemaLocations": [
+                        "#/additionalItems"
+                    ]
+                }
+            ]
+        },
+        {
+            "description": "additionalItems with schema",
+            "compatibility": "=4",
+            "schema": {
+                "items": [
+                    {
+                        "type": "number"
+                    }
+                ],
+                "additionalItems": {
+                    "type": "string"
+                }
+            },
+            "instance": [
+                1,
+                2
+            ],
+            "errors": [
+                {
+                    "messageId": "type-message",
+                    "messageParams": {
+                        "expectedTypes": {
+                            "or": [
+                                "string"
+                            ]
+                        }
+                    },
+                    "instanceLocation": "#/1",
+                    "schemaLocations": [
+                        "#/additionalItems/type"
+                    ]
+                }
+            ]
+        },
+        {
+            "description": "additionalItems when items is schema",
+            "compatibility": "=4",
+            "schema": {
+                "items": {
+                    "type": "number"
+                },
+                "additionalItems": false
+            },
+            "instance": [
+                1,
+                2,
+                3
+            ],
+            "errors": []
+        }
+    ]
+}

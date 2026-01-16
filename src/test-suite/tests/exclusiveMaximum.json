@@ -1,10 +1,10 @@
 {
   "$schema": "../test-suite.schema.json",
-
   "description": "The exclusiveMaximum keyword",
   "tests": [
     {
       "description": "exclusiveMaximum",
+      "compatibility": "6",
       "schema": {
         "exclusiveMaximum": 3
       },
@@ -12,9 +12,7 @@
       "errors": [
         {
           "messageId": "exclusiveMaximum-message",
-          "messageParams": {
-            "exclusiveMaximum": "3"
-          },
+          "messageParams": {"exclusiveMaximum": "3" },
           "instanceLocation": "#",
           "schemaLocations": ["#/exclusiveMaximum"]
         }
@@ -22,6 +20,7 @@
     },
     {
       "description": "exclusiveMaximum pass",
+      "compatibility": "6",
       "schema": {
         "exclusiveMaximum": 3
       },
