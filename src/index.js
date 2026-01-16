@@ -150,6 +150,32 @@ addErrorHandler(typeErrorHandler);
 addErrorHandler(uniqueItemsErrorHandler);
 addErrorHandler(unknownErrorHandler);
 
+// Draft 04 Normalization Handlers
+import draft04AdditionalItemsNormalizationHandler from "./normalization-handlers/draft-04/additionalItems.js";
+import draft04DependenciesNormalizationHandler from "./normalization-handlers/draft-04/dependencies.js";
+import draft04ExclusiveMaximumNormalizationHandler from "./normalization-handlers/draft-04/exclusiveMaximum.js";
+import draft04ExclusiveMinimumNormalizationHandler from "./normalization-handlers/draft-04/exclusiveMinimum.js";
+import draft04ItemsNormalizationHandler from "./normalization-handlers/draft-04/items.js";
+import draft04MaximumNormalizationHandler from "./normalization-handlers/draft-04/maximum.js";
+import draft04MinimumNormalizationHandler from "./normalization-handlers/draft-04/minimum.js";
+
+setNormalizationHandler("https://json-schema.org/keyword/draft-04/additionalItems", draft04AdditionalItemsNormalizationHandler);
+setNormalizationHandler("https://json-schema.org/keyword/draft-04/dependencies", draft04DependenciesNormalizationHandler);
+setNormalizationHandler("https://json-schema.org/keyword/draft-04/exclusiveMaximum", draft04ExclusiveMaximumNormalizationHandler);
+setNormalizationHandler("https://json-schema.org/keyword/draft-04/exclusiveMinimum", draft04ExclusiveMinimumNormalizationHandler);
+setNormalizationHandler("https://json-schema.org/keyword/draft-04/items", draft04ItemsNormalizationHandler);
+setNormalizationHandler("https://json-schema.org/keyword/draft-04/maximum", draft04MaximumNormalizationHandler);
+setNormalizationHandler("https://json-schema.org/keyword/draft-04/minimum", draft04MinimumNormalizationHandler);
+
+// Draft 04 Error Handlers
+import draft04DependenciesErrorHandler from "./error-handlers/draft-04/dependencies.js";
+import draft04MaximumErrorHandler from "./error-handlers/draft-04/maximum.js";
+import draft04MinimumErrorHandler from "./error-handlers/draft-04/minimum.js";
+
+addErrorHandler(draft04DependenciesErrorHandler);
+addErrorHandler(draft04MaximumErrorHandler);
+addErrorHandler(draft04MinimumErrorHandler);
+
 export {
   addErrorHandler,
   evaluateSchema,

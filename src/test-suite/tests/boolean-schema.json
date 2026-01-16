@@ -5,6 +5,7 @@
   "tests": [
     {
       "description": "false schema on a property",
+      "compatibility": "6",
       "schema": {
         "properties": {
           "foo": false
@@ -23,6 +24,7 @@
     },
     {
       "description": "true schema on a property",
+      "compatibility": "6",
       "schema": {
         "properties": {
           "foo": true,

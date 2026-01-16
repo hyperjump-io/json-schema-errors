@@ -25,6 +25,39 @@
       },
       "instance": 5,
       "errors": []
+    },
+    {
+      "description": "minimum (draft-04)",
+      "compatibility": "=4",
+      "schema": {
+        "minimum": 3
+      },
+      "instance": 2,
+      "errors": [
+        {
+          "messageId": "minimum-message",
+          "messageParams": {"minimum": "3" },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/minimum"]
+        }
+      ]
+    },
+    {
+      "description": "exclusiveMinimum (draft-04)",
+      "compatibility": "=4",
+      "schema": {
+        "minimum": 3,
+        "exclusiveMinimum": true
+      },
+      "instance": 3,
+      "errors": [
+        {
+          "messageId": "exclusiveMinimum-message",
+          "messageParams": {"exclusiveMinimum": "3" },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/minimum"]
+        }
+      ]
     }
   ]
 }

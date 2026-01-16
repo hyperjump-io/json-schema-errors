@@ -27,6 +27,39 @@
       },
       "instance": 3,
       "errors": []
+    },
+    {
+      "description": "maximum (draft-04)",
+      "compatibility": "=4",
+      "schema": {
+        "maximum": 3
+      },
+      "instance": 4,
+      "errors": [
+        {
+          "messageId": "maximum-message",
+          "messageParams": {"maximum": "3" },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/maximum"]
+        }
+      ]
+    },
+    {
+      "description": "exclusiveMaximum (draft-04)",
+      "compatibility": "=4",
+      "schema": {
+        "maximum": 3,
+        "exclusiveMaximum": true
+      },
+      "instance": 3,
+      "errors": [
+        {
+          "messageId": "exclusiveMaximum-message",
+          "messageParams": {"exclusiveMaximum": "3" },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/maximum"]
+        }
+      ]
     }
   ]
 }
