@@ -4,6 +4,28 @@
   "description": "The items keyword",
   "tests": [
     {
+  "description": "items (tuple validation) - draft 2019-09",
+  "compatibility": "<=2019",
+  "schema": {
+    "type": "array",
+    "items": [
+      { "type": "number" }
+    ]
+  },
+  "instance": ["foo"],
+  "errors": [
+    {
+      "messageId": "type-message",
+      "messageParams": {
+        "expectedTypes": { "or": ["number"] }
+      },
+      "instanceLocation": "#/0",
+      "schemaLocations": ["#/items/0/type"]
+    }
+  ]
+}
+,
+    {
       "description": "items with false schema",
       "compatibility": "2020",
       "schema": {

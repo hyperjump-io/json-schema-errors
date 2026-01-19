@@ -44,6 +44,9 @@ import unevaluatedPropertiesNormalizationHandler from "./normalization-handlers/
 import uniqueItemsNormalizationHandler from "./normalization-handlers/uniqueItems.js";
 import unknownNormalizationHandler from "./normalization-handlers/unknown.js";
 
+import itemsDraft04 from "./normalization-handlers/items-draft04.js";
+import additionalItemsDraft04 from "./normalization-handlers/additionalItems-draft04.js";
+
 // Error Handlers
 import anyOfErrorHandler from "./error-handlers/anyOf.js";
 import booleanSchemaErrorHandler from "./error-handlers/boolean-schema.js";
@@ -70,6 +73,15 @@ import requiredErrorHandler from "./error-handlers/required.js";
 import typeErrorHandler from "./error-handlers/type.js";
 import uniqueItemsErrorHandler from "./error-handlers/uniqueItems.js";
 import unknownErrorHandler from "./error-handlers/unknown.js";
+setNormalizationHandler(
+  "https://json-schema.org/keyword/draft-04/items",
+  itemsDraft04
+);
+
+setNormalizationHandler(
+  "https://json-schema.org/keyword/draft-04/additionalItems",
+  additionalItemsDraft04
+);
 
 setNormalizationHandler("https://json-schema.org/keyword/additionalProperties", additionalPropertiesNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/allOf", allOfNormalizationHandler);
