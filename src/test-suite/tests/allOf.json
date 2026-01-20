@@ -26,12 +26,12 @@
     {
       "description": "allOf pass",
       "schema": {
-        "oneOf": [
-          { "type": "string" },
+        "allOf": [
+          { "type": "number" },
           { "minimum": 3 }
         ]
       },
-      "instance": 42,
+      "instance": 5,
       "errors": []
     }
   ]
