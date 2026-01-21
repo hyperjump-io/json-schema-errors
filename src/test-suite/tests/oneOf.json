@@ -1,45 +1,64 @@
 {
   "$schema": "../test-suite.schema.json",
-
   "description": "The oneOf keyword",
   "tests": [
     {
       "description": "oneOf",
       "schema": {
         "oneOf": [
-          { "type": "string" },
-          { "type": "number" }
+          {
+            "type": "string"
+          },
+          {
+            "type": "number"
+          }
         ]
       },
       "instance": null,
       "errors": [
         {
           "messageId": "oneOf-message",
-          "messageParams": { "matchCount": 0 },
+          "messageParams": {
+            "matchCount": 0
+          },
           "alternatives": [
             [
               {
                 "messageId": "type-message",
                 "messageParams": {
-                  "expectedTypes": { "or": ["string"] }
+                  "expectedTypes": {
+                    "or": [
+                      "string"
+                    ]
+                  }
                 },
                 "instanceLocation": "#",
-                "schemaLocations": ["#/oneOf/0/type"]
+                "schemaLocations": [
+                  "#/oneOf/0/type"
+                ]
               }
             ],
             [
               {
                 "messageId": "type-message",
                 "messageParams": {
-                  "expectedTypes": { "or": ["number"] }
+                  "expectedTypes": {
+                    "or": [
+                      "number"
+                    ]
+                  }
                 },
                 "instanceLocation": "#",
-                "schemaLocations": ["#/oneOf/1/type"]
+                "schemaLocations": [
+                  "#/oneOf/1/type"
+                ]
               }
             ]
           ],
           "instanceLocation": "#",
-          "schemaLocations": ["#/oneOf"]
+          "schemaLocations": [
+            "#/oneOf"
+          ]
         }
       ]
     },
@@ -47,8 +66,12 @@
       "description": "oneOf more than one match",
       "schema": {
         "oneOf": [
-          { "type": "integer" },
-          { "type": "number" }
+          {
+            "type": "integer"
+          },
+          {
+            "type": "number"
+          }
         ]
       },
       "instance": 1,
@@ -59,7 +82,9 @@
             "matchCount": 2
           },
           "instanceLocation": "#",
-          "schemaLocations": ["#/oneOf"]
+          "schemaLocations": [
+            "#/oneOf"
+          ]
         }
       ]
     },
@@ -67,8 +92,12 @@
       "description": "oneOf pass",
       "schema": {
         "oneOf": [
-          { "type": "string" },
-          { "type": "number" }
+          {
+            "type": "string"
+          },
+          {
+            "type": "number"
+          }
         ]
       },
       "instance": 42,

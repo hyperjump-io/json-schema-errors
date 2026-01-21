@@ -5,8 +5,8 @@ import * as Instance from "@hyperjump/json-schema/instance/experimental";
  * @import { NormalizationHandler, NormalizedOutput } from "../index.d.ts"
  */
 
-/** @type NormalizationHandler */
-const itemsDraft04 = {
+/** @type NormalizationHandler<string | string[]> */
+const itemsDraft04NormalizationHandler = {
   evaluate(items, instance, context) {
     /** @type NormalizedOutput[] */
     const outputs = [];
@@ -15,33 +15,17 @@ const itemsDraft04 = {
       return outputs;
     }
 
-    // tuple validation
     if (Array.isArray(items)) {
       for (const [index, schemaLocation] of items.entries()) {
         const itemNode = Instance.step(String(index), instance);
         if (itemNode) {
-          outputs.push(
-            evaluateSchema(schemaLocation, itemNode, context)
-          );
+          outputs.push(evaluateSchema(schemaLocation, itemNode, context));
         }
       }
-      return outputs;
-    }
-
-    // single schema applies to all items
-    let index = 0;
-    while (true) {
-      const itemNode = Instance.step(String(index), instance);
-      if (!itemNode) break;
-
-      outputs.push(
-        evaluateSchema(
-          /** @type {string} */ (items),
-          itemNode,
-          context
-        )
-      );
-      index++;
+    } else {
+      for (const itemNode of Instance.iter(instance)) {
+        outputs.push(evaluateSchema(/** @type {string} */ (items), itemNode, context));
+      }
     }
 
     return outputs;
@@ -50,4 +34,4 @@ const itemsDraft04 = {
   simpleApplicator: true
 };
 
-export default itemsDraft04;
+export default itemsDraft04NormalizationHandler;

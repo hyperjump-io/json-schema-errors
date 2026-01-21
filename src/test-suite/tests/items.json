@@ -1,44 +1,321 @@
 {
   "$schema": "../test-suite.schema.json",
-
   "description": "The items keyword",
   "tests": [
     {
-  "description": "items (tuple validation) - draft 2019-09",
-  "compatibility": "<=2019",
-  "schema": {
-    "type": "array",
-    "items": [
-      { "type": "number" }
-    ]
-  },
-  "instance": ["foo"],
-  "errors": [
-    {
-      "messageId": "type-message",
-      "messageParams": {
-        "expectedTypes": { "or": ["number"] }
-      },
-      "instanceLocation": "#/0",
-      "schemaLocations": ["#/items/0/type"]
-    }
-  ]
-}
-,
-    {
-      "description": "items with false schema",
-      "compatibility": "2020",
+      "description": "items (tuple validation) - draft 2019-09",
+      "compatibility": "<=2019",
       "schema": {
-        "prefixItems": [{ "type": "number" }],
-        "items": false
+        "type": "array",
+        "items": [
+          {
+            "type": "number"
+          }
+        ]
       },
-      "instance": [42, "foo"],
+      "instance": [
+        "foo"
+      ],
+      "errors": [
+        {
+          "messageId": "type-message",
+          "messageParams": {
+            "expectedTypes": {
+              "or": [
+                "number"
+              ]
+            }
+          },
+          "instanceLocation": "#/0",
+          "schemaLocations": [
+            "#/items/0/type"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "items (tuple validation) with fewer items than defined - draft 2019-09",
+      "compatibility": "<=2019",
+      "schema": {
+        "items": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "string"
+          }
+        ]
+      },
+      "instance": [
+        "foo"
+      ],
+      "errors": [
+        {
+          "messageId": "type-message",
+          "messageParams": {
+            "expectedTypes": {
+              "or": [
+                "number"
+              ]
+            }
+          },
+          "instanceLocation": "#/0",
+          "schemaLocations": [
+            "#/items/0/type"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "items (tuple) on non-array - draft 2019-09",
+      "compatibility": "<=2019",
+      "schema": {
+        "items": [
+          {
+            "type": "number"
+          }
+        ]
+      },
+      "instance": 42,
+      "errors": []
+    },
+    {
+      "description": "additionalItems with false schema - draft 2019-09",
+      "compatibility": "<=2019",
+      "schema": {
+        "items": [
+          {
+            "type": "number"
+          }
+        ],
+        "additionalItems": false
+      },
+      "instance": [
+        42,
+        "foo"
+      ],
       "errors": [
         {
           "messageId": "boolean-schema-message",
           "messageParams": {},
           "instanceLocation": "#/1",
-          "schemaLocations": ["#/items"]
+          "schemaLocations": [
+            "#/additionalItems"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "additionalItems with object schema - draft 2019-09",
+      "compatibility": "<=2019",
+      "schema": {
+        "items": [
+          {
+            "type": "number"
+          }
+        ],
+        "additionalItems": {
+          "type": "string"
+        }
+      },
+      "instance": [
+        42,
+        null
+      ],
+      "errors": [
+        {
+          "messageId": "type-message",
+          "messageParams": {
+            "expectedTypes": {
+              "or": [
+                "string"
+              ]
+            }
+          },
+          "instanceLocation": "#/1",
+          "schemaLocations": [
+            "#/additionalItems/type"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "additionalItems pass - draft 2019-09",
+      "compatibility": "<=2019",
+      "schema": {
+        "items": [
+          {
+            "type": "number"
+          }
+        ],
+        "additionalItems": {
+          "type": "string"
+        }
+      },
+      "instance": [
+        42,
+        "foo"
+      ],
+      "errors": []
+    },
+    {
+      "description": "items (as schema) applies to all - draft 2019-09",
+      "compatibility": "<=2019",
+      "schema": {
+        "items": {
+          "type": "number"
+        }
+      },
+      "instance": [
+        42,
+        "foo"
+      ],
+      "errors": [
+        {
+          "messageId": "type-message",
+          "messageParams": {
+            "expectedTypes": {
+              "or": [
+                "number"
+              ]
+            }
+          },
+          "instanceLocation": "#/1",
+          "schemaLocations": [
+            "#/items/type"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "items (as schema) on non-array - draft 2019-09",
+      "compatibility": "<=2019",
+      "schema": {
+        "items": {
+          "type": "number"
+        }
+      },
+      "instance": 42,
+      "errors": []
+    },
+    {
+      "description": "items (tuple validation) with additionalItems false pass - draft 2019-09",
+      "compatibility": "<=2019",
+      "schema": {
+        "items": [
+          {
+            "type": "number"
+          }
+        ],
+        "additionalItems": false
+      },
+      "instance": [
+        42
+      ],
+      "errors": []
+    },
+    {
+      "description": "items (tuple validation) with additionalItems false fail - draft 2019-09",
+      "compatibility": "<=2019",
+      "schema": {
+        "items": [
+          {
+            "type": "number"
+          }
+        ],
+        "additionalItems": false
+      },
+      "instance": [
+        42,
+        "foo"
+      ],
+      "errors": [
+        {
+          "messageId": "boolean-schema-message",
+          "messageParams": {},
+          "instanceLocation": "#/1",
+          "schemaLocations": [
+            "#/additionalItems"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "items (tuple validation) with additionalItems schema pass - draft 2019-09",
+      "compatibility": "<=2019",
+      "schema": {
+        "items": [
+          {
+            "type": "number"
+          }
+        ],
+        "additionalItems": {
+          "type": "string"
+        }
+      },
+      "instance": [
+        42,
+        "foo"
+      ],
+      "errors": []
+    },
+    {
+      "description": "items (tuple validation) with additionalItems schema fail - draft 2019-09",
+      "compatibility": "<=2019",
+      "schema": {
+        "items": [
+          {
+            "type": "number"
+          }
+        ],
+        "additionalItems": {
+          "type": "string"
+        }
+      },
+      "instance": [
+        42,
+        42
+      ],
+      "errors": [
+        {
+          "messageId": "type-message",
+          "messageParams": {
+            "expectedTypes": {
+              "or": [
+                "string"
+              ]
+            }
+          },
+          "instanceLocation": "#/1",
+          "schemaLocations": [
+            "#/additionalItems/type"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "items with false schema",
+      "compatibility": "2020",
+      "schema": {
+        "prefixItems": [
+          {
+            "type": "number"
+          }
+        ],
+        "items": false
+      },
+      "instance": [
+        42,
+        "foo"
+      ],
+      "errors": [
+        {
+          "messageId": "boolean-schema-message",
+          "messageParams": {},
+          "instanceLocation": "#/1",
+          "schemaLocations": [
+            "#/items"
+          ]
         }
       ]
     },
@@ -46,18 +323,33 @@
       "description": "items with object schema",
       "compatibility": "2020",
       "schema": {
-        "prefixItems": [{ "type": "number" }],
-        "items": { "type": "string" }
+        "prefixItems": [
+          {
+            "type": "number"
+          }
+        ],
+        "items": {
+          "type": "string"
+        }
       },
-      "instance": [42, null],
+      "instance": [
+        42,
+        null
+      ],
       "errors": [
         {
           "messageId": "type-message",
           "messageParams": {
-            "expectedTypes": { "or": ["string"] }
+            "expectedTypes": {
+              "or": [
+                "string"
+              ]
+            }
           },
           "instanceLocation": "#/1",
-          "schemaLocations": ["#/items/type"]
+          "schemaLocations": [
+            "#/items/type"
+          ]
         }
       ]
     },
@@ -65,8 +357,14 @@
       "description": "items on a non-object",
       "compatibility": "2020",
       "schema": {
-        "prefixItems": [{ "type": "number" }],
-        "items": { "type": "string" }
+        "prefixItems": [
+          {
+            "type": "number"
+          }
+        ],
+        "items": {
+          "type": "string"
+        }
       },
       "instance": 42,
       "errors": []
@@ -75,10 +373,19 @@
       "description": "items pass",
       "compatibility": "2020",
       "schema": {
-        "prefixItems": [{ "type": "number" }],
-        "items": { "type": "string" }
+        "prefixItems": [
+          {
+            "type": "number"
+          }
+        ],
+        "items": {
+          "type": "string"
+        }
       },
-      "instance": [42, "foo"],
+      "instance": [
+        42,
+        "foo"
+      ],
       "errors": []
     }
   ]
