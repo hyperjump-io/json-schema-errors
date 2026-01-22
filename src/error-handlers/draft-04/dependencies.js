@@ -13,28 +13,25 @@ const dependenciesErrorHandler = async (normalizedErrors, instance, localization
   const errors = [];
 
   for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/draft-04/dependencies"]) {
-    if (normalizedErrors["https://json-schema.org/keyword/draft-04/dependencies"][schemaLocation] === true) {
+    if (typeof normalizedErrors["https://json-schema.org/keyword/draft-04/dependencies"][schemaLocation] === "boolean") {
       continue;
     }
 
-    if (normalizedErrors["https://json-schema.org/keyword/draft-04/dependencies"][schemaLocation]) {
-      const outputs = /** @type {NormalizedOutput[]} */ (normalizedErrors["https://json-schema.org/keyword/draft-04/dependencies"][schemaLocation]);
-      for (const output of outputs) {
-        const result = await getErrors(output, instance, localization);
-        errors.push(...result);
-      }
+    const outputs = normalizedErrors["https://json-schema.org/keyword/draft-04/dependencies"][schemaLocation];
+    for (const output of outputs) {
+      const result = await getErrors(output, instance, localization);
+      errors.push(...result);
     }
 
-    const compiled = await getSchema(schemaLocation);
-    const dependencies = /** @type {Record<string, string | string[]>} */ (Schema.value(compiled));
-
-    for (const property in dependencies) {
+    const dependencies = await getSchema(schemaLocation);
+    for await (const [property, dependency] of Schema.entries(dependencies)) {
       if (!Instance.has(property, instance)) {
         continue;
       }
 
-      if (Array.isArray(dependencies[property])) {
-        const missing = dependencies[property].filter((required) => !Instance.has(required, instance));
+      if (Schema.typeOf(dependency) === "array") {
+        const dependentRequired = /** @type {string[]} */ (Schema.value(dependency));
+        const missing = dependentRequired.filter((required) => !Instance.has(required, instance));
         errors.push({
           message: localization.getRequiredErrorMessage(missing),
           instanceLocation: Instance.uri(instance),
