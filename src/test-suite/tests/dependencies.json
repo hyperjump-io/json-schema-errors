@@ -4,7 +4,7 @@
   "tests": [
     {
       "description": "dependencies with schema",
-      "compatibility": "=4",
+      "compatibility": "<=7",
       "schema": {
         "dependencies": {
           "foo": {
@@ -39,7 +39,7 @@
     },
     {
       "description": "dependencies with property array (success)",
-      "compatibility": "=4",
+      "compatibility": "<=7",
       "schema": {
         "dependencies": {
           "foo": [
@@ -55,7 +55,7 @@
     },
     {
       "description": "dependencies with property array (failure)",
-      "compatibility": "=4",
+      "compatibility": "<=7",
       "schema": {
         "dependencies": {
           "foo": [
@@ -86,7 +86,7 @@
     },
     {
       "description": "dependencies with property array (success)",
-      "compatibility": "=4",
+      "compatibility": "<=7",
       "schema": {
         "dependencies": {
           "foo": [
@@ -102,7 +102,7 @@
     },
     {
       "description": "dependencies with property array (failure)",
-      "compatibility": "=4",
+      "compatibility": "<=7",
       "schema": {
         "dependencies": {
           "foo": [
@@ -133,7 +133,7 @@
     },
     {
       "description": "dependencies with missing property array (multiple)",
-      "compatibility": "=4",
+      "compatibility": "<=7",
       "schema": {
         "dependencies": {
           "foo": [
