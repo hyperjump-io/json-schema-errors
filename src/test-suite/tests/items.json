@@ -160,7 +160,6 @@
     },
     {
       "description": "items (as schema) applies to all - draft 2019-09",
-      "compatibility": "<=2019",
       "schema": {
         "items": {
           "type": "number"
