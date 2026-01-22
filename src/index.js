@@ -44,8 +44,8 @@ import unevaluatedPropertiesNormalizationHandler from "./normalization-handlers/
 import uniqueItemsNormalizationHandler from "./normalization-handlers/uniqueItems.js";
 import unknownNormalizationHandler from "./normalization-handlers/unknown.js";
 
-import itemsDraft04NormalizationHandler from "./normalization-handlers/items-draft04.js";
-import additionalItemsDraft04NormalizationHandler from "./normalization-handlers/additionalItems-draft04.js";
+import itemsDraft04NormalizationHandler from "./normalization-handlers/draft-04/items.js";
+import additionalItemsDraft04NormalizationHandler from "./normalization-handlers/draft-04/additionalItems.js";
 
 // Error Handlers
 import anyOfErrorHandler from "./error-handlers/anyOf.js";
@@ -73,16 +73,6 @@ import requiredErrorHandler from "./error-handlers/required.js";
 import typeErrorHandler from "./error-handlers/type.js";
 import uniqueItemsErrorHandler from "./error-handlers/uniqueItems.js";
 import unknownErrorHandler from "./error-handlers/unknown.js";
-
-setNormalizationHandler(
-  "https://json-schema.org/keyword/draft-04/items",
-  itemsDraft04NormalizationHandler
-);
-
-setNormalizationHandler(
-  "https://json-schema.org/keyword/draft-04/additionalItems",
-  additionalItemsDraft04NormalizationHandler
-);
 
 setNormalizationHandler("https://json-schema.org/keyword/additionalProperties", additionalPropertiesNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/allOf", allOfNormalizationHandler);
@@ -132,6 +122,8 @@ setNormalizationHandler("https://json-schema.org/keyword/unevaluatedItems", unev
 setNormalizationHandler("https://json-schema.org/keyword/unevaluatedProperties", unevaluatedPropertiesNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/uniqueItems", uniqueItemsNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/unknown", unknownNormalizationHandler);
+setNormalizationHandler("https://json-schema.org/keyword/draft-04/items", itemsDraft04NormalizationHandler);
+setNormalizationHandler("https://json-schema.org/keyword/draft-04/additionalItems", additionalItemsDraft04NormalizationHandler);
 
 addErrorHandler(anyOfErrorHandler);
 addErrorHandler(booleanSchemaErrorHandler);

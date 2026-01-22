@@ -1,9 +1,9 @@
-import { evaluateSchema } from "../json-schema-errors.js";
+import { evaluateSchema } from "../../json-schema-errors.js";
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
 import * as Pact from "@hyperjump/pact";
 
 /**
- * @import { NormalizationHandler, NormalizedOutput } from "../index.d.ts"
+ * @import { NormalizationHandler, NormalizedOutput } from "../../index.d.ts"
  */
 
 /** @type NormalizationHandler<[number, string]> */
