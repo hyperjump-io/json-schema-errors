@@ -12,9 +12,7 @@
       "errors": [
         {
           "messageId": "maximum-message",
-          "messageParams": {
-            "maximum": "3"
-          },
+          "messageParams": { "maximum": "3" },
           "instanceLocation": "#",
           "schemaLocations": ["#/maximum"]
         }
@@ -38,7 +36,7 @@
       "errors": [
         {
           "messageId": "maximum-message",
-          "messageParams": {"maximum": "3" },
+          "messageParams": { "maximum": "3" },
           "instanceLocation": "#",
           "schemaLocations": ["#/maximum"]
         }
@@ -55,7 +53,7 @@
       "errors": [
         {
           "messageId": "exclusiveMaximum-message",
-          "messageParams": {"exclusiveMaximum": "3" },
+          "messageParams": { "exclusiveMaximum": "3" },
           "instanceLocation": "#",
           "schemaLocations": ["#/maximum"]
         }
