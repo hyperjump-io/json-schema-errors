@@ -1,5 +1,6 @@
 {
   "$schema": "../test-suite.schema.json",
+
   "description": "The dependencies keyword",
   "tests": [
     {
