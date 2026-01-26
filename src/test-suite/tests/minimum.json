@@ -12,7 +12,9 @@
       "errors": [
         {
           "messageId": "minimum-message",
-          "messageParams": { "minimum": "3" },
+          "messageParams": { 
+            "minimum": "3" 
+          },
           "instanceLocation": "#",
           "schemaLocations": ["#/minimum"]
         }
@@ -36,7 +38,9 @@
       "errors": [
         {
           "messageId": "minimum-message",
-          "messageParams": {"minimum": "3" },
+          "messageParams": { 
+            "minimum": "3" 
+          },
           "instanceLocation": "#",
           "schemaLocations": ["#/minimum"]
         }
@@ -53,7 +57,9 @@
       "errors": [
         {
           "messageId": "exclusiveMinimum-message",
-          "messageParams": {"exclusiveMinimum": "3" },
+          "messageParams": { 
+            "exclusiveMinimum": "3" 
+          },
           "instanceLocation": "#",
           "schemaLocations": ["#/minimum"]
         }
