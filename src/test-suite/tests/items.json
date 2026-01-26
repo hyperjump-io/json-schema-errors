@@ -235,7 +235,6 @@
     },
     {
       "description": "items as a schema, additionalItems is ignored - draft 2019-09",
-      "compatibility": "<=2019",
       "schema": {
         "items": {
           "type": "number"
