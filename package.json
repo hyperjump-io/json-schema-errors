@@ -37,7 +37,7 @@
   "devDependencies": {
     "@stylistic/eslint-plugin": "*",
     "@types/node": "*",
-    "@vitest/coverage-v8": "^4.0.16",
+    "@vitest/coverage-v8": "^4.0.18",
     "eslint-import-resolver-typescript": "*",
     "eslint-plugin-import": "*",
     "typedoc": "*",
