@@ -27,6 +27,26 @@
       },
       "instance": { "foo": 42, "bar": true },
       "errors": []
+    },
+    {
+      "description": "multiple minProperties constraints (collapsed)",
+      "schema": {
+        "allOf": [
+          { "minProperties": 2 },
+          { "minProperties": 3 }
+        ]
+      },
+      "instance": { "a": 1 },
+      "errors": [
+        {
+          "messageId": "minProperties-message",
+          "messageParams": {
+            "minProperties": "3"
+          },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/allOf/1/minProperties"]
+        }
+      ]
     }
   ]
 }

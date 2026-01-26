@@ -11,6 +11,9 @@ const minPropertiesErrorHandler = async (normalizedErrors, instance, localizatio
   /** @type ErrorObject[] */
   const errors = [];
 
+  let highestMinProperties = -Infinity;
+  let mostConstrainingLocation = null;
+
   for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/minProperties"]) {
     if (normalizedErrors["https://json-schema.org/keyword/minProperties"][schemaLocation]) {
       continue;
@@ -19,10 +22,17 @@ const minPropertiesErrorHandler = async (normalizedErrors, instance, localizatio
     const keyword = await getSchema(schemaLocation);
     const minProperties = /** @type number */ (Schema.value(keyword));
 
+    if (minProperties > highestMinProperties) {
+      highestMinProperties = minProperties;
+      mostConstrainingLocation = schemaLocation;
+    }
+  }
+
+  if (mostConstrainingLocation !== null) {
     errors.push({
-      message: localization.getMinPropertiesErrorMessage(minProperties),
+      message: localization.getMinPropertiesErrorMessage(highestMinProperties),
       instanceLocation: Instance.uri(instance),
-      schemaLocations: [schemaLocation]
+      schemaLocations: [mostConstrainingLocation]
     });
   }
 

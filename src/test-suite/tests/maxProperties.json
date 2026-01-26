@@ -27,6 +27,26 @@
       },
       "instance": { "foo": 1 },
       "errors": []
+    },
+    {
+      "description": "multiple maxProperties constraints (collapsed)",
+      "schema": {
+        "allOf": [
+          { "maxProperties": 2 },
+          { "maxProperties": 3 }
+        ]
+      },
+      "instance": { "a": 1, "b": 2, "c": 3, "d":4 },
+      "errors": [
+        {
+          "messageId": "maxProperties-message",
+          "messageParams": {
+            "maxProperties": "2"
+          },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/allOf/0/maxProperties"]
+        }
+      ]
     }
   ]
 }
