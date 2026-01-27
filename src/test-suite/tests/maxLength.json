@@ -27,6 +27,26 @@
       },
       "instance": "ab",
       "errors": []
+    },
+    {
+      "description": "multiple maxLength constraints (collapsed)",
+      "schema": {
+        "allOf": [
+          { "maxLength": 2 },
+          { "maxLength": 3 }
+        ]
+      },
+      "instance": "abcd",
+      "errors": [
+        {
+          "messageId": "maxLength-message",
+          "messageParams": {
+            "maxLength": "2"
+          },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/allOf/0/maxLength"]
+        }
+      ]
     }
   ]
 }

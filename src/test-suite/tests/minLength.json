@@ -27,6 +27,26 @@
       },
       "instance": "abc",
       "errors": []
+    },
+    {
+      "description": "multiple minLength constraints (collapsed)",
+      "schema": {
+        "allOf": [
+          { "minLength": 2 },
+          { "minLength": 3 }
+        ]
+      },
+      "instance": "a",
+      "errors": [
+        {
+          "messageId": "minLength-message",
+          "messageParams": {
+            "minLength": "3"
+          },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/allOf/1/minLength"]
+        }
+      ]
     }
   ]
 }
