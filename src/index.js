@@ -1,7 +1,6 @@
 import { addErrorHandler, setNormalizationHandler } from "./json-schema-errors.js";
 
 // Normalization Handlers
-import additionalItemsNormalizationHandler from "./normalization-handlers/draft-04/additionalItems.js";
 import additionalPropertiesNormalizationHandler from "./normalization-handlers/additionalProperties.js";
 import allOfNormalizationHandler from "./normalization-handlers/allOf.js";
 import anyOfNormalizationHandler from "./normalization-handlers/anyOf.js";
@@ -17,7 +16,6 @@ import exclusiveMaximumNormalizationHandler from "./normalization-handlers/exclu
 import exclusiveMinimumNormalizationHandler from "./normalization-handlers/exclusiveMinimum.js";
 import formatNormalizationHandler from "./normalization-handlers/format.js";
 import ifNormalizationHandler from "./normalization-handlers/if.js";
-import itemsDraft04NormalizationHandler from "./normalization-handlers/draft-04/items.js";
 import itemsNormalizationHandler from "./normalization-handlers/items.js";
 import maximumNormalizationHandler from "./normalization-handlers/maximum.js";
 import maxContainsNormalizationHandler from "./normalization-handlers/maxContains.js";
@@ -85,7 +83,6 @@ import draft04DependenciesErrorHandler from "./error-handlers/draft-04/dependenc
 import draft04MaximumErrorHandler from "./error-handlers/draft-04/maximum.js";
 import draft04MinimumErrorHandler from "./error-handlers/draft-04/minimum.js";
 
-setNormalizationHandler("https://json-schema.org/keyword/draft-04/additionalItems", additionalItemsNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/additionalProperties", additionalPropertiesNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/allOf", allOfNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/anyOf", anyOfNormalizationHandler);
@@ -105,7 +102,6 @@ setNormalizationHandler("https://json-schema.org/keyword/draft-07/format", forma
 setNormalizationHandler("https://json-schema.org/keyword/draft-06/format", formatNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/draft-04/format", formatNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/if", ifNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/draft-04/items", itemsDraft04NormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/items", itemsNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/exclusiveMaximum", exclusiveMaximumNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/exclusiveMinimum", exclusiveMinimumNormalizationHandler);
