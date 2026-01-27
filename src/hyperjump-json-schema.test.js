@@ -7,7 +7,6 @@ import {
   validate
 } from "@hyperjump/json-schema/draft-2020-12";
 import "@hyperjump/json-schema/draft-2019-09";
-
 import "@hyperjump/json-schema/formats";
 import { BASIC } from "@hyperjump/json-schema/experimental";
 import { jsonSchemaErrors } from "../src/index.js";

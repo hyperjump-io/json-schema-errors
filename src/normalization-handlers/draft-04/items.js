@@ -15,22 +15,21 @@ const itemsDraft04NormalizationHandler = {
       return outputs;
     }
 
-    if (Array.isArray(items)) {
+    if (typeof items === "string") {
+      for (const itemNode of Instance.iter(instance)) {
+        outputs.push(evaluateSchema(items, itemNode, context));
+      }
+    } else {
       for (const [index, schemaLocation] of items.entries()) {
         const itemNode = Instance.step(String(index), instance);
         if (itemNode) {
           outputs.push(evaluateSchema(schemaLocation, itemNode, context));
         }
       }
-    } else {
-      for (const itemNode of Instance.iter(instance)) {
-        outputs.push(evaluateSchema(/** @type {string} */ (items), itemNode, context));
-      }
     }
 
     return outputs;
   },
-
   simpleApplicator: true
 };
 

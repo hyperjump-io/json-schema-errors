@@ -22,6 +22,24 @@
       ]
     },
     {
+      "description": "array-form items",
+      "compatibility": "<=2019",
+      "schema": {
+        "items": [{ "type": "number" }]
+      },
+      "instance": ["foo"],
+      "errors": [
+        {
+          "messageId": "type-message",
+          "messageParams": {
+            "expectedTypes": { "or": ["number"] }
+          },
+          "instanceLocation": "#/0",
+          "schemaLocations": ["#/items/0/type"]
+        }
+      ]
+    },
+    {
       "description": "prefixItems with fewer items than are defined",
       "compatibility": "2020",
       "schema": {
@@ -43,7 +61,28 @@
       ]
     },
     {
-      "description": "prefixItems on an non-object",
+      "description": "array-form items with fewer items than are defined",
+      "compatibility": "<=2019",
+      "schema": {
+        "items": [
+          { "type": "number" },
+          { "type": "string" }
+        ]
+      },
+      "instance": ["foo"],
+      "errors": [
+        {
+          "messageId": "type-message",
+          "messageParams": {
+            "expectedTypes": { "or": ["number"] }
+          },
+          "instanceLocation": "#/0",
+          "schemaLocations": ["#/items/0/type"]
+        }
+      ]
+    },
+    {
+      "description": "prefixItems on an non-array",
       "compatibility": "2020",
       "schema": {
         "prefixItems": [{ "type": "number" }]
@@ -52,9 +91,27 @@
       "errors": []
     },
     {
+      "description": "array-form items on an non-array",
+      "compatibility": "<=2019",
+      "schema": {
+        "items": [{ "type": "number" }]
+      },
+      "instance": 42,
+      "errors": []
+    },
+    {
       "description": "prefixItems pass",
       "schema": {
         "prefixItems": [{ "type": "number" }]
+      },
+      "instance": { "foo": 42 },
+      "errors": []
+    },
+    {
+      "description": "array-form items pass",
+      "compatibility": "<=2019",
+      "schema": {
+        "items": [{ "type": "number" }]
       },
       "instance": { "foo": 42 },
       "errors": []

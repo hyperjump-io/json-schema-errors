@@ -7,7 +7,7 @@ import * as Pact from "@hyperjump/pact";
  */
 
 /** @type NormalizationHandler<[number, string]> */
-const additionalItemsDraft04NormalizationHandler = {
+const additionalItemsNormalizationHandler = {
   evaluate([numberOfItems, additionalItems], instance, context) {
     /** @type NormalizedOutput[] */
     const outputs = [];
@@ -22,8 +22,7 @@ const additionalItemsDraft04NormalizationHandler = {
 
     return outputs;
   },
-
   simpleApplicator: true
 };
 
-export default additionalItemsDraft04NormalizationHandler;
+export default additionalItemsNormalizationHandler;
