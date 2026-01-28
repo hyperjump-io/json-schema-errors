@@ -32,7 +32,7 @@
   "license": "MIT",
   "funding": {
     "type": "github",
-    "url": "https://github.com/sponsors/hyperump-io"
+    "url": "https://github.com/sponsors/hyperjump-io"
   },
   "devDependencies": {
     "@stylistic/eslint-plugin": "*",
