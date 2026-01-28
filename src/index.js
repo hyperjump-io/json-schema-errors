@@ -1,27 +1,34 @@
 import { addErrorHandler, setNormalizationHandler } from "./json-schema-errors.js";
 
 // Normalization Handlers
+import additionalItemsNormalizationHandler from "./normalization-handlers/draft-04/additionalItems.js";
 import additionalPropertiesNormalizationHandler from "./normalization-handlers/additionalProperties.js";
 import allOfNormalizationHandler from "./normalization-handlers/allOf.js";
 import anyOfNormalizationHandler from "./normalization-handlers/anyOf.js";
 import constNormalizationHandler from "./normalization-handlers/const.js";
 import containsNormalizationHandler from "./normalization-handlers/contains.js";
 import definitionsNormalizationHandler from "./normalization-handlers/definitions.js";
+import dependenciesNormalizationHandler from "./normalization-handlers/draft-04/dependencies.js";
 import dependentRequiredNormalizationHandler from "./normalization-handlers/dependentRequired.js";
 import dependentSchemasNormalizationHandler from "./normalization-handlers/dependentSchemas.js";
 import dynamicRefNormalizationHandler from "./normalization-handlers/dynamicRef.js";
 import elseNormalizationHandler from "./normalization-handlers/else.js";
 import enumNormalizationHandler from "./normalization-handlers/enum.js";
+import exclusiveMaximumDraft04NormalizationHandler from "./normalization-handlers/draft-04/exclusiveMaximum.js";
 import exclusiveMaximumNormalizationHandler from "./normalization-handlers/exclusiveMaximum.js";
+import exclusiveMinimumDraft04NormalizationHandler from "./normalization-handlers/draft-04/exclusiveMinimum.js";
 import exclusiveMinimumNormalizationHandler from "./normalization-handlers/exclusiveMinimum.js";
 import formatNormalizationHandler from "./normalization-handlers/format.js";
 import ifNormalizationHandler from "./normalization-handlers/if.js";
+import itemsDraft04NormalizationHandler from "./normalization-handlers/draft-04/items.js";
 import itemsNormalizationHandler from "./normalization-handlers/items.js";
+import maximumDraft04NormalizationHandler from "./normalization-handlers/draft-04/maximum.js";
 import maximumNormalizationHandler from "./normalization-handlers/maximum.js";
 import maxContainsNormalizationHandler from "./normalization-handlers/maxContains.js";
 import maxItemsNormalizationHandler from "./normalization-handlers/maxItems.js";
 import maxLengthNormalizationHandler from "./normalization-handlers/maxLength.js";
 import maxPropertiesNormalizationHandler from "./normalization-handlers/maxProperties.js";
+import minimumDraft04NormalizationHandler from "./normalization-handlers/draft-04/minimum.js";
 import minimumNormalizationHandler from "./normalization-handlers/minimum.js";
 import minContainsNormalizationHandler from "./normalization-handlers/minContains.js";
 import minItemsNormalizationHandler from "./normalization-handlers/minItems.js";
@@ -43,29 +50,24 @@ import unevaluatedItemsNormalizationHandler from "./normalization-handlers/uneva
 import unevaluatedPropertiesNormalizationHandler from "./normalization-handlers/unevaluatedProperties.js";
 import uniqueItemsNormalizationHandler from "./normalization-handlers/uniqueItems.js";
 import unknownNormalizationHandler from "./normalization-handlers/unknown.js";
-// Draft 04 Normalization Handlers
-import draft04AdditionalItemsNormalizationHandler from "./normalization-handlers/draft-04/additionalItems.js";
-import draft04DependenciesNormalizationHandler from "./normalization-handlers/draft-04/dependencies.js";
-import draft04ExclusiveMaximumNormalizationHandler from "./normalization-handlers/draft-04/exclusiveMaximum.js";
-import draft04ExclusiveMinimumNormalizationHandler from "./normalization-handlers/draft-04/exclusiveMinimum.js";
-import draft04ItemsNormalizationHandler from "./normalization-handlers/draft-04/items.js";
-import draft04MaximumNormalizationHandler from "./normalization-handlers/draft-04/maximum.js";
-import draft04MinimumNormalizationHandler from "./normalization-handlers/draft-04/minimum.js";
 
 // Error Handlers
 import anyOfErrorHandler from "./error-handlers/anyOf.js";
 import booleanSchemaErrorHandler from "./error-handlers/boolean-schema.js";
 import constErrorHandler from "./error-handlers/const.js";
 import containsErrorHandler from "./error-handlers/contains.js";
+import dependenciesErrorHandler from "./error-handlers/draft-04/dependencies.js";
 import dependentRequiredErrorHandler from "./error-handlers/dependentRequired.js";
 import enumErrorHandler from "./error-handlers/enum.js";
 import exclusiveMaximumErrorHandler from "./error-handlers/exclusiveMaximum.js";
 import exclusiveMinimumErrorHandler from "./error-handlers/exclusiveMinimum.js";
 import formatErrorHandler from "./error-handlers/format.js";
+import maximumDraft04ErrorHandler from "./error-handlers/draft-04/maximum.js";
 import maximumErrorHandler from "./error-handlers/maximum.js";
 import maxItemsErrorHandler from "./error-handlers/maxItems.js";
 import maxLengthErrorHandler from "./error-handlers/maxLength.js";
 import maxPropertiesErrorHandler from "./error-handlers/maxProperties.js";
+import minimumDraft04ErrorHandler from "./error-handlers/draft-04/minimum.js";
 import minimumErrorHandler from "./error-handlers/minimum.js";
 import minItemsErrorHandler from "./error-handlers/minItems.js";
 import minLengthErrorHandler from "./error-handlers/minLength.js";
@@ -78,17 +80,15 @@ import requiredErrorHandler from "./error-handlers/required.js";
 import typeErrorHandler from "./error-handlers/type.js";
 import uniqueItemsErrorHandler from "./error-handlers/uniqueItems.js";
 import unknownErrorHandler from "./error-handlers/unknown.js";
-// Draft 04 Error Handlers
-import draft04DependenciesErrorHandler from "./error-handlers/draft-04/dependencies.js";
-import draft04MaximumErrorHandler from "./error-handlers/draft-04/maximum.js";
-import draft04MinimumErrorHandler from "./error-handlers/draft-04/minimum.js";
 
+setNormalizationHandler("https://json-schema.org/keyword/draft-04/additionalItems", additionalItemsNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/additionalProperties", additionalPropertiesNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/allOf", allOfNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/anyOf", anyOfNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/const", constNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/contains", containsNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/definitions", definitionsNormalizationHandler);
+setNormalizationHandler("https://json-schema.org/keyword/draft-04/dependencies", dependenciesNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/dependentRequired", dependentRequiredNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/dependentSchemas", dependentSchemasNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/draft-2020-12/dynamicRef", dynamicRefNormalizationHandler);
@@ -102,14 +102,19 @@ setNormalizationHandler("https://json-schema.org/keyword/draft-07/format", forma
 setNormalizationHandler("https://json-schema.org/keyword/draft-06/format", formatNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/draft-04/format", formatNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/if", ifNormalizationHandler);
+setNormalizationHandler("https://json-schema.org/keyword/draft-04/items", itemsDraft04NormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/items", itemsNormalizationHandler);
+setNormalizationHandler("https://json-schema.org/keyword/draft-04/exclusiveMaximum", exclusiveMaximumDraft04NormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/exclusiveMaximum", exclusiveMaximumNormalizationHandler);
+setNormalizationHandler("https://json-schema.org/keyword/draft-04/exclusiveMinimum", exclusiveMinimumDraft04NormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/exclusiveMinimum", exclusiveMinimumNormalizationHandler);
+setNormalizationHandler("https://json-schema.org/keyword/draft-04/maximum", maximumDraft04NormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/maximum", maximumNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/maxContains", maxContainsNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/maxItems", maxItemsNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/maxLength", maxLengthNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/maxProperties", maxPropertiesNormalizationHandler);
+setNormalizationHandler("https://json-schema.org/keyword/draft-04/minimum", minimumDraft04NormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/minimum", minimumNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/minContains", minContainsNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/minItems", minItemsNormalizationHandler);
@@ -131,27 +136,23 @@ setNormalizationHandler("https://json-schema.org/keyword/unevaluatedItems", unev
 setNormalizationHandler("https://json-schema.org/keyword/unevaluatedProperties", unevaluatedPropertiesNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/uniqueItems", uniqueItemsNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/unknown", unknownNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/draft-04/additionalItems", draft04AdditionalItemsNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/draft-04/dependencies", draft04DependenciesNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/draft-04/exclusiveMaximum", draft04ExclusiveMaximumNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/draft-04/exclusiveMinimum", draft04ExclusiveMinimumNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/draft-04/items", draft04ItemsNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/draft-04/maximum", draft04MaximumNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/draft-04/minimum", draft04MinimumNormalizationHandler);
 
 addErrorHandler(anyOfErrorHandler);
 addErrorHandler(booleanSchemaErrorHandler);
 addErrorHandler(constErrorHandler);
 addErrorHandler(containsErrorHandler);
+addErrorHandler(dependenciesErrorHandler);
 addErrorHandler(dependentRequiredErrorHandler);
 addErrorHandler(enumErrorHandler);
 addErrorHandler(exclusiveMaximumErrorHandler);
 addErrorHandler(exclusiveMinimumErrorHandler);
 addErrorHandler(formatErrorHandler);
+addErrorHandler(maximumDraft04ErrorHandler);
 addErrorHandler(maximumErrorHandler);
 addErrorHandler(maxItemsErrorHandler);
 addErrorHandler(maxLengthErrorHandler);
 addErrorHandler(maxPropertiesErrorHandler);
+addErrorHandler(minimumDraft04ErrorHandler);
 addErrorHandler(minimumErrorHandler);
 addErrorHandler(minItemsErrorHandler);
 addErrorHandler(minLengthErrorHandler);
@@ -164,9 +165,6 @@ addErrorHandler(requiredErrorHandler);
 addErrorHandler(typeErrorHandler);
 addErrorHandler(uniqueItemsErrorHandler);
 addErrorHandler(unknownErrorHandler);
-addErrorHandler(draft04DependenciesErrorHandler);
-addErrorHandler(draft04MaximumErrorHandler);
-addErrorHandler(draft04MinimumErrorHandler);
 
 export {
   addErrorHandler,

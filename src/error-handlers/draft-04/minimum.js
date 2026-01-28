@@ -16,20 +16,20 @@ const minimumErrorHandler = async (normalizedErrors, instance, localization) => 
       continue;
     }
 
-    const compiled = await getSchema(schemaLocation);
-    const minimum = /** @type number */ (Schema.value(compiled));
-
-    const parentLocation = schemaLocation.replace(/\/[^/]+$/, "");
+    const parentLocation = pointerPop(schemaLocation);
 
     let exclusive = false;
     for (const exclusiveLocation in normalizedErrors["https://json-schema.org/keyword/draft-04/exclusiveMinimum"]) {
-      const exclusiveParentLocation = exclusiveLocation.replace(/\/[^/]+$/, "");
+      const exclusiveParentLocation = pointerPop(exclusiveLocation);
       if (exclusiveParentLocation === parentLocation) {
-        const exclusiveCompiled = await getSchema(exclusiveLocation);
-        exclusive = /** @type boolean */ (Schema.value(exclusiveCompiled));
+        const exclusiveNode = await getSchema(exclusiveLocation);
+        exclusive = /** @type boolean */ (Schema.value(exclusiveNode));
         break;
       }
     }
+
+    const keywordNode = await getSchema(schemaLocation);
+    const minimum = /** @type number */ (Schema.value(keywordNode));
 
     if (exclusive) {
       errors.push({
@@ -48,5 +48,8 @@ const minimumErrorHandler = async (normalizedErrors, instance, localization) => 
 
   return errors;
 };
+
+/** @type (pointer: string) => string */
+const pointerPop = (pointer) => pointer.replace(/\/[^/]+$/, "");
 
 export default minimumErrorHandler;

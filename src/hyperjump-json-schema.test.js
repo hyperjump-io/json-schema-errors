@@ -7,11 +7,11 @@ import {
   validate
 } from "@hyperjump/json-schema/draft-2020-12";
 import "@hyperjump/json-schema/draft-2019-09";
+import "@hyperjump/json-schema/draft-04";
 import "@hyperjump/json-schema/formats";
 import { BASIC } from "@hyperjump/json-schema/experimental";
 import { jsonSchemaErrors } from "../src/index.js";
 import { FluentBundle, FluentResource } from "@fluent/bundle";
-import "@hyperjump/json-schema/draft-04";
 
 /**
  * @import { SchemaObject } from "@hyperjump/json-schema"

@@ -5,7 +5,7 @@ import * as Instance from "@hyperjump/json-schema/instance/experimental";
  * @import { NormalizationHandler, NormalizedOutput } from "../../index.d.ts"
  */
 
-/** @type NormalizationHandler<Array<[string, string | string[]]>> */
+/** @type NormalizationHandler<[string, string | string[]][]> */
 const dependenciesNormalizationHandler = {
   evaluate(dependencies, instance, context) {
     /** @type NormalizedOutput[] */
@@ -15,14 +15,12 @@ const dependenciesNormalizationHandler = {
       return outputs;
     }
 
-    for (const [property, dependency] of dependencies) {
-      if (!Instance.has(property, instance)) {
+    for (const [propertyName, dependency] of dependencies) {
+      if (!Instance.has(propertyName, instance) || typeof dependency !== "string") {
         continue;
       }
 
-      if (typeof dependency === "string") {
-        outputs.push(evaluateSchema(dependency, instance, context));
-      }
+      outputs.push(evaluateSchema(dependency, instance, context));
     }
 
     return outputs;
