@@ -25,6 +25,105 @@
       },
       "instance": 6,
       "errors": []
+    },
+    {
+      "description": "multiple multipleOf constraints (combined)",
+      "schema": {
+        "allOf": [
+          { "multipleOf": 3 },
+          { "multipleOf": 2 }
+        ]
+      },
+      "instance": 5,
+      "errors": [
+        {
+          "messageId": "multipleOf-message",
+          "messageParams": { "multipleOf": "6" },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/allOf/0/multipleOf", "#/allOf/1/multipleOf"]
+        }
+      ]
+    },
+    {
+      "description": "multiple multipleOf constraints pass",
+      "schema": {
+        "allOf": [
+          { "multipleOf": 3 },
+          { "multipleOf": 2 }
+        ]
+      },
+      "instance": 6,
+      "errors": []
+    },
+    {
+      "description": "multiple multipleOf constraints (combined)",
+      "schema": {
+        "allOf": [
+          { "multipleOf": 4 },
+          { "multipleOf": 6 },
+          { "multipleOf": 8 }
+        ]
+      },
+      "instance": 10,
+      "errors": [
+        {
+          "messageId": "multipleOf-message",
+          "messageParams": { "multipleOf": "24" },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/allOf/0/multipleOf", "#/allOf/1/multipleOf", "#/allOf/2/multipleOf"]
+        }
+      ]
+    },
+    {
+      "description": "single multipleOf still works",
+      "schema": {
+        "multipleOf": 5
+      },
+      "instance": 7,
+      "errors": [
+        {
+          "messageId": "multipleOf-message",
+          "messageParams": { "multipleOf": "5" },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/multipleOf"]
+        }
+      ]
+    },
+    {
+      "description": "two identical multipleOf constraints",
+      "schema": {
+        "allOf": [
+          { "multipleOf": 4 },
+          { "multipleOf": 4 }
+        ]
+      },
+      "instance": 6,
+      "errors": [
+        {
+          "messageId": "multipleOf-message",
+          "messageParams": { "multipleOf": "4" },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/allOf/0/multipleOf", "#/allOf/1/multipleOf"]
+        }
+      ]
+    },
+    {
+      "description": "prime multipleOf constraints (LCM of primes)",
+      "schema": {
+        "allOf": [
+          { "multipleOf": 3 },
+          { "multipleOf": 5 }
+        ]
+      },
+      "instance": 7,
+      "errors": [
+        {
+          "messageId": "multipleOf-message",
+          "messageParams": { "multipleOf": "15" },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/allOf/0/multipleOf", "#/allOf/1/multipleOf"]
+        }
+      ]
     }
   ]
 }
