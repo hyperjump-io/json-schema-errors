@@ -87,6 +87,7 @@ setNormalizationHandler("https://json-schema.org/keyword/allOf", allOfNormalizat
 setNormalizationHandler("https://json-schema.org/keyword/anyOf", anyOfNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/const", constNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/contains", containsNormalizationHandler);
+setNormalizationHandler("https://json-schema.org/keyword/draft-06/contains", containsNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/definitions", definitionsNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/draft-04/dependencies", dependenciesNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/dependentRequired", dependentRequiredNormalizationHandler);
