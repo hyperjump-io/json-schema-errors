@@ -27,20 +27,21 @@
       "errors": []
     },
     {
-      "description": "multiple multipleOf constraints (LCM of 3 and 2)",
+      "description": "multiple multipleOf constraints (LCM of 4, 6, and 8)",
       "schema": {
         "allOf": [
-          { "multipleOf": 3 },
-          { "multipleOf": 2 }
+          { "multipleOf": 4 },
+          { "multipleOf": 6 },
+          { "multipleOf": 8 }
         ]
       },
-      "instance": 5,
+      "instance": 10,
       "errors": [
         {
           "messageId": "multipleOf-message",
-          "messageParams": { "multipleOf": "6" },
+          "messageParams": { "multipleOf": "24" },
           "instanceLocation": "#",
-          "schemaLocations": ["#/allOf/0/multipleOf", "#/allOf/1/multipleOf"]
+          "schemaLocations": ["#/allOf/0/multipleOf", "#/allOf/1/multipleOf", "#/allOf/2/multipleOf"]
         }
       ]
     }
