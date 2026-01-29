@@ -27,6 +27,23 @@
       },
       "instance": ["foo"],
       "errors": []
+    },
+    {
+      "description": "minItems with multiple constraints (highest value is considered)",
+      "schema": {
+        "allOf": [{ "minItems": 4 }, { "minItems": 3 }]
+      },
+      "instance": ["foo", "bar"],
+      "errors": [
+        {
+          "messageId": "minItems-message",
+          "messageParams": {
+            "minItems": "4"
+          },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/allOf/0/minItems"]
+        }
+      ]
     }
   ]
 }
