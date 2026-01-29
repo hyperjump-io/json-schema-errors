@@ -23,16 +23,6 @@ const containsErrorHandler = async (normalizedErrors, instance, localization) =>
         continue;
       }
 
-      // Draft-06 contains does not support minContains/maxContains
-      if (keywordUri === "https://json-schema.org/keyword/draft-06/contains") {
-        errors.push({
-          message: localization.getContainsErrorMessage({ minContains: 1 }),
-          instanceLocation: Instance.uri(instance),
-          schemaLocations: [schemaLocation]
-        });
-        continue;
-      }
-
       /** @type string[] */
       const schemaLocations = [schemaLocation];
 
