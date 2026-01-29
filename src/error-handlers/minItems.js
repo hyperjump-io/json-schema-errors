@@ -10,6 +10,8 @@ import * as Instance from "@hyperjump/json-schema/instance/experimental";
 const minItemsErrorHandler = async (normalizedErrors, instance, localization) => {
   /** @type ErrorObject[] */
   const errors = [];
+  let highestMinItem = 0;
+  let effectiveSchemaLocation = "";
 
   for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/minItems"]) {
     if (normalizedErrors["https://json-schema.org/keyword/minItems"][schemaLocation]) {
@@ -19,10 +21,17 @@ const minItemsErrorHandler = async (normalizedErrors, instance, localization) =>
     const keyword = await getSchema(schemaLocation);
     const minItems = /** @type number */ (Schema.value(keyword));
 
+    if (minItems > highestMinItem) {
+      highestMinItem = minItems;
+      effectiveSchemaLocation = schemaLocation;
+    }
+  }
+
+  if (highestMinItem != 0) {
     errors.push({
-      message: localization.getMinItemsErrorMessage(minItems),
+      message: localization.getMinItemsErrorMessage(highestMinItem),
       instanceLocation: Instance.uri(instance),
-      schemaLocations: [schemaLocation]
+      schemaLocations: [effectiveSchemaLocation]
     });
   }
 

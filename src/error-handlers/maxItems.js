@@ -10,6 +10,8 @@ import * as Instance from "@hyperjump/json-schema/instance/experimental";
 const maxItemsErrorHandler = async (normalizedErrors, instance, localization) => {
   /** @type ErrorObject[] */
   const errors = [];
+  let lowestMaxItems = Infinity;
+  let effectiveSchemaLocation = "";
 
   for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/maxItems"]) {
     if (normalizedErrors["https://json-schema.org/keyword/maxItems"][schemaLocation]) {
@@ -19,10 +21,17 @@ const maxItemsErrorHandler = async (normalizedErrors, instance, localization) =>
     const keyword = await getSchema(schemaLocation);
     const maxItems = /** @type number */ (Schema.value(keyword));
 
+    if (maxItems < lowestMaxItems) {
+      lowestMaxItems = maxItems;
+      effectiveSchemaLocation = schemaLocation;
+    }
+  }
+
+  if (lowestMaxItems != Infinity) {
     errors.push({
-      message: localization.getMaxItemsErrorMessage(maxItems),
+      message: localization.getMaxItemsErrorMessage(lowestMaxItems),
       instanceLocation: Instance.uri(instance),
-      schemaLocations: [schemaLocation]
+      schemaLocations: [effectiveSchemaLocation]
     });
   }
 

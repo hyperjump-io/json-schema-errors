@@ -27,6 +27,23 @@
       },
       "instance": ["foo"],
       "errors": []
+    },
+    {
+      "description": "maxItems with multiple constraints (lowest value considered)",
+      "schema": {
+        "allOf": [{ "maxItems": 2 }, { "maxItems": 1 }]
+      },
+      "instance": ["foo", "bar", "word"],
+      "errors": [
+        {
+          "messageId": "maxItems-message",
+          "messageParams": {
+            "maxItems": "1"
+          },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/allOf/1/maxItems"]
+        }
+      ]
     }
   ]
 }
