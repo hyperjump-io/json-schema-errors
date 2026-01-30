@@ -22,12 +22,52 @@
       ]
     },
     {
+      "description": "multiple enum constraints (combined)",
+      "schema": {
+        "allOf": [
+          { "enum": ["a", "b", "c"] },
+          { "enum": ["a", "b"] }
+        ]
+      },
+      "instance": "x",
+      "errors": [
+        {
+          "messageId": "enum-message",
+          "messageParams": {
+            "expected": { "or": ["\"a\"", "\"b\""] },
+            "count": 2
+          },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/allOf/1/enum"]
+        }
+      ]
+    },
+    {
       "description": "enum pass",
       "schema": {
         "enum": ["foo", "bar"]
       },
       "instance": "foo",
       "errors": []
+    },
+    {
+      "description": "contradictory enum - empty intersection",
+      "compatibility": "6",
+      "schema": {
+        "allOf": [
+          { "enum": ["a", "b", "c"] },
+          { "enum": ["d", "e", "f"] }
+        ]
+      },
+      "instance": "a",
+      "errors": [
+        {
+          "messageId": "boolean-schema-message",
+          "messageParams": {},
+          "instanceLocation": "#",
+          "schemaLocations": ["#/allOf/0/enum", "#/allOf/1/enum"]
+        }
+      ]
     }
   ]
 }
