@@ -29,6 +29,25 @@
       },
       "instance": 42,
       "errors": []
+    },
+    {
+      "description": "contradictory const - empty intersection",
+      "compatibility": "6",
+      "schema": {
+        "allOf": [
+          { "const": "a" },
+          { "const": "b" }
+        ]
+      },
+      "instance": "a",
+      "errors": [
+        {
+          "messageId": "boolean-schema-message",
+          "messageParams": {},
+          "instanceLocation": "#",
+          "schemaLocations": ["#/allOf/0/const", "#/allOf/1/const"]
+        }
+      ]
     }
   ]
 }
