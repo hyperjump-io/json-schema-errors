@@ -61,7 +61,7 @@
       ]
     },
     {
-      "description": "multiple decimal multipleOf constraints (LCM 0.2 and 0.3)",
+      "description": "multiple decimal multipleOf constraints (LCM of 0.2 and 0.3)",
       "schema": {
         "allOf": [
           {
