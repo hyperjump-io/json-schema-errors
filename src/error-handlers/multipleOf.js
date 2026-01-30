@@ -40,17 +40,28 @@ const multipleOfErrorHandler = async (normalizedErrors, instance, localization) 
 };
 
 /**
+ * @param {number} value
+ * @returns {number}
+ */
+const countDecimals = (value) => value.toString().split(".")[1]?.length || 0;
+
+/**
  * @param {number} a
  * @param {number} b
  * @returns {number}
  */
 const gcd = (a, b) => {
-  while (b !== 0) {
-    const temp = b;
-    b = a % b;
-    a = temp;
+  const m = 10 ** Math.max(countDecimals(a), countDecimals(b));
+  let x = Math.round(a * m);
+  let y = Math.round(b * m);
+
+  while (y !== 0) {
+    const temp = y;
+    y = x % y;
+    x = temp;
   }
-  return Math.abs(a);
+
+  return Math.abs(x) / m;
 };
 
 /**
@@ -59,7 +70,11 @@ const gcd = (a, b) => {
  * @returns {number}
  */
 const lcm = (a, b) => {
-  return Math.abs(a * b) / gcd(a, b);
+  const m = 10 ** Math.max(countDecimals(a), countDecimals(b));
+  const x = Math.round(a * m);
+  const y = Math.round(b * m);
+
+  return Math.abs(x * y) / (gcd(x, y) * m);
 };
 
 export default multipleOfErrorHandler;
