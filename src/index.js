@@ -7,6 +7,7 @@ import allOfNormalizationHandler from "./normalization-handlers/allOf.js";
 import anyOfNormalizationHandler from "./normalization-handlers/anyOf.js";
 import constNormalizationHandler from "./normalization-handlers/const.js";
 import containsNormalizationHandler from "./normalization-handlers/contains.js";
+import containsDraft06NormalizationHandler from "./normalization-handlers/draft-06/contains.js";
 import definitionsNormalizationHandler from "./normalization-handlers/definitions.js";
 import dependenciesNormalizationHandler from "./normalization-handlers/draft-04/dependencies.js";
 import dependentRequiredNormalizationHandler from "./normalization-handlers/dependentRequired.js";
@@ -87,6 +88,7 @@ setNormalizationHandler("https://json-schema.org/keyword/allOf", allOfNormalizat
 setNormalizationHandler("https://json-schema.org/keyword/anyOf", anyOfNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/const", constNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/contains", containsNormalizationHandler);
+setNormalizationHandler("https://json-schema.org/keyword/draft-06/contains", containsDraft06NormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/definitions", definitionsNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/draft-04/dependencies", dependenciesNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/dependentRequired", dependentRequiredNormalizationHandler);
