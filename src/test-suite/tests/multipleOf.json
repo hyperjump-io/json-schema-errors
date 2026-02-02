@@ -62,6 +62,26 @@
           "schemaLocations": ["#/allOf/0/multipleOf", "#/allOf/1/multipleOf"]
         }
       ]
+    },
+    {
+      "description": "multipleOf constraints within allOf are partially satisfied",
+      "schema": {
+        "allOf": [
+          { "multipleOf": 2 },
+          { "multipleOf": 3 }
+        ]
+      },
+      "instance": 9,
+      "errors": [
+        {
+          "messageId": "multipleOf-message",
+          "messageParams": {
+            "multipleOf": "6"
+          },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/allOf/0/multipleOf", "#/allOf/1/multipleOf"]
+        }
+      ]
     }
   ]
 }
