@@ -70,7 +70,10 @@
             "exclusiveMinimum": "3"
           },
           "instanceLocation": "#",
-          "schemaLocations": ["#/minimum"]
+          "schemaLocations": [
+            "#/minimum",
+            "#/exclusiveMinimum"
+          ]
         }
       ]
     },

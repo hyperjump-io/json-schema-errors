@@ -70,7 +70,10 @@
             "exclusiveMaximum": "3"
           },
           "instanceLocation": "#",
-          "schemaLocations": ["#/maximum"]
+          "schemaLocations": [
+            "#/maximum",
+            "#/exclusiveMaximum"
+          ]
         }
       ]
     },

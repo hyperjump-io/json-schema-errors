@@ -16,12 +16,13 @@ const minimumErrorHandler = async (normalizedErrors, instance, localization) => 
       continue;
     }
 
+    const schemaLocations = [schemaLocation];
     const parentLocation = pointerPop(schemaLocation);
 
     let exclusive = false;
     for (const exclusiveLocation in normalizedErrors["https://json-schema.org/keyword/draft-04/exclusiveMinimum"]) {
-      const exclusiveParentLocation = pointerPop(exclusiveLocation);
-      if (exclusiveParentLocation === parentLocation) {
+      if (pointerPop(exclusiveLocation) === parentLocation) {
+        schemaLocations.push(exclusiveLocation);
         const exclusiveNode = await getSchema(exclusiveLocation);
         exclusive = /** @type boolean */ (Schema.value(exclusiveNode));
         break;
@@ -35,13 +36,13 @@ const minimumErrorHandler = async (normalizedErrors, instance, localization) => 
       errors.push({
         message: localization.getExclusiveMinimumErrorMessage(minimum),
         instanceLocation: Instance.uri(instance),
-        schemaLocations: [schemaLocation]
+        schemaLocations: schemaLocations
       });
     } else {
       errors.push({
         message: localization.getMinimumErrorMessage(minimum),
         instanceLocation: Instance.uri(instance),
-        schemaLocations: [schemaLocation]
+        schemaLocations: schemaLocations
       });
     }
   }

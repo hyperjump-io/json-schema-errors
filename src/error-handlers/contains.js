@@ -28,19 +28,24 @@ const containsErrorHandler = async (normalizedErrors, instance, localization) =>
 
       /** @type ContainsRange */
       const range = {};
+      const parentLocation = pointerPop(schemaLocation);
 
       for (const minContainsLocation in normalizedErrors["https://json-schema.org/keyword/minContains"]) {
-        const minContainsNode = await getSchema(minContainsLocation);
-        const minContains = /** @type number */ (Schema.value(minContainsNode));
-        range.minContains = Math.max(range.minContains ?? -1, minContains);
-        schemaLocations.push(minContainsLocation);
+        if (pointerPop(minContainsLocation) === parentLocation) {
+          const minContainsNode = await getSchema(minContainsLocation);
+          range.minContains = /** @type number */ (Schema.value(minContainsNode));
+          schemaLocations.push(minContainsLocation);
+          break;
+        }
       }
 
       for (const maxContainsLocation in normalizedErrors["https://json-schema.org/keyword/maxContains"]) {
-        const maxContainsNode = await getSchema(maxContainsLocation);
-        const maxContains = /** @type number */ (Schema.value(maxContainsNode));
-        range.maxContains = Math.min(range.maxContains ?? Number.MAX_VALUE, maxContains);
-        schemaLocations.push(maxContainsLocation);
+        if (pointerPop(maxContainsLocation) === parentLocation) {
+          const maxContainsNode = await getSchema(maxContainsLocation);
+          range.maxContains = /** @type number */ (Schema.value(maxContainsNode));
+          schemaLocations.push(maxContainsLocation);
+          break;
+        }
       }
 
       errors.push({
@@ -53,5 +58,8 @@ const containsErrorHandler = async (normalizedErrors, instance, localization) =>
 
   return errors;
 };
+
+/** @type (pointer: string) => string */
+const pointerPop = (pointer) => pointer.replace(/\/[^/]+$/, "");
 
 export default containsErrorHandler;
