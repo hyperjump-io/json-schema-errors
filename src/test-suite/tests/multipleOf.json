@@ -1,5 +1,6 @@
 {
   "$schema": "../test-suite.schema.json",
+
   "description": "The multipleOf keyword",
   "tests": [
     {
@@ -11,13 +12,9 @@
       "errors": [
         {
           "messageId": "multipleOf-message",
-          "messageParams": {
-            "multipleOf": "3"
-          },
+          "messageParams": { "multipleOf": "3" },
           "instanceLocation": "#",
-          "schemaLocations": [
-            "#/multipleOf"
-          ]
+          "schemaLocations": ["#/multipleOf"]
         }
       ]
     },
@@ -33,30 +30,18 @@
       "description": "multiple multipleOf constraints (LCM of 4, 6, and 8)",
       "schema": {
         "allOf": [
-          {
-            "multipleOf": 4
-          },
-          {
-            "multipleOf": 6
-          },
-          {
-            "multipleOf": 8
-          }
+          { "multipleOf": 4 },
+          { "multipleOf": 6 },
+          { "multipleOf": 8 }
         ]
       },
       "instance": 10,
       "errors": [
         {
           "messageId": "multipleOf-message",
-          "messageParams": {
-            "multipleOf": "24"
-          },
+          "messageParams": { "multipleOf": "24" },
           "instanceLocation": "#",
-          "schemaLocations": [
-            "#/allOf/0/multipleOf",
-            "#/allOf/1/multipleOf",
-            "#/allOf/2/multipleOf"
-          ]
+          "schemaLocations": ["#/allOf/0/multipleOf", "#/allOf/1/multipleOf", "#/allOf/2/multipleOf"]
         }
       ]
     },
@@ -64,26 +49,17 @@
       "description": "multiple decimal multipleOf constraints (LCM of 0.2 and 0.3)",
       "schema": {
         "allOf": [
-          {
-            "multipleOf": 0.2
-          },
-          {
-            "multipleOf": 0.3
-          }
+          { "multipleOf": 0.2 },
+          { "multipleOf": 0.3 }
         ]
       },
       "instance": 0.7,
       "errors": [
         {
           "messageId": "multipleOf-message",
-          "messageParams": {
-            "multipleOf": "0.6"
-          },
+          "messageParams": { "multipleOf": "0.6" },
           "instanceLocation": "#",
-          "schemaLocations": [
-            "#/allOf/0/multipleOf",
-            "#/allOf/1/multipleOf"
-          ]
+          "schemaLocations": ["#/allOf/0/multipleOf", "#/allOf/1/multipleOf"]
         }
       ]
     }
