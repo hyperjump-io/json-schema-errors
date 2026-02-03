@@ -14,10 +14,32 @@
           "messageId": "required-message",
           "messageParams": {
             "count": 1,
-            "required": { "or": ["bar"] }
+            "required": { "and": ["bar"] }
           },
           "instanceLocation": "#",
           "schemaLocations": ["#/required"]
+        }
+      ]
+    },
+    {
+      "description": "required and dependentRequired",
+      "compatibility": ">=2019",
+      "schema": {
+        "required": ["foo", "bar"],
+        "dependentRequired": {
+          "a": ["b"]
+        }
+      },
+      "instance": { "a": 1 },
+      "errors": [
+        {
+          "messageId": "required-message",
+          "messageParams": {
+            "count": 3,
+            "required": { "and": ["b", "bar", "foo"] }
+          },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/dependentRequired", "#/required"]
         }
       ]
     },

@@ -8,11 +8,24 @@ import * as Instance from "@hyperjump/json-schema/instance/experimental";
 
 /** @type ErrorHandler */
 const dependentRequiredErrorHandler = async (normalizedErrors, instance, localization) => {
+  if (normalizedErrors["https://json-schema.org/keyword/required"]) {
+    for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/required"]) {
+      if (normalizedErrors["https://json-schema.org/keyword/required"][schemaLocation] === false) {
+        return [];
+      }
+    }
+  }
+
   /** @type ErrorObject[] */
   const errors = [];
 
-  for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/dependentRequired"]) {
-    if (normalizedErrors["https://json-schema.org/keyword/dependentRequired"][schemaLocation]) {
+  const dependentRequiredErrors = normalizedErrors["https://json-schema.org/keyword/dependentRequired"];
+  if (!dependentRequiredErrors) {
+    return [];
+  }
+
+  for (const schemaLocation in dependentRequiredErrors) {
+    if (dependentRequiredErrors[schemaLocation]) {
       continue;
     }
 
@@ -31,11 +44,13 @@ const dependentRequiredErrorHandler = async (normalizedErrors, instance, localiz
       }
     }
 
-    errors.push({
-      message: localization.getRequiredErrorMessage([...required]),
-      instanceLocation: Instance.uri(instance),
-      schemaLocations: [schemaLocation]
-    });
+    if (required.size > 0) {
+      errors.push({
+        message: localization.getRequiredErrorMessage([...required].sort()),
+        instanceLocation: Instance.uri(instance),
+        schemaLocations: [schemaLocation]
+      });
+    }
   }
 
   return errors;
