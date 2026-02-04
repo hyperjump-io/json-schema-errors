@@ -12,18 +12,18 @@ const dependenciesNormalizationHandler = {
     const outputs = [];
 
     if (Instance.typeOf(instance) !== "object") {
-      return outputs;
+      return undefined;
     }
 
     for (const [propertyName, dependency] of dependencies) {
-      if (!Instance.has(propertyName, instance) || typeof dependency !== "string") {
+      if (!Instance.has(propertyName, instance)) {
         continue;
       }
-
-      outputs.push(evaluateSchema(dependency, instance, context));
+      if (typeof dependency === "string") {
+        outputs.push(evaluateSchema(dependency, instance, context));
+      }
     }
-
-    return outputs;
+    return outputs.length > 0 ? outputs : undefined;
   }
 };
 
