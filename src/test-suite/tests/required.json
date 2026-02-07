@@ -23,7 +23,7 @@
     },
     {
       "description": "combined required and dependentRequired",
-      "compatibility": ">=2019",
+      "compatibility": "2019",
       "schema": {
         "required": ["foo", "bar"],
         "dependentRequired": {

@@ -1,5 +1,6 @@
 {
   "$schema": "../test-suite.schema.json",
+
   "description": "The dependentRequired, dependentSchemas, and dependencies keywords",
   "tests": [
     {
@@ -7,36 +8,20 @@
       "compatibility": "2019",
       "schema": {
         "dependentRequired": {
-          "foo": [
-            "bar",
-            "baz"
-          ],
-          "aaa": [
-            "bbb"
-          ]
+          "foo": ["bar", "baz"],
+          "aaa": ["bbb"]
         }
       },
-      "instance": {
-        "foo": 42,
-        "bar": true,
-        "aaa": true
-      },
+      "instance": { "foo": 42, "bar": true, "aaa": true },
       "errors": [
         {
           "messageId": "required-message",
           "messageParams": {
             "count": 2,
-            "required": {
-              "and": [
-                "baz",
-                "bbb"
-              ]
-            }
+            "required": { "and": ["baz", "bbb"] }
           },
           "instanceLocation": "#",
-          "schemaLocations": [
-            "#/dependentRequired"
-          ]
+          "schemaLocations": ["#/dependentRequired"]
         }
       ]
     },
@@ -45,36 +30,20 @@
       "compatibility": "<=7",
       "schema": {
         "dependencies": {
-          "foo": [
-            "bar",
-            "baz"
-          ],
-          "aaa": [
-            "bbb"
-          ]
+          "foo": ["bar", "baz"],
+          "aaa": ["bbb"]
         }
       },
-      "instance": {
-        "foo": 42,
-        "bar": true,
-        "aaa": true
-      },
+      "instance": { "foo": 42, "bar": true, "aaa": true },
       "errors": [
         {
           "messageId": "required-message",
           "messageParams": {
             "count": 2,
-            "required": {
-              "and": [
-                "baz",
-                "bbb"
-              ]
-            }
+            "required": { "and": ["baz", "bbb"] }
           },
           "instanceLocation": "#",
-          "schemaLocations": [
-            "#/dependencies"
-          ]
+          "schemaLocations": ["#/dependencies"]
         }
       ]
     },
@@ -83,15 +52,10 @@
       "compatibility": "2019",
       "schema": {
         "dependentRequired": {
-          "foo": [
-            "bar"
-          ]
+          "foo": ["bar"]
         }
       },
-      "instance": {
-        "foo": 42,
-        "bar": true
-      },
+      "instance": { "foo": 42, "bar": true },
       "errors": []
     },
     {
@@ -99,15 +63,10 @@
       "compatibility": "<=7",
       "schema": {
         "dependencies": {
-          "foo": [
-            "bar"
-          ]
+          "foo": ["bar"]
         }
       },
-      "instance": {
-        "foo": 42,
-        "bar": true
-      },
+      "instance": { "foo": 42, "bar": true },
       "errors": []
     },
     {
@@ -115,41 +74,20 @@
       "compatibility": "2019",
       "schema": {
         "dependentSchemas": {
-          "foo": {
-            "required": [
-              "bar",
-              "baz"
-            ]
-          },
-          "aaa": {
-            "required": [
-              "bbb"
-            ]
-          }
+          "foo": { "required": ["bar", "baz"] },
+          "aaa": { "required": ["bbb"] }
         }
       },
-      "instance": {
-        "foo": 42,
-        "bar": true,
-        "aaa": true
-      },
+      "instance": { "foo": 42, "bar": true, "aaa": true },
       "errors": [
         {
           "messageId": "required-message",
           "messageParams": {
             "count": 2,
-            "required": {
-              "and": [
-                "baz",
-                "bbb"
-              ]
-            }
+            "required": { "and": ["baz", "bbb"] }
           },
           "instanceLocation": "#",
-          "schemaLocations": [
-            "#/dependentSchemas/aaa/required",
-            "#/dependentSchemas/foo/required"
-          ]
+          "schemaLocations": ["#/dependentSchemas/aaa/required", "#/dependentSchemas/foo/required"]
         }
       ]
     },
@@ -158,54 +96,29 @@
       "compatibility": "<=7",
       "schema": {
         "dependencies": {
-          "foo": {
-            "required": [
-              "bar",
-              "baz"
-            ]
-          },
-          "aaa": {
-            "required": [
-              "bbb"
-            ]
-          }
+          "foo": { "required": ["bar", "baz"] },
+          "aaa": { "required": ["bbb"] }
         }
       },
-      "instance": {
-        "foo": 42,
-        "bar": true,
-        "aaa": true
-      },
+      "instance": { "foo": 42, "bar": true, "aaa": true },
       "errors": [
         {
           "messageId": "required-message",
           "messageParams": {
             "count": 1,
-            "required": {
-              "and": [
-                "baz"
-              ]
-            }
+            "required": { "and": ["baz"] }
           },
           "instanceLocation": "#",
-          "schemaLocations": [
-            "#/dependencies/foo/required"
-          ]
+          "schemaLocations": ["#/dependencies/foo/required"]
         },
         {
           "messageId": "required-message",
           "messageParams": {
             "count": 1,
-            "required": {
-              "and": [
-                "bbb"
-              ]
-            }
+            "required": { "and": ["bbb"] }
           },
           "instanceLocation": "#",
-          "schemaLocations": [
-            "#/dependencies/aaa/required"
-          ]
+          "schemaLocations": ["#/dependencies/aaa/required"]
         }
       ]
     },
@@ -214,11 +127,7 @@
       "compatibility": "2019",
       "schema": {
         "dependentSchemas": {
-          "foo": {
-            "required": [
-              "bar"
-            ]
-          }
+          "foo": { "required": ["bar"] }
         }
       },
       "instance": 42,
@@ -229,11 +138,7 @@
       "compatibility": "<=7",
       "schema": {
         "dependentSchemas": {
-          "foo": {
-            "required": [
-              "bar"
-            ]
-          }
+          "foo": { "required": ["bar"] }
         }
       },
       "instance": 42,
@@ -243,34 +148,20 @@
       "description": "dependentSchemas pass",
       "schema": {
         "dependentSchemas": {
-          "foo": {
-            "required": [
-              "bar"
-            ]
-          }
+          "foo": { "required": ["bar"] }
         }
       },
-      "instance": {
-        "foo": 42,
-        "bar": true
-      },
+      "instance": { "foo": 42, "bar": true },
       "errors": []
     },
     {
       "description": "schem-form dependencies pass",
       "schema": {
         "dependencies": {
-          "foo": {
-            "required": [
-              "bar"
-            ]
-          }
+          "foo": { "required": ["bar"] }
         }
       },
-      "instance": {
-        "foo": 42,
-        "bar": true
-      },
+      "instance": { "foo": 42, "bar": true },
       "errors": []
     },
     {
@@ -278,52 +169,29 @@
       "compatibility": "<=7",
       "schema": {
         "dependencies": {
-          "foo": {
-            "required": [
-              "bar",
-              "baz"
-            ]
-          },
-          "aaa": [
-            "bbb"
-          ]
+          "foo": { "required": ["bar", "baz"] },
+          "aaa": ["bbb"]
         }
       },
-      "instance": {
-        "foo": 42,
-        "bar": true,
-        "aaa": true
-      },
+      "instance": { "foo": 42, "bar": true, "aaa": true },
       "errors": [
         {
           "messageId": "required-message",
           "messageParams": {
             "count": 1,
-            "required": {
-              "and": [
-                "baz"
-              ]
-            }
+            "required": { "and": ["baz"] }
           },
           "instanceLocation": "#",
-          "schemaLocations": [
-            "#/dependencies/foo/required"
-          ]
+          "schemaLocations": ["#/dependencies/foo/required"]
         },
         {
           "messageId": "required-message",
           "messageParams": {
             "count": 1,
-            "required": {
-              "and": [
-                "bbb"
-              ]
-            }
+            "required": { "and": ["bbb"] }
           },
           "instanceLocation": "#",
-          "schemaLocations": [
-            "#/dependencies"
-          ]
+          "schemaLocations": ["#/dependencies"]
         }
       ]
     }

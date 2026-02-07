@@ -9,13 +9,13 @@ import * as Instance from "@hyperjump/json-schema/instance/experimental";
 /** @type ErrorHandler */
 const requiredErrorHandler = async (normalizedErrors, instance, localization) => {
   const allMissingRequired = new Set();
-  const allSchemaLocations = new Set();
+  const allSchemaLocations = [];
 
   const requiredErrors = normalizedErrors["https://json-schema.org/keyword/required"];
   if (requiredErrors) {
     for (const schemaLocation in requiredErrors) {
       if (requiredErrors[schemaLocation] === false) {
-        allSchemaLocations.add(schemaLocation);
+        allSchemaLocations.push(schemaLocation);
         const keyword = await getSchema(schemaLocation);
         const required = /** @type string[] */ (Schema.value(keyword));
 
@@ -32,7 +32,7 @@ const requiredErrorHandler = async (normalizedErrors, instance, localization) =>
   if (dependentRequiredErrors) {
     for (const schemaLocation in dependentRequiredErrors) {
       if (dependentRequiredErrors[schemaLocation] === false) {
-        allSchemaLocations.add(schemaLocation);
+        allSchemaLocations.push(schemaLocation);
         const keyword = await getSchema(schemaLocation);
         const dependentRequired = /** @type Record<string, string[]> */ (Schema.value(keyword));
 
@@ -74,7 +74,7 @@ const requiredErrorHandler = async (normalizedErrors, instance, localization) =>
         }
 
         if (hasArrayFormDependencies) {
-          allSchemaLocations.add(schemaLocation);
+          allSchemaLocations.push(schemaLocation);
         }
       }
     }
@@ -83,7 +83,6 @@ const requiredErrorHandler = async (normalizedErrors, instance, localization) =>
   if (allMissingRequired.size > 0) {
     /** @type {string[]} */
     const missingProperties = [...allMissingRequired].sort();
-
     /** @type {string[]} */
     const locations = [...allSchemaLocations].sort();
 
