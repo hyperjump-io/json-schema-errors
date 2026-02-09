@@ -12,7 +12,11 @@
           "aaa": ["bbb"]
         }
       },
-      "instance": { "foo": 42, "bar": true, "aaa": true },
+      "instance": {
+        "foo": 42,
+        "bar": true,
+        "aaa": true
+      },
       "errors": [
         {
           "messageId": "required-message",
@@ -34,7 +38,11 @@
           "aaa": ["bbb"]
         }
       },
-      "instance": { "foo": 42, "bar": true, "aaa": true },
+      "instance": {
+        "foo": 42,
+        "bar": true,
+        "aaa": true
+      },
       "errors": [
         {
           "messageId": "required-message",
@@ -55,7 +63,10 @@
           "foo": ["bar"]
         }
       },
-      "instance": { "foo": 42, "bar": true },
+      "instance": {
+        "foo": 42,
+        "bar": true
+      },
       "errors": []
     },
     {
@@ -66,7 +77,10 @@
           "foo": ["bar"]
         }
       },
-      "instance": { "foo": 42, "bar": true },
+      "instance": {
+        "foo": 42,
+        "bar": true
+      },
       "errors": []
     },
     {
@@ -78,7 +92,11 @@
           "aaa": { "required": ["bbb"] }
         }
       },
-      "instance": { "foo": 42, "bar": true, "aaa": true },
+      "instance": {
+        "foo": 42,
+        "bar": true,
+        "aaa": true
+      },
       "errors": [
         {
           "messageId": "required-message",
@@ -87,7 +105,10 @@
             "required": { "and": ["baz", "bbb"] }
           },
           "instanceLocation": "#",
-          "schemaLocations": ["#/dependentSchemas/aaa/required", "#/dependentSchemas/foo/required"]
+          "schemaLocations": [
+            "#/dependentSchemas/aaa/required",
+            "#/dependentSchemas/foo/required"
+          ]
         }
       ]
     },
@@ -100,7 +121,11 @@
           "aaa": { "required": ["bbb"] }
         }
       },
-      "instance": { "foo": 42, "bar": true, "aaa": true },
+      "instance": {
+        "foo": 42,
+        "bar": true,
+        "aaa": true
+      },
       "errors": [
         {
           "messageId": "required-message",
@@ -151,7 +176,10 @@
           "foo": { "required": ["bar"] }
         }
       },
-      "instance": { "foo": 42, "bar": true },
+      "instance": {
+        "foo": 42,
+        "bar": true
+      },
       "errors": []
     },
     {
@@ -161,7 +189,10 @@
           "foo": { "required": ["bar"] }
         }
       },
-      "instance": { "foo": 42, "bar": true },
+      "instance": {
+        "foo": 42,
+        "bar": true
+      },
       "errors": []
     },
     {
@@ -173,7 +204,11 @@
           "aaa": ["bbb"]
         }
       },
-      "instance": { "foo": 42, "bar": true, "aaa": true },
+      "instance": {
+        "foo": 42,
+        "bar": true,
+        "aaa": true
+      },
       "errors": [
         {
           "messageId": "required-message",

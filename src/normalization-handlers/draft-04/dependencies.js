@@ -19,8 +19,10 @@ const dependenciesNormalizationHandler = {
       if (!Instance.has(propertyName, instance) || typeof dependency !== "string") {
         continue;
       }
+
       outputs.push(evaluateSchema(dependency, instance, context));
     }
+
     return outputs;
   }
 };
