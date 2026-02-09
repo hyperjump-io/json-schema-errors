@@ -11,6 +11,10 @@ const maximumErrorHandler = async (normalizedErrors, instance, localization) => 
   /** @type ErrorObject[] */
   const errors = [];
 
+  let lowestMaximum = Infinity;
+  let effectiveExclusive = false;
+  let effectiveSchemaLocation = "";
+
   for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/draft-04/maximum"]) {
     if (normalizedErrors["https://json-schema.org/keyword/draft-04/maximum"][schemaLocation]) {
       continue;
@@ -32,19 +36,23 @@ const maximumErrorHandler = async (normalizedErrors, instance, localization) => 
     const keywordNode = await getSchema(schemaLocation);
     const maximum = /** @type number */ (Schema.value(keywordNode));
 
-    if (exclusive) {
-      errors.push({
-        message: localization.getExclusiveMaximumErrorMessage(maximum),
-        instanceLocation: Instance.uri(instance),
-        schemaLocations: schemaLocations
-      });
-    } else {
-      errors.push({
-        message: localization.getMaximumErrorMessage(maximum),
-        instanceLocation: Instance.uri(instance),
-        schemaLocations: schemaLocations
-      });
+    if (maximum < lowestMaximum) {
+      lowestMaximum = maximum;
+      effectiveExclusive = exclusive;
     }
+  }
+  if (effectiveExclusive) {
+    errors.push({
+      message: localization.getExclusiveMaximumErrorMessage(lowestMaximum),
+      instanceLocation: Instance.uri(instance),
+      schemaLocations: [effectiveSchemaLocation]
+    });
+  } else {
+    errors.push({
+      message: localization.getMaximumErrorMessage(lowestMaximum),
+      instanceLocation: Instance.uri(instance),
+      schemaLocations: [effectiveSchemaLocation]
+    });
   }
 
   return errors;

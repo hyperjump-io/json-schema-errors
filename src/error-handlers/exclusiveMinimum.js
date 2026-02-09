@@ -10,19 +10,28 @@ import * as Instance from "@hyperjump/json-schema/instance/experimental";
 const exclusiveMinimumErrorHandler = async (normalizedErrors, instance, localization) => {
   /** @type ErrorObject[] */
   const errors = [];
+  let highestExclusiveMinimum = 0;
+  let effectiveSchemaLocation = "";
 
   for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/exclusiveMinimum"]) {
-    if (normalizedErrors["https://json-schema.org/keyword/exclusiveMinimum"][schemaLocation]) {
+    if (
+      normalizedErrors["https://json-schema.org/keyword/exclusiveMinimum"][schemaLocation]) {
       continue;
     }
 
     const keyword = await getSchema(schemaLocation);
     const exclusiveMinimum = /** @type number */ (Schema.value(keyword));
 
+    if (exclusiveMinimum > highestExclusiveMinimum) {
+      highestExclusiveMinimum = exclusiveMinimum;
+      effectiveSchemaLocation = schemaLocation;
+    }
+  }
+  if (highestExclusiveMinimum != 0) {
     errors.push({
-      message: localization.getExclusiveMinimumErrorMessage(exclusiveMinimum),
+      message: localization.getExclusiveMinimumErrorMessage(highestExclusiveMinimum),
       instanceLocation: Instance.uri(instance),
-      schemaLocations: [schemaLocation]
+      schemaLocations: [effectiveSchemaLocation]
     });
   }
 
