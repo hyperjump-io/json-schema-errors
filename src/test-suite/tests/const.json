@@ -45,7 +45,10 @@
           "messageId": "boolean-schema-message",
           "messageParams": {},
           "instanceLocation": "#",
-          "schemaLocations": ["#/allOf/0/const", "#/allOf/1/const"]
+          "schemaLocations": [
+            "#/allOf/0/const",
+            "#/allOf/1/const"
+          ]
         }
       ]
     }

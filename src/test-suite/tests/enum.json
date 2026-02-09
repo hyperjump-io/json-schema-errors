@@ -38,7 +38,10 @@
             "count": 2
           },
           "instanceLocation": "#",
-          "schemaLocations": ["#/allOf/1/enum"]
+          "schemaLocations": [
+            "#/allOf/0/enum",
+            "#/allOf/1/enum"
+          ]
         }
       ]
     },
@@ -65,7 +68,10 @@
           "messageId": "boolean-schema-message",
           "messageParams": {},
           "instanceLocation": "#",
-          "schemaLocations": ["#/allOf/0/enum", "#/allOf/1/enum"]
+          "schemaLocations": [
+            "#/allOf/0/enum",
+            "#/allOf/1/enum"
+          ]
         }
       ]
     }

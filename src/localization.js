@@ -59,19 +59,18 @@ export class Localization {
     });
   }
 
-  /** @type (expected: Json) => string */
-  getConstErrorMessage(expected) {
-    return this.#formatMessage("const-message", {
-      expected: JSON.stringify(expected, null, "  ")
-    });
-  }
-
   /** @type (expected: Json[]) => string */
   getEnumErrorMessage(expected) {
-    const expectedJson = expected.map((value) => JSON.stringify(value));
-    return this.#formatMessage("enum-message", {
-      expected: this.disjunction.format(expectedJson)
-    });
+    if (expected.length === 1) {
+      return this.#formatMessage("const-message", {
+        expected: JSON.stringify(expected[0], null, "  ")
+      });
+    } else {
+      const expectedJson = expected.map((value) => JSON.stringify(value));
+      return this.#formatMessage("enum-message", {
+        expected: this.disjunction.format(expectedJson)
+      });
+    }
   }
 
   /** @type (format: string) => string */

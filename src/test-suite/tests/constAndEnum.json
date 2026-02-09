@@ -28,8 +28,8 @@
       "compatibility": "6",
       "schema": {
         "allOf": [
-          { "enum": [{"a": 1, "b": 2}, {"c": 3}] },
-          { "const": {"b": 2, "a": 1} }
+          { "enum": [{ "a": 1, "b": 2 }, { "c": 3 }] },
+          { "const": { "b": 2, "a": 1 } }
         ]
       },
       "instance": "x",
@@ -63,7 +63,6 @@
           },
           "instanceLocation": "#",
           "schemaLocations": [
-            "#/allOf/0/enum",
             "#/allOf/1/enum",
             "#/allOf/2/enum"
           ]
