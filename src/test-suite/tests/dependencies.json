@@ -106,8 +106,8 @@
           },
           "instanceLocation": "#",
           "schemaLocations": [
-            "#/dependentSchemas/aaa/required",
-            "#/dependentSchemas/foo/required"
+            "#/dependentSchemas/foo/required",
+            "#/dependentSchemas/aaa/required"
           ]
         }
       ]

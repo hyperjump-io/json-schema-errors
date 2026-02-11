@@ -34,14 +34,18 @@ const requiredErrorHandler = async (normalizedErrors, instance, localization) =>
 
     allSchemaLocations.push(schemaLocation);
     const keyword = await getSchema(schemaLocation);
-    const dependentRequired = /** @type Record<string, string[]> */ (Schema.value(keyword));
 
-    for (const propertyName in dependentRequired) {
+    for await (const [propertyName, dependencyNode] of Schema.entries(keyword)) {
       if (!Instance.has(propertyName, instance)) {
         continue;
       }
 
-      for (const requiredPropertyName of dependentRequired[propertyName]) {
+      if (Schema.typeOf(dependencyNode) !== "array") {
+        continue;
+      }
+
+      const requiredProperties = /** @type string[] */ (Schema.value(dependencyNode));
+      for (const requiredPropertyName of requiredProperties) {
         if (!Instance.has(requiredPropertyName, instance)) {
           allMissingRequired.add(requiredPropertyName);
         }
@@ -55,21 +59,19 @@ const requiredErrorHandler = async (normalizedErrors, instance, localization) =>
     }
 
     const keyword = await getSchema(schemaLocation);
-    const dependencies = /** @type Record<string, string[] | object> */ (Schema.value(keyword));
 
     let hasArrayFormDependencies = false;
-    for (const propertyName in dependencies) {
+    for await (const [propertyName, dependency] of Schema.entries(keyword)) {
       if (!Instance.has(propertyName, instance)) {
         continue;
       }
 
-      const dependency = dependencies[propertyName];
-      if (!Array.isArray(dependency)) {
+      if (Schema.typeOf(dependency) !== "array") {
         continue;
       }
 
       hasArrayFormDependencies = true;
-      const dependencyArray = /** @type {string[]} */ (dependency);
+      const dependencyArray = /** @type {string[]} */ (Schema.value(dependency));
       for (const requiredPropertyName of dependencyArray) {
         if (!Instance.has(requiredPropertyName, instance)) {
           allMissingRequired.add(requiredPropertyName);
@@ -87,9 +89,9 @@ const requiredErrorHandler = async (normalizedErrors, instance, localization) =>
   }
 
   /** @type {string[]} */
-  const missingProperties = [...allMissingRequired].sort();
+  const missingProperties = [...allMissingRequired];
   /** @type {string[]} */
-  const locations = [...allSchemaLocations].sort();
+  const locations = [...allSchemaLocations];
 
   return [{
     message: localization.getRequiredErrorMessage(missingProperties),

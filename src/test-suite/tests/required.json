@@ -36,12 +36,12 @@
           "messageId": "required-message",
           "messageParams": {
             "count": 3,
-            "required": { "and": ["b", "bar", "foo"] }
+            "required": { "and": ["foo", "bar", "b"] }
           },
           "instanceLocation": "#",
           "schemaLocations": [
-            "#/dependentRequired",
-            "#/required"
+            "#/required",
+            "#/dependentRequired"
           ]
         }
       ]
