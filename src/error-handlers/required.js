@@ -8,8 +8,22 @@ import * as Instance from "@hyperjump/json-schema/instance/experimental";
 
 /** @type ErrorHandler */
 const requiredErrorHandler = async (normalizedErrors, instance, localization) => {
+  /** @type {Set<string>} */
   const allMissingRequired = new Set();
   const allSchemaLocations = [];
+
+  /**
+   * @param {string[]} requiredProperties
+   * @param {import("@hyperjump/json-schema/instance/experimental").JsonNode} instance
+   * @param {Set<string>} missingSet
+   */
+  const addMissingProperties = (requiredProperties, instance, missingSet) => {
+    for (const propertyName of requiredProperties) {
+      if (!Instance.has(propertyName, instance)) {
+        missingSet.add(propertyName);
+      }
+    }
+  };
 
   for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/required"]) {
     if (normalizedErrors["https://json-schema.org/keyword/required"][schemaLocation]) {
@@ -20,11 +34,7 @@ const requiredErrorHandler = async (normalizedErrors, instance, localization) =>
     const keyword = await getSchema(schemaLocation);
     const required = /** @type string[] */ (Schema.value(keyword));
 
-    for (const propertyName of required) {
-      if (!Instance.has(propertyName, instance)) {
-        allMissingRequired.add(propertyName);
-      }
-    }
+    addMissingProperties(required, instance, allMissingRequired);
   }
 
   for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/dependentRequired"]) {
@@ -40,16 +50,8 @@ const requiredErrorHandler = async (normalizedErrors, instance, localization) =>
         continue;
       }
 
-      if (Schema.typeOf(dependencyNode) !== "array") {
-        continue;
-      }
-
       const requiredProperties = /** @type string[] */ (Schema.value(dependencyNode));
-      for (const requiredPropertyName of requiredProperties) {
-        if (!Instance.has(requiredPropertyName, instance)) {
-          allMissingRequired.add(requiredPropertyName);
-        }
-      }
+      addMissingProperties(requiredProperties, instance, allMissingRequired);
     }
   }
 
@@ -62,21 +64,13 @@ const requiredErrorHandler = async (normalizedErrors, instance, localization) =>
 
     let hasArrayFormDependencies = false;
     for await (const [propertyName, dependency] of Schema.entries(keyword)) {
-      if (!Instance.has(propertyName, instance)) {
-        continue;
-      }
-
-      if (Schema.typeOf(dependency) !== "array") {
+      if (!Instance.has(propertyName, instance) || Schema.typeOf(dependency) !== "array") {
         continue;
       }
 
       hasArrayFormDependencies = true;
       const dependencyArray = /** @type {string[]} */ (Schema.value(dependency));
-      for (const requiredPropertyName of dependencyArray) {
-        if (!Instance.has(requiredPropertyName, instance)) {
-          allMissingRequired.add(requiredPropertyName);
-        }
-      }
+      addMissingProperties(dependencyArray, instance, allMissingRequired);
     }
 
     if (hasArrayFormDependencies) {
@@ -88,15 +82,10 @@ const requiredErrorHandler = async (normalizedErrors, instance, localization) =>
     return [];
   }
 
-  /** @type {string[]} */
-  const missingProperties = [...allMissingRequired];
-  /** @type {string[]} */
-  const locations = [...allSchemaLocations];
-
   return [{
-    message: localization.getRequiredErrorMessage(missingProperties),
+    message: localization.getRequiredErrorMessage([...allMissingRequired]),
     instanceLocation: Instance.uri(instance),
-    schemaLocations: locations
+    schemaLocations: /** @type {string[]} */ ([...allSchemaLocations])
   }];
 };
 
