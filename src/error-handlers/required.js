@@ -12,19 +12,6 @@ const requiredErrorHandler = async (normalizedErrors, instance, localization) =>
   const allMissingRequired = new Set();
   const allSchemaLocations = [];
 
-  /**
-   * @param {string[]} requiredProperties
-   * @param {import("@hyperjump/json-schema/instance/experimental").JsonNode} instance
-   * @param {Set<string>} missingSet
-   */
-  const addMissingProperties = (requiredProperties, instance, missingSet) => {
-    for (const propertyName of requiredProperties) {
-      if (!Instance.has(propertyName, instance)) {
-        missingSet.add(propertyName);
-      }
-    }
-  };
-
   for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/required"]) {
     if (normalizedErrors["https://json-schema.org/keyword/required"][schemaLocation]) {
       continue;
@@ -87,6 +74,19 @@ const requiredErrorHandler = async (normalizedErrors, instance, localization) =>
     instanceLocation: Instance.uri(instance),
     schemaLocations: /** @type {string[]} */ ([...allSchemaLocations])
   }];
+};
+
+/**
+ * @param {string[]} requiredProperties
+ * @param {import("@hyperjump/json-schema/instance/experimental").JsonNode} instance
+ * @param {Set<string>} missingSet
+ */
+const addMissingProperties = (requiredProperties, instance, missingSet) => {
+  for (const propertyName of requiredProperties) {
+    if (!Instance.has(propertyName, instance)) {
+      missingSet.add(propertyName);
+    }
+  }
 };
 
 export default requiredErrorHandler;
