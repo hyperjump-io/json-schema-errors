@@ -6,10 +6,7 @@
     {
       "description": "oneOf",
       "schema": {
-        "oneOf": [
-          { "type": "string" },
-          { "type": "number" }
-        ]
+        "oneOf": [{ "type": "string" }, { "type": "number" }]
       },
       "instance": null,
       "errors": [
@@ -46,10 +43,7 @@
     {
       "description": "oneOf more than one match",
       "schema": {
-        "oneOf": [
-          { "type": "integer" },
-          { "type": "number" }
-        ]
+        "oneOf": [{ "type": "integer" }, { "type": "number" }]
       },
       "instance": 1,
       "errors": [
@@ -66,13 +60,126 @@
     {
       "description": "oneOf pass",
       "schema": {
-        "oneOf": [
-          { "type": "string" },
-          { "type": "number" }
-        ]
+        "oneOf": [{ "type": "string" }, { "type": "number" }]
       },
       "instance": 42,
       "errors": []
+    },
+    {
+      "description": "oneOf more than one match with success explanations",
+      "schema": {
+        "oneOf": [{ "type": "integer" }, { "type": "number" }]
+      },
+      "instance": 66,
+      "errors": [
+        {
+          "messageId": "oneOf-message",
+          "messageParams": { "matchCount": 2 },
+          "alternatives": [
+            [
+              {
+                "messageId": "type-success",
+                "messageParams": {
+                  "actualType": "integer"
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/0/type"]
+              }
+            ],
+            [
+              {
+                "messageId": "type-success",
+                "messageParams": {
+                  "actualType": "number"
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/1/type"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/oneOf"]
+        }
+      ]
+    },
+    {
+      "description": "oneOf more than one match with failed alternatives ignored",
+      "schema": {
+        "oneOf": [
+          { "required": ["a"] },
+          { "required": ["b"] },
+          { "required": ["c"] }
+        ]
+      },
+      "instance": { "a": 1, "b": 2 },
+      "errors": [
+        {
+          "messageId": "oneOf-message",
+          "messageParams": { "matchCount": 2 },
+          "alternatives": [
+            [
+              {
+                "messageId": "required-success", 
+                "messageParams": { 
+                  "property": "a"
+                },  
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/0/required"]
+              }
+            ],
+            [
+              {
+                "messageId": "required-success",
+                "messageParams": {
+                  "property": "b"
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/1/required"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/oneOf"]
+        }
+      ]
+    },
+    {
+      "description": "nested oneOf producing multiple matches in inner oneOf",
+      "schema": {
+        "oneOf": [
+          {
+            "oneOf": [{ "required": ["a"] }, { "required": ["b"] }]
+          },
+          { "required": ["c"] }
+        ]
+      },
+      "instance": { "a": 1, "b": 2 },
+      "errors": [
+        {
+          "messageId": "oneOf-message",
+          "messageParams": { "matchCount": 2 },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/oneOf/0/oneOf"],
+          "alternatives": [
+            [
+              {
+                "messageId": "required-success",
+                "messageParams": { "property": "a" },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/0/oneOf/0/required"]
+              }
+            ],
+            [
+              {
+                "messageId": "required-success",
+                "messageParams": { "property": "b" },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/0/oneOf/1/required"]
+              }
+            ]
+          ]
+        }
+      ]
     }
   ]
 }
