@@ -4,6 +4,7 @@ import * as Instance from "@hyperjump/json-schema/instance/experimental";
 
 /**
  * @import { ErrorHandler } from "../index.d.ts"
+ * @import { JsonNode } from "@hyperjump/json-schema/instance/experimental"
  */
 
 /** @type ErrorHandler */
@@ -76,11 +77,7 @@ const requiredErrorHandler = async (normalizedErrors, instance, localization) =>
   }];
 };
 
-/**
- * @param {string[]} requiredProperties
- * @param {import("@hyperjump/json-schema/instance/experimental").JsonNode} instance
- * @param {Set<string>} missingSet
- */
+/** @type (requiredProperties: string[], instance: JsonNode, missingSet: Set<string>) => void */
 const addMissingProperties = (requiredProperties, instance, missingSet) => {
   for (const propertyName of requiredProperties) {
     if (!Instance.has(propertyName, instance)) {
