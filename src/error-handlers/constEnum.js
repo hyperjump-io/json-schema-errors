@@ -15,7 +15,7 @@ import jsonStringify from "json-stringify-deterministic";
  */
 
 /** @type {ErrorHandler} */
-const constAndEnumErrorHandler = async (normalizedErrors, instance, localization) => {
+const constEnumErrorHandler = async (normalizedErrors, instance, localization) => {
   /** @type Set<string> | undefined */
   let allowedJson;
 
@@ -75,4 +75,4 @@ const constAndEnumErrorHandler = async (normalizedErrors, instance, localization
   }
 };
 
-export default constAndEnumErrorHandler;
+export default constEnumErrorHandler;

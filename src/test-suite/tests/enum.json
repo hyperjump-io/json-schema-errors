@@ -22,7 +22,15 @@
       ]
     },
     {
-      "description": "multiple enum constraints (combined)",
+      "description": "enum pass",
+      "schema": {
+        "enum": ["foo", "bar"]
+      },
+      "instance": "foo",
+      "errors": []
+    },
+    {
+      "description": "multiple enums with matches",
       "schema": {
         "allOf": [
           { "enum": ["a", "b", "c"] },
@@ -46,15 +54,32 @@
       ]
     },
     {
-      "description": "enum pass",
+      "description": "multiple enums with a match",
+      "compatibility": "6",
       "schema": {
-        "enum": ["foo", "bar"]
+        "allOf": [
+          { "enum": ["a", "b", "c"] },
+          { "enum": ["a", "b", "d"] },
+          { "enum": ["a", "b", "e"] }
+        ]
       },
-      "instance": "foo",
-      "errors": []
+      "instance": "c",
+      "errors": [
+        {
+          "messageId": "enum-message",
+          "messageParams": {
+            "expected": { "or": ["\"a\"", "\"b\""] }
+          },
+          "instanceLocation": "#",
+          "schemaLocations": [
+            "#/allOf/1/enum",
+            "#/allOf/2/enum"
+          ]
+        }
+      ]
     },
     {
-      "description": "contradictory enum - empty intersection",
+      "description": "contradictory enum",
       "compatibility": "6",
       "schema": {
         "allOf": [
