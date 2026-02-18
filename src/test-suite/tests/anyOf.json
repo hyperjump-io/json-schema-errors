@@ -52,6 +52,126 @@
       },
       "instance": 42,
       "errors": []
+    },
+    {
+      "description": "anyOf single type match flattens errors (removes anyOf error message)",
+      "schema": {
+        "anyOf": [
+          {
+            "type": "string",
+            "maxLength": 2
+          },
+          {
+            "type": "number",
+            "minimum": 2
+          }
+        ]
+      },
+      "instance": "foo",
+      "errors": [
+        {
+          "messageId": "maxLength-message",
+          "messageParams": {
+            "maxLength": 2
+          },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/anyOf/0/maxLength"]
+        }
+      ]
+    },
+    {
+      "description": "none of the alternatives match instance type, hence no filtering of alternatives",
+      "schema": {
+        "anyOf": [
+          {
+            "type": "string",
+            "maxLength": 2
+          },
+          {
+            "type": "number",
+            "minimum": 2
+          }
+        ]
+      },
+      "instance": true,
+      "errors": [
+        {
+          "messageId": "anyOf-message",
+          "alternatives": [
+            [
+              {
+                "messageId": "type-message",
+                "messageParams": {
+                  "expectedTypes": { "or": ["string"] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/anyOf/0/type"]
+              }
+            ],
+            [
+              {
+                "messageId": "type-message",
+                "messageParams": {
+                  "expectedTypes": { "or": ["number"] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/anyOf/1/type"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/anyOf"]
+        }
+      ]
+    },
+    {
+      "description": "anyOf multiple type matches still uses anyOf error message",
+      "schema": {
+        "anyOf": [
+          {
+            "type": "string",
+            "maxLength": 2
+          },
+          {
+            "type": "string",
+            "maxLength": 4
+          },
+          {
+            "type": "number",
+            "minimum": 2
+          }
+        ]
+      },
+      "instance": "hello",
+      "errors": [
+        {
+          "messageId": "anyOf-message",
+          "alternatives": [
+            [
+              {
+                "messageId": "maxLength-message",
+                "messageParams": {
+                  "maxLength": 2
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/anyOf/0/maxLength"]
+              }
+            ],
+            [
+              {
+                "messageId": "maxLength-message",
+                "messageParams": {
+                  "maxLength": 4
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/anyOf/1/maxLength"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/anyOf"]
+        }
+      ]
     }
   ]
 }
