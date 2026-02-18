@@ -14,6 +14,14 @@ const typeErrorHandler = async (normalizedErrors, instance, localization) => {
   const errors = [];
 
   if (normalizedErrors["https://json-schema.org/keyword/type"]) {
+    const hasConstOrEnum
+      = normalizedErrors["https://json-schema.org/keyword/const"]
+        || normalizedErrors["https://json-schema.org/keyword/enum"];
+
+    if (hasConstOrEnum) {
+      return errors;
+    }
+
     /** @type {Set<string>} */
     let allowedTypes = ALL_TYPES;
     const failedTypeLocations = [];

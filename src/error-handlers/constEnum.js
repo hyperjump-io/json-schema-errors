@@ -14,6 +14,8 @@ import jsonStringify from "json-stringify-deterministic";
  * }} Constraint
  */
 
+const ALL_TYPES = new Set(["null", "boolean", "number", "string", "array", "object", "integer"]);
+
 /** @type {ErrorHandler} */
 const constEnumErrorHandler = async (normalizedErrors, instance, localization) => {
   /** @type Set<string> | undefined */
@@ -50,6 +52,77 @@ const constEnumErrorHandler = async (normalizedErrors, instance, localization) =
     const keywordJson = new Set(/** @type Json[] */ (Schema.value(keyword)).map((value) => jsonStringify(value)));
 
     allowedJson = allowedJson?.intersection(keywordJson) ?? keywordJson;
+  }
+
+  if (allSchemaLocations.length === 0) {
+    return [];
+  }
+
+  if (normalizedErrors["https://json-schema.org/keyword/type"] && allowedJson) {
+    let allowedTypes = ALL_TYPES;
+    /** @type {string[]} */
+    const typeLocations = [];
+
+    for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/type"]) {
+      typeLocations.push(schemaLocation);
+      const keyword = await getSchema(schemaLocation);
+      /** @type {string | string[]} */
+      const value = Schema.value(keyword);
+      const types = Array.isArray(value) ? value : [value];
+      /** @type {Set<string>} */
+      const keywordTypes = new Set(types);
+      if (keywordTypes.has("number")) {
+        keywordTypes.add("integer");
+      }
+      allowedTypes = allowedTypes.intersection(keywordTypes);
+    }
+
+    if (allowedTypes.has("number")) {
+      allowedTypes.delete("integer");
+    }
+
+    /** @type {Set<string>} */
+    const filteredJson = new Set();
+    for (const jsonStr of allowedJson) {
+      /** @type {Json} */
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const val = JSON.parse(jsonStr);
+      let valueType = val === null ? "null" : Array.isArray(val) ? "array" : typeof val;
+      if (valueType === "object") {
+        valueType = "object";
+      }
+      if (valueType === "number" && Number.isInteger(val)) {
+        valueType = "integer";
+      }
+
+      if (allowedTypes.has(valueType)
+        || (valueType === "integer" && allowedTypes.has("number"))) {
+        filteredJson.add(jsonStr);
+      }
+    }
+
+    if (filteredJson.size === 0) {
+      if (constSchemaLocations.length === 0 && enumSchemaLocations.length === 0) {
+        constSchemaLocations.push(...allSchemaLocations.filter((loc) =>
+          !typeLocations.includes(loc)));
+        enumSchemaLocations.push(...constSchemaLocations);
+      }
+      const constEnumLocations = allSchemaLocations.filter((loc) =>
+        !typeLocations.includes(loc));
+      allSchemaLocations.length = 0;
+      allSchemaLocations.push(...typeLocations, ...constEnumLocations);
+    } else {
+      const instanceJson = jsonStringify(Instance.value(instance));
+      if (!filteredJson.has(instanceJson)) {
+        if (constSchemaLocations.length === 0 && enumSchemaLocations.length === 0) {
+          constSchemaLocations.push(...allSchemaLocations.filter((loc) =>
+            !typeLocations.includes(loc)));
+          enumSchemaLocations.push(...constSchemaLocations);
+        }
+      }
+    }
+
+    allowedJson = filteredJson;
   }
 
   if (constSchemaLocations.length === 0 && enumSchemaLocations.length === 0) {

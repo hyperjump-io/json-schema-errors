@@ -99,6 +99,26 @@
           ]
         }
       ]
+    },
+    {
+      "description": "enum with type - filter by type",
+      "schema": {
+        "allOf": [
+          { "type": "string" },
+          { "enum": ["foo", 42] }
+        ]
+      },
+      "instance": 42,
+      "errors": [
+        {
+          "messageId": "const-message",
+          "messageParams": {
+            "expected": "\"foo\""
+          },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/allOf/1/enum"]
+        }
+      ]
     }
   ]
 }
