@@ -55,7 +55,6 @@ import unknownNormalizationHandler from "./normalization-handlers/unknown.js";
 // Error Handlers
 import anyOfErrorHandler from "./error-handlers/anyOf.js";
 import booleanSchemaErrorHandler from "./error-handlers/boolean-schema.js";
-import constEnumErrorHandler from "./error-handlers/constEnum.js";
 import containsErrorHandler from "./error-handlers/contains.js";
 import dependenciesErrorHandler from "./error-handlers/draft-04/dependencies.js";
 import exclusiveMaximumErrorHandler from "./error-handlers/exclusiveMaximum.js";
@@ -76,7 +75,7 @@ import notErrorHandler from "./error-handlers/not.js";
 import oneOfErrorHandler from "./error-handlers/oneOf.js";
 import patternErrorHandler from "./error-handlers/pattern.js";
 import requiredErrorHandler from "./error-handlers/required.js";
-import typeErrorHandler from "./error-handlers/type.js";
+import typeConstEnumErrorHandler from "./error-handlers/typeConstEnum.js";
 import uniqueItemsErrorHandler from "./error-handlers/uniqueItems.js";
 import unknownErrorHandler from "./error-handlers/unknown.js";
 
@@ -139,7 +138,6 @@ setNormalizationHandler("https://json-schema.org/keyword/unknown", unknownNormal
 
 addErrorHandler(anyOfErrorHandler);
 addErrorHandler(booleanSchemaErrorHandler);
-addErrorHandler(constEnumErrorHandler);
 addErrorHandler(containsErrorHandler);
 addErrorHandler(dependenciesErrorHandler);
 addErrorHandler(exclusiveMaximumErrorHandler);
@@ -160,7 +158,7 @@ addErrorHandler(notErrorHandler);
 addErrorHandler(oneOfErrorHandler);
 addErrorHandler(patternErrorHandler);
 addErrorHandler(requiredErrorHandler);
-addErrorHandler(typeErrorHandler);
+addErrorHandler(typeConstEnumErrorHandler);
 addErrorHandler(uniqueItemsErrorHandler);
 addErrorHandler(unknownErrorHandler);
 
