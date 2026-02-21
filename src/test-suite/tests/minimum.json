@@ -71,8 +71,7 @@
           },
           "instanceLocation": "#",
           "schemaLocations": [
-            "#/minimum",
-            "#/exclusiveMinimum"
+            "#/minimum"
           ]
         }
       ]
@@ -133,7 +132,7 @@
         {
           "messageId": "exclusiveMinimum-message",
           "messageParams": {
-            "minimum": "4"
+            "exclusiveMinimum": "4"
           },
           "instanceLocation": "#",
           "schemaLocations": ["#/allOf/0/minimum"]

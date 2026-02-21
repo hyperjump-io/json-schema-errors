@@ -64,19 +64,14 @@ const runTests = (dialectUri, dialect) => {
       unregisterSchema(schemaUri);
     });
 
-    for (const entry of await readdir(
-      `${import.meta.dirname}/test-suite/tests`,
-      { withFileTypes: true }
-    )) {
+    for (const entry of await readdir(`${import.meta.dirname}/test-suite/tests`, { withFileTypes: true })) {
       if (!entry.isFile() || !entry.name.endsWith(".json")) {
         continue;
       }
 
       const file = `${entry.parentPath}/${entry.name}`;
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      const suite = /** @type TestSuite */ (
-        JSON.parse(await readFile(file, "utf8"))
-      );
+      const suite = /** @type TestSuite */ (JSON.parse(await readFile(file, "utf8")));
 
       for (const testCase of suite.tests) {
         if (!isCompatible(testCase.compatibility, dialect)) {
@@ -104,9 +99,7 @@ const buildErrors = (errors, schemaUri) => {
       message: getMessage(error.messageId, error.messageParams),
       instanceLocation: error.instanceLocation,
       schemaLocations: error.schemaLocations.map((schemaLocation) => {
-        return schemaLocation.startsWith("#")
-          ? schemaUri + schemaLocation
-          : schemaLocation;
+        return schemaLocation.startsWith("#") ? schemaUri + schemaLocation : schemaLocation;
       })
     };
 
@@ -162,10 +155,7 @@ const isCompatible = (compatibility, versionUnderTest) => {
 
 /** @type (messageId: string, messageParams: MessageParams) => string */
 const getMessage = await (async function () {
-  const ftl = await readFile(
-    `${import.meta.dirname}/translations/en-US.ftl`,
-    "utf-8"
-  );
+  const ftl = await readFile(`${import.meta.dirname}/translations/en-US.ftl`, "utf-8");
   const resource = new FluentResource(ftl);
   const bundle = new FluentBundle("en-US");
   bundle.addResource(resource);
@@ -174,37 +164,24 @@ const getMessage = await (async function () {
   const conjunction = new Intl.ListFormat("en-US", { type: "conjunction" });
 
   return (messageId, messageParams) => {
-    messageParams = messageParams ?? {};
     for (const paramId in messageParams) {
       if (typeof messageParams[paramId] === "object") {
         if ("or" in messageParams[paramId]) {
-          messageParams[paramId] = disjunction.format(
-            messageParams[paramId].or
-          );
+          messageParams[paramId] = disjunction.format(messageParams[paramId].or);
         } else {
           messageParams[paramId] = conjunction.format(messageParams[paramId].and);
         }
       }
     }
+
     const message = bundle.getMessage(messageId);
     if (!message?.value) {
       throw Error(`Message '${messageId}' not found.`);
     }
-    if ("maximum" in messageParams && !("exclusiveMaximum" in messageParams)) {
-      messageParams.exclusiveMaximum = messageParams.maximum;
-    }
-    if ("exclusiveMaximum" in messageParams && !("maximum" in messageParams)) {
-      messageParams.maximum = messageParams.exclusiveMaximum;
-    }
-    if ("minimum" in messageParams && !("exclusiveMinimum" in messageParams)) {
-      messageParams.exclusiveMinimum = messageParams.minimum;
-    }
-    if ("exclusiveMinimum" in messageParams && !("minimum" in messageParams)) {
-      messageParams.minimum = messageParams.exclusiveMinimum;
-    }
+
     return bundle.formatPattern(message.value, messageParams);
   };
-})();
+}());
 
 runTests("https://json-schema.org/draft/2020-12/schema", 2020);
 runTests("https://json-schema.org/draft/2019-09/schema", 2019);

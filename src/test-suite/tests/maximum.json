@@ -71,8 +71,7 @@
           },
           "instanceLocation": "#",
           "schemaLocations": [
-            "#/maximum",
-            "#/exclusiveMaximum"
+            "#/maximum"
           ]
         }
       ]
@@ -115,7 +114,7 @@
         {
           "messageId": "exclusiveMaximum-message",
           "messageParams": {
-            "maximum": "2"
+            "exclusiveMaximum": "2"
           },
           "instanceLocation": "#",
           "schemaLocations": ["#/allOf/1/exclusiveMaximum"]
@@ -136,7 +135,7 @@
         {
           "messageId": "exclusiveMaximum-message",
           "messageParams": {
-            "maximum": "2"
+            "exclusiveMaximum": "2"
           },
           "instanceLocation": "#",
           "schemaLocations": ["#/allOf/0/maximum"]
