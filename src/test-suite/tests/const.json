@@ -114,6 +114,27 @@
           ]
         }
       ]
+    },
+    {
+      "description": "const with matching type",
+      "compatibility": "6",
+      "schema": {
+        "allOf": [
+          { "type": "string" },
+          { "const": "foo" }
+        ]
+      },
+      "instance": 42,
+      "errors": [
+        {
+          "messageId": "const-message",
+          "messageParams": {
+            "expected": "\"foo\""
+          },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/allOf/1/const"]
+        }
+      ]
     }
   ]
 }

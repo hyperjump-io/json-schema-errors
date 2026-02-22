@@ -7,13 +7,6 @@ import jsonStringify from "json-stringify-deterministic";
  * @import { ErrorHandler, InstanceOutput, Json } from "../index.d.ts"
  */
 
-/**
- * @typedef {{
- *   allowedValues: Json[];
- *   schemaLocation: string;
- * }} Constraint
- */
-
 const ALL_TYPES = new Set(["null", "boolean", "number", "string", "array", "object", "integer"]);
 
 /** @type {ErrorHandler} */
@@ -52,17 +45,17 @@ const typeConstEnumErrorHandler = async (normalizedErrors, instance, localizatio
   let allowedJson;
 
   /** @type {string[]} */
-  const constSchemaLocations = [];
+  const constEnumLocations = [];
   /** @type {string[]} */
-  const enumSchemaLocations = [];
+  const failedConstLocations = [];
   /** @type {string[]} */
-  const allSchemaLocations = [];
+  const failedEnumLocations = [];
 
   for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/const"]) {
+    constEnumLocations.push(schemaLocation);
     if (!normalizedErrors["https://json-schema.org/keyword/const"][schemaLocation]) {
-      constSchemaLocations.push(schemaLocation);
+      failedConstLocations.push(schemaLocation);
     }
-    allSchemaLocations.push(schemaLocation);
 
     const keyword = await getSchema(schemaLocation);
     const keywordJson = new Set([jsonStringify(/** @type Json */ (Schema.value(keyword)))]);
@@ -71,10 +64,10 @@ const typeConstEnumErrorHandler = async (normalizedErrors, instance, localizatio
   }
 
   for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/enum"]) {
+    constEnumLocations.push(schemaLocation);
     if (!normalizedErrors["https://json-schema.org/keyword/enum"][schemaLocation]) {
-      enumSchemaLocations.push(schemaLocation);
+      failedEnumLocations.push(schemaLocation);
     }
-    allSchemaLocations.push(schemaLocation);
 
     const keyword = await getSchema(schemaLocation);
     const keywordJson = new Set(/** @type Json[] */ (Schema.value(keyword)).map((value) => jsonStringify(value)));
@@ -82,10 +75,7 @@ const typeConstEnumErrorHandler = async (normalizedErrors, instance, localizatio
     allowedJson = allowedJson?.intersection(keywordJson) ?? keywordJson;
   }
 
-  if (allSchemaLocations.length === 0) {
-    return [];
-  }
-
+  let typeFiltered = false;
   if (hasType && allowedJson) {
     /** @type {Set<string>} */
     const filteredJson = new Set();
@@ -103,32 +93,15 @@ const typeConstEnumErrorHandler = async (normalizedErrors, instance, localizatio
         filteredJson.add(jsonStr);
       }
     }
-
-    if (filteredJson.size === 0) {
-      if (constSchemaLocations.length === 0 && enumSchemaLocations.length === 0) {
-        constSchemaLocations.push(...allSchemaLocations.filter((loc) =>
-          !failedTypeLocations.includes(loc)));
-        enumSchemaLocations.push(...constSchemaLocations);
-      }
-      const constEnumLocations = allSchemaLocations.filter((loc) =>
-        !failedTypeLocations.includes(loc));
-      allSchemaLocations.length = 0;
-      allSchemaLocations.push(...failedTypeLocations, ...constEnumLocations);
-    } else {
-      const instanceJson = jsonStringify(Instance.value(instance));
-      if (!filteredJson.has(instanceJson)) {
-        if (constSchemaLocations.length === 0 && enumSchemaLocations.length === 0) {
-          constSchemaLocations.push(...allSchemaLocations.filter((loc) =>
-            !failedTypeLocations.includes(loc)));
-          enumSchemaLocations.push(...constSchemaLocations);
-        }
-      }
-    }
-
+    typeFiltered = filteredJson.size < allowedJson.size;
     allowedJson = filteredJson;
   }
 
-  if (constSchemaLocations.length === 0 && enumSchemaLocations.length === 0) {
+  const failedLocations = failedConstLocations.length > 0
+    ? failedConstLocations
+    : failedEnumLocations;
+
+  if (failedLocations.length === 0 && !typeFiltered) {
     return [];
   }
 
@@ -136,19 +109,21 @@ const typeConstEnumErrorHandler = async (normalizedErrors, instance, localizatio
     return [{
       message: localization.getBooleanSchemaErrorMessage(),
       instanceLocation: Instance.uri(instance),
-      schemaLocations: allSchemaLocations
-    }];
-  } else {
-    /** @type Json[] */
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    const allowedValues = [...allowedJson ?? []].map((json) => JSON.parse(json));
-
-    return [{
-      message: localization.getEnumErrorMessage(allowedValues),
-      instanceLocation: Instance.uri(instance),
-      schemaLocations: constSchemaLocations.length ? constSchemaLocations : enumSchemaLocations
+      schemaLocations: [...failedTypeLocations, ...constEnumLocations]
     }];
   }
+
+  /** @type Json[] */
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+  const allowedValues = [...allowedJson ?? []].map((json) => JSON.parse(json));
+
+  return [{
+    message: localization.getEnumErrorMessage(allowedValues),
+    instanceLocation: Instance.uri(instance),
+    schemaLocations: typeFiltered
+      ? [...failedTypeLocations, ...constEnumLocations]
+      : failedLocations
+  }];
 };
 
 /**

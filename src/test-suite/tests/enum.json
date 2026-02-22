@@ -116,7 +116,52 @@
             "expected": "\"foo\""
           },
           "instanceLocation": "#",
+          "schemaLocations": [
+            "#/allOf/0/type",
+            "#/allOf/1/enum"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "enum with type - no filtering needed",
+      "schema": {
+        "allOf": [
+          { "type": "string" },
+          { "enum": ["foo", "bar"] }
+        ]
+      },
+      "instance": 42,
+      "errors": [
+        {
+          "messageId": "enum-message",
+          "messageParams": {
+            "expected": { "or": ["\"foo\"", "\"bar\""] },
+            "count": 2
+          },
+          "instanceLocation": "#",
           "schemaLocations": ["#/allOf/1/enum"]
+        }
+      ]
+    },
+    {
+      "description": "enum with type - all values filtered",
+      "schema": {
+        "allOf": [
+          { "type": "boolean" },
+          { "enum": ["foo", 42] }
+        ]
+      },
+      "instance": "foo",
+      "errors": [
+        {
+          "messageId": "boolean-schema-message",
+          "messageParams": {},
+          "instanceLocation": "#",
+          "schemaLocations": [
+            "#/allOf/0/type",
+            "#/allOf/1/enum"
+          ]
         }
       ]
     }
