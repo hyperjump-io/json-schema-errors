@@ -101,16 +101,16 @@
       ]
     },
     {
-      "description": "oneOf multiple type matches still uses oneOf error message",
+      "description": "oneOf with multiple matching types does not collapse distinct errors",
       "schema": {
         "oneOf": [
           {
             "type": "string",
-            "maxLength": 2
+            "pattern": "^[0-9]+$"
           },
           {
             "type": "string",
-            "maxLength": 4
+            "format": "email"
           },
           {
             "type": "number",
@@ -122,28 +122,28 @@
       "errors": [
         {
           "messageId": "oneOf-message",
-          "messageParams": { 
-            "matchCount": 0 
+          "messageParams": {
+            "matchCount": 0
           },
           "alternatives": [
             [
               {
-                "messageId": "maxLength-message",
-                "messageParams": { 
-                  "maxLength": 2 
+                "messageId": "pattern-message",
+                "messageParams": {
+                  "pattern": "^[0-9]+$"
                 },
                 "instanceLocation": "#",
-                "schemaLocations": ["#/oneOf/0/maxLength"]
+                "schemaLocations": ["#/oneOf/0/pattern"]
               }
             ],
             [
               {
-                "messageId": "maxLength-message",
-                "messageParams": { 
-                  "maxLength": 4 
+                "messageId": "format-message",
+                "messageParams": {
+                  "format": "email"
                 },
                 "instanceLocation": "#",
-                "schemaLocations": ["#/oneOf/1/maxLength"]
+                "schemaLocations": ["#/oneOf/1/format"]
               }
             ]
           ],
@@ -170,8 +170,8 @@
       "errors": [
         {
           "messageId": "oneOf-message",
-          "messageParams": { 
-            "matchCount": 0 
+          "messageParams": {
+            "matchCount": 0
           },
           "alternatives": [
             [
@@ -197,6 +197,43 @@
           ],
           "instanceLocation": "#",
           "schemaLocations": ["#/oneOf"]
+        }
+      ]
+    },
+    {
+      "description": "oneOf with $ref alternatives filters by type",
+      "compatibility": "2019",
+      "schema": {
+        "$defs": {
+          "bar": {
+            "type": "string",
+            "maxLength": 2
+          },
+          "baz": {
+            "type": "number",
+            "minimum": 2
+          }
+        },
+        "oneOf": [
+          {
+            "$ref": "#/$defs/bar"
+          },
+          {
+            "$ref": "#/$defs/baz"
+          }
+        ]
+      },
+      "instance": "foo",
+      "errors": [
+        {
+          "messageId": "maxLength-message",
+          "messageParams": {
+            "maxLength": 2
+          },
+          "instanceLocation": "#",
+          "schemaLocations": [
+            "#/$defs/bar/maxLength"
+          ]
         }
       ]
     }

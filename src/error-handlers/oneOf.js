@@ -1,5 +1,3 @@
-import * as Schema from "@hyperjump/browser";
-import { getSchema } from "@hyperjump/json-schema/experimental";
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
 import { getErrors } from "../json-schema-errors.js";
 
@@ -19,22 +17,12 @@ const oneOfErrorHandler = async (normalizedErrors, instance, localization) => {
     }
 
     const alternatives = [];
-    const instanceType = Instance.typeOf(instance);
+    const instanceLocation = Instance.uri(instance);
     let matchCount = 0;
 
-    for (const [i, alternative] of oneOf.entries()) {
-      let match = true;
-
-      const oneOfSchema = await getSchema(schemaLocation);
-      const alternativeSchema = await Schema.step(String(i), oneOfSchema);
-      const typeSchema = await Schema.step("type", alternativeSchema);
-      const type = /** @type {string | string[]} */ (Schema.value(typeSchema));
-
-      if (typeof type === "string") {
-        match = type === instanceType || (type === "integer" && instanceType === "number");
-      } else if (Array.isArray(type)) {
-        match = type.includes(instanceType) || (type.includes("integer") && instanceType === "number");
-      }
+    for (const alternative of oneOf) {
+      const typeErrors = alternative[instanceLocation]?.["https://json-schema.org/keyword/type"];
+      const match = !typeErrors || Object.values(typeErrors).every((isValid) => isValid);
 
       if (match) {
         const alternativeErrors = await getErrors(alternative, instance, localization);

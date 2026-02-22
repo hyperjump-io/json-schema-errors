@@ -125,16 +125,16 @@
       ]
     },
     {
-      "description": "anyOf multiple type matches still uses anyOf error message",
+      "description": "anyOf with multiple matching types does not collapse distinct errors",
       "schema": {
         "anyOf": [
           {
             "type": "string",
-            "maxLength": 2
+            "pattern": "^[0-9]+$"
           },
           {
             "type": "string",
-            "maxLength": 4
+            "format": "email"
           },
           {
             "type": "number",
@@ -149,27 +149,62 @@
           "alternatives": [
             [
               {
-                "messageId": "maxLength-message",
+                "messageId": "pattern-message",
                 "messageParams": {
-                  "maxLength": 2
+                  "pattern": "^[0-9]+$"
                 },
                 "instanceLocation": "#",
-                "schemaLocations": ["#/anyOf/0/maxLength"]
+                "schemaLocations": ["#/anyOf/0/pattern"]
               }
             ],
             [
               {
-                "messageId": "maxLength-message",
+                "messageId": "format-message",
                 "messageParams": {
-                  "maxLength": 4
+                  "format": "email"
                 },
                 "instanceLocation": "#",
-                "schemaLocations": ["#/anyOf/1/maxLength"]
+                "schemaLocations": ["#/anyOf/1/format"]
               }
             ]
           ],
           "instanceLocation": "#",
           "schemaLocations": ["#/anyOf"]
+        }
+      ]
+    },
+    {
+      "description": "anyOf with $ref alternatives filters by type",
+      "compatibility": "2019",
+      "schema": {
+        "$defs": {
+          "bar": {
+            "type": "string",
+            "maxLength": 2
+          },
+          "baz": {
+            "type": "number",
+            "minimum": 2
+          }
+        },
+        "anyOf": [
+          {
+            "$ref": "#/$defs/bar"
+          },
+          {
+            "$ref": "#/$defs/baz"
+          }
+        ]
+      },
+      "instance": "foo",
+      "errors": [
+        {
+          "messageId": "maxLength-message",
+          "messageParams": {
+            "maxLength": 2
+          },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/$defs/bar/maxLength"]
         }
       ]
     }
