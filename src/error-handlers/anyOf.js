@@ -20,7 +20,7 @@ const anyOfErrorHandler = async (normalizedErrors, instance, localization) => {
     const instanceLocation = Instance.uri(instance);
 
     for (const alternative of anyOf) {
-      const typeErrors = alternative[instanceLocation]?.["https://json-schema.org/keyword/type"];
+      const typeErrors = alternative[instanceLocation]["https://json-schema.org/keyword/type"];
       const match = !typeErrors || Object.values(typeErrors).every((isValid) => isValid);
 
       if (match) {
