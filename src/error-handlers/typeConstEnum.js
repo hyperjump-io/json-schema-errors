@@ -24,6 +24,10 @@ const typeConstEnumErrorHandler = async (normalizedErrors, instance, localizatio
     : { allowedTypes: ALL_TYPES, failedTypeLocations: [] };
 
   if (!hasConst && !hasEnum) {
+    if (allowedTypes.has("number")) {
+      allowedTypes.delete("integer");
+    }
+
     if (allowedTypes.size === 0) {
       return [{
         message: localization.getBooleanSchemaErrorMessage(),
@@ -50,6 +54,7 @@ const typeConstEnumErrorHandler = async (normalizedErrors, instance, localizatio
   const failedConstLocations = [];
   /** @type {string[]} */
   const failedEnumLocations = [];
+  let typeFiltered = false;
 
   for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/const"]) {
     constEnumLocations.push(schemaLocation);
@@ -58,7 +63,12 @@ const typeConstEnumErrorHandler = async (normalizedErrors, instance, localizatio
     }
 
     const keyword = await getSchema(schemaLocation);
-    const keywordJson = new Set([jsonStringify(/** @type Json */ (Schema.value(keyword)))]);
+    const keywordJson = new Set();
+    if (allowedTypes.has(Schema.typeOf(keyword))) {
+      keywordJson.add(jsonStringify(Schema.value(keyword)));
+    } else {
+      typeFiltered = true;
+    }
 
     allowedJson = allowedJson?.intersection(keywordJson) ?? keywordJson;
   }
@@ -70,31 +80,16 @@ const typeConstEnumErrorHandler = async (normalizedErrors, instance, localizatio
     }
 
     const keyword = await getSchema(schemaLocation);
-    const keywordJson = new Set(/** @type Json[] */ (Schema.value(keyword)).map((value) => jsonStringify(value)));
-
-    allowedJson = allowedJson?.intersection(keywordJson) ?? keywordJson;
-  }
-
-  let typeFiltered = false;
-  if (hasType && allowedJson) {
-    /** @type {Set<string>} */
-    const filteredJson = new Set();
-    for (const jsonStr of allowedJson) {
-      /** @type {Json} */
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      const val = JSON.parse(jsonStr);
-      let valueType = val === null ? "null" : Array.isArray(val) ? "array" : typeof val;
-      if (valueType === "number" && Number.isInteger(val)) {
-        valueType = "integer";
-      }
-
-      if (allowedTypes.has(valueType)
-        || (valueType === "integer" && allowedTypes.has("number"))) {
-        filteredJson.add(jsonStr);
+    const keywordJson = new Set();
+    for (const value of /** @type Json[] */ (Schema.value(keyword))) {
+      if (allowedTypes.has(jsonSchemaType(value))) {
+        keywordJson.add(jsonStringify(value));
+      } else {
+        typeFiltered = true;
       }
     }
-    typeFiltered = filteredJson.size < allowedJson.size;
-    allowedJson = filteredJson;
+
+    allowedJson = allowedJson?.intersection(keywordJson) ?? keywordJson;
   }
 
   const failedLocations = failedConstLocations.length > 0
@@ -158,6 +153,17 @@ async function resolveTypes(normalizedErrors) {
   }
 
   return { allowedTypes, failedTypeLocations };
+}
+
+/**
+ * @param {Json} value
+ * @returns {string}
+ */
+function jsonSchemaType(value) {
+  if (value === null) return "null";
+  if (Array.isArray(value)) return "array";
+  if (typeof value === "number") return Number.isInteger(value) ? "integer" : "number";
+  return typeof value;
 }
 
 export default typeConstEnumErrorHandler;
