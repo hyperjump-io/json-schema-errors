@@ -7,13 +7,14 @@ import * as Instance from "@hyperjump/json-schema/instance/experimental";
  */
 
 /** @type ErrorHandler */
-const combinedMinimumErrorHandler = async (normalizedErrors, instance, localization) => {
+const minimumErrorHandler = async (normalizedErrors, instance, localization) => {
   /** @type ErrorObject[] */
   const errors = [];
   let highestMinimum = -Infinity;
   let effectiveMinimumSchemaLocation = "";
   let highestExclusiveMinimum = -Infinity;
   let effectiveExclusiveMinimumSchemaLocation = "";
+  let effectiveDraft04ExclusiveLocation = "";
 
   for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/minimum"]) {
     if (normalizedErrors["https://json-schema.org/keyword/minimum"][schemaLocation]) {
@@ -51,11 +52,13 @@ const combinedMinimumErrorHandler = async (normalizedErrors, instance, localizat
     const parentLocation = pointerPop(schemaLocation);
 
     let exclusive = false;
+    let currentExclusiveLocation = "";
     for (const exclusiveLocation in normalizedErrors["https://json-schema.org/keyword/draft-04/exclusiveMinimum"]) {
       const exclusiveParentLocation = pointerPop(exclusiveLocation);
       if (exclusiveParentLocation === parentLocation) {
         const exclusiveNode = await getSchema(exclusiveLocation);
         exclusive = /** @type boolean */ (Schema.value(exclusiveNode));
+        currentExclusiveLocation = exclusiveLocation;
         break;
       }
     }
@@ -66,6 +69,7 @@ const combinedMinimumErrorHandler = async (normalizedErrors, instance, localizat
       if (minimum > highestExclusiveMinimum) {
         highestExclusiveMinimum = minimum;
         effectiveExclusiveMinimumSchemaLocation = schemaLocation;
+        effectiveDraft04ExclusiveLocation = currentExclusiveLocation;
       }
     } else {
       if (minimum > highestMinimum) {
@@ -79,10 +83,14 @@ const combinedMinimumErrorHandler = async (normalizedErrors, instance, localizat
     return [];
   }
   if (highestExclusiveMinimum >= highestMinimum) {
+    const schemaLocations = [effectiveExclusiveMinimumSchemaLocation];
+    if (effectiveDraft04ExclusiveLocation) {
+      schemaLocations.push(effectiveDraft04ExclusiveLocation);
+    }
     errors.push({
       message: localization.getExclusiveMinimumErrorMessage(highestExclusiveMinimum),
       instanceLocation: Instance.uri(instance),
-      schemaLocations: [effectiveExclusiveMinimumSchemaLocation]
+      schemaLocations: schemaLocations
     });
   } else {
     errors.push({
@@ -97,4 +105,4 @@ const combinedMinimumErrorHandler = async (normalizedErrors, instance, localizat
 /** @type (pointer: string) => string */
 const pointerPop = (pointer) => pointer.replace(/\/[^/]+$/, "");
 
-export default combinedMinimumErrorHandler;
+export default minimumErrorHandler;

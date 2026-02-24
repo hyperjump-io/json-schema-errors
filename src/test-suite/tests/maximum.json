@@ -71,7 +71,8 @@
           },
           "instanceLocation": "#",
           "schemaLocations": [
-            "#/maximum"
+            "#/maximum",
+            "#/exclusiveMaximum"
           ]
         }
       ]
@@ -138,7 +139,7 @@
             "exclusiveMaximum": "2"
           },
           "instanceLocation": "#",
-          "schemaLocations": ["#/allOf/0/maximum"]
+          "schemaLocations": ["#/allOf/0/maximum","#/allOf/0/exclusiveMaximum"]
         }
       ]
     },

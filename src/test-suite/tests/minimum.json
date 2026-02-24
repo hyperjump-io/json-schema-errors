@@ -71,7 +71,8 @@
           },
           "instanceLocation": "#",
           "schemaLocations": [
-            "#/minimum"
+            "#/minimum",
+            "#/exclusiveMinimum"
           ]
         }
       ]
@@ -135,7 +136,7 @@
             "exclusiveMinimum": "4"
           },
           "instanceLocation": "#",
-          "schemaLocations": ["#/allOf/0/minimum"]
+          "schemaLocations": ["#/allOf/0/minimum","#/allOf/0/exclusiveMinimum"] 
         }
       ]
     },
