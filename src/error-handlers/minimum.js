@@ -3,18 +3,15 @@ import * as Schema from "@hyperjump/browser";
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
 
 /**
- * @import { ErrorHandler, ErrorObject } from "../index.d.ts"
+ * @import { ErrorHandler } from "../index.d.ts"
  */
 
 /** @type ErrorHandler */
 const minimumErrorHandler = async (normalizedErrors, instance, localization) => {
-  /** @type ErrorObject[] */
-  const errors = [];
   let highestMinimum = -Infinity;
-  let effectiveMinimumSchemaLocation = "";
-  let highestExclusiveMinimum = -Infinity;
-  let effectiveExclusiveMinimumSchemaLocation = "";
-  let effectiveDraft04ExclusiveLocation = "";
+  let isExclusive = false;
+  /** @type string[] */
+  let schemaLocations = [];
 
   for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/minimum"]) {
     if (normalizedErrors["https://json-schema.org/keyword/minimum"][schemaLocation]) {
@@ -26,7 +23,7 @@ const minimumErrorHandler = async (normalizedErrors, instance, localization) => 
 
     if (minimum > highestMinimum) {
       highestMinimum = minimum;
-      effectiveMinimumSchemaLocation = schemaLocation;
+      schemaLocations = [schemaLocation];
     }
   }
 
@@ -39,9 +36,10 @@ const minimumErrorHandler = async (normalizedErrors, instance, localization) => 
     const keyword = await getSchema(schemaLocation);
     const exclusiveMinimum = /** @type number */ (Schema.value(keyword));
 
-    if (exclusiveMinimum > highestExclusiveMinimum) {
-      highestExclusiveMinimum = exclusiveMinimum;
-      effectiveExclusiveMinimumSchemaLocation = schemaLocation;
+    if (exclusiveMinimum > highestMinimum) {
+      highestMinimum = exclusiveMinimum;
+      isExclusive = true;
+      schemaLocations = [schemaLocation];
     }
   }
   for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/draft-04/minimum"]) {
@@ -51,57 +49,44 @@ const minimumErrorHandler = async (normalizedErrors, instance, localization) => 
 
     const parentLocation = pointerPop(schemaLocation);
 
-    let exclusive = false;
-    let currentExclusiveLocation = "";
-    for (const exclusiveLocation in normalizedErrors["https://json-schema.org/keyword/draft-04/exclusiveMinimum"]) {
-      const exclusiveParentLocation = pointerPop(exclusiveLocation);
+    let exclusiveLocation = "";
+    for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/draft-04/exclusiveMinimum"]) {
+      const exclusiveParentLocation = pointerPop(schemaLocation);
       if (exclusiveParentLocation === parentLocation) {
-        const exclusiveNode = await getSchema(exclusiveLocation);
-        exclusive = /** @type boolean */ (Schema.value(exclusiveNode));
-        currentExclusiveLocation = exclusiveLocation;
+        const exclusiveNode = await getSchema(schemaLocation);
+        if (Schema.value(exclusiveNode)) {
+          exclusiveLocation = schemaLocation;
+        }
         break;
       }
     }
 
     const keywordNode = await getSchema(schemaLocation);
     const minimum = /** @type number */ (Schema.value(keywordNode));
-    if (exclusive) {
-      if (minimum > highestExclusiveMinimum) {
-        highestExclusiveMinimum = minimum;
-        effectiveExclusiveMinimumSchemaLocation = schemaLocation;
-        effectiveDraft04ExclusiveLocation = currentExclusiveLocation;
-      }
-    } else {
-      if (minimum > highestMinimum) {
-        highestMinimum = minimum;
-        effectiveMinimumSchemaLocation = schemaLocation;
-      }
+    if (minimum > highestMinimum) {
+      highestMinimum = minimum;
+      isExclusive = !!exclusiveLocation;
+      schemaLocations = exclusiveLocation ? [schemaLocation, exclusiveLocation] : [schemaLocation];
     }
   }
 
-  if (highestMinimum === -Infinity && highestExclusiveMinimum === -Infinity) {
+  if (highestMinimum === -Infinity) {
     return [];
-  }
-  if (highestExclusiveMinimum >= highestMinimum) {
-    const schemaLocations = [effectiveExclusiveMinimumSchemaLocation];
-    if (effectiveDraft04ExclusiveLocation) {
-      schemaLocations.push(effectiveDraft04ExclusiveLocation);
-    }
-    errors.push({
-      message: localization.getExclusiveMinimumErrorMessage(highestExclusiveMinimum),
+  } else if (isExclusive) {
+    return [{
+      message: localization.getExclusiveMinimumErrorMessage(highestMinimum),
       instanceLocation: Instance.uri(instance),
       schemaLocations: schemaLocations
-    });
+    }];
   } else {
-    errors.push({
+    return [{
       message: localization.getMinimumErrorMessage(highestMinimum),
       instanceLocation: Instance.uri(instance),
-      schemaLocations: [effectiveMinimumSchemaLocation]
-    });
+      schemaLocations: schemaLocations
+    }];
   }
-
-  return errors;
 };
+
 /** @type (pointer: string) => string */
 const pointerPop = (pointer) => pointer.replace(/\/[^/]+$/, "");
 

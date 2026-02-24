@@ -105,7 +105,7 @@
       ]
     },
     {
-      "description": "exclusiveMinimum with multiple constrains (highest value considered)",
+      "description": "exclusiveMinimum with multiple constraints (highest value considered)",
       "compatibility": "6",
       "schema": {
         "allOf": [{ "exclusiveMinimum": 4 }, { "exclusiveMinimum": 6 }]
