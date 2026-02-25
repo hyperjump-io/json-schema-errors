@@ -92,6 +92,49 @@
           ]
         }
       ]
+    },
+    {
+      "description": "const with type - filter by type",
+      "compatibility": "6",
+      "schema": {
+        "allOf": [
+          { "type": "number" },
+          { "const": "foo" }
+        ]
+      },
+      "instance": "foo",
+      "errors": [
+        {
+          "messageId": "boolean-schema-message",
+          "messageParams": {},
+          "instanceLocation": "#",
+          "schemaLocations": [
+            "#/allOf/0/type",
+            "#/allOf/1/const"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "const with matching type",
+      "compatibility": "6",
+      "schema": {
+        "allOf": [
+          { "type": "string" },
+          { "const": "foo" }
+        ]
+      },
+      "instance": 42,
+      "errors": [
+        {
+          "messageId": "const-message",
+          "messageParams": {
+            "expected": "\"foo\""
+          },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/allOf/1/const"]
+        }
+      ]
     }
   ]
 }
