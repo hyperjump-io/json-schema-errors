@@ -17,16 +17,33 @@ const anyOfErrorHandler = async (normalizedErrors, instance, localization) => {
     }
 
     const alternatives = [];
+    const instanceLocation = Instance.uri(instance);
+
     for (const alternative of anyOf) {
-      alternatives.push(await getErrors(alternative, instance, localization));
+      const typeErrors = alternative[instanceLocation]["https://json-schema.org/keyword/type"];
+      const match = !typeErrors || Object.values(typeErrors).every((isValid) => isValid);
+
+      if (match) {
+        alternatives.push(await getErrors(alternative, instance, localization));
+      }
     }
 
-    errors.push({
-      message: localization.getAnyOfErrorMessage(),
-      alternatives: alternatives,
-      instanceLocation: Instance.uri(instance),
-      schemaLocations: [schemaLocation]
-    });
+    if (alternatives.length === 0) {
+      for (const alternative of anyOf) {
+        alternatives.push(await getErrors(alternative, instance, localization));
+      }
+    }
+
+    if (alternatives.length === 1) {
+      errors.push(...alternatives[0]);
+    } else {
+      errors.push({
+        message: localization.getAnyOfErrorMessage(),
+        alternatives: alternatives,
+        instanceLocation: Instance.uri(instance),
+        schemaLocations: [schemaLocation]
+      });
+    }
   }
 
   return errors;
