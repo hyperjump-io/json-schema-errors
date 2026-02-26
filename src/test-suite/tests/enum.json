@@ -28,6 +28,142 @@
       },
       "instance": "foo",
       "errors": []
+    },
+    {
+      "description": "multiple enums with matches",
+      "schema": {
+        "allOf": [
+          { "enum": ["a", "b", "c"] },
+          { "enum": ["a", "b"] }
+        ]
+      },
+      "instance": "x",
+      "errors": [
+        {
+          "messageId": "enum-message",
+          "messageParams": {
+            "expected": { "or": ["\"a\"", "\"b\""] },
+            "count": 2
+          },
+          "instanceLocation": "#",
+          "schemaLocations": [
+            "#/allOf/0/enum",
+            "#/allOf/1/enum"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "multiple enums with a match",
+      "compatibility": "6",
+      "schema": {
+        "allOf": [
+          { "enum": ["a", "b", "c"] },
+          { "enum": ["a", "b", "d"] },
+          { "enum": ["a", "b", "e"] }
+        ]
+      },
+      "instance": "c",
+      "errors": [
+        {
+          "messageId": "enum-message",
+          "messageParams": {
+            "expected": { "or": ["\"a\"", "\"b\""] }
+          },
+          "instanceLocation": "#",
+          "schemaLocations": [
+            "#/allOf/1/enum",
+            "#/allOf/2/enum"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "contradictory enum",
+      "compatibility": "6",
+      "schema": {
+        "allOf": [
+          { "enum": ["a", "b", "c"] },
+          { "enum": ["d", "e", "f"] }
+        ]
+      },
+      "instance": "a",
+      "errors": [
+        {
+          "messageId": "boolean-schema-message",
+          "messageParams": {},
+          "instanceLocation": "#",
+          "schemaLocations": [
+            "#/allOf/0/enum",
+            "#/allOf/1/enum"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "enum with type - filter by type",
+      "schema": {
+        "allOf": [
+          { "type": "string" },
+          { "enum": ["foo", 42] }
+        ]
+      },
+      "instance": 42,
+      "errors": [
+        {
+          "messageId": "const-message",
+          "messageParams": {
+            "expected": "\"foo\""
+          },
+          "instanceLocation": "#",
+          "schemaLocations": [
+            "#/allOf/0/type",
+            "#/allOf/1/enum"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "enum with type - no filtering needed",
+      "schema": {
+        "allOf": [
+          { "type": "string" },
+          { "enum": ["foo", "bar"] }
+        ]
+      },
+      "instance": 42,
+      "errors": [
+        {
+          "messageId": "enum-message",
+          "messageParams": {
+            "expected": { "or": ["\"foo\"", "\"bar\""] },
+            "count": 2
+          },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/allOf/1/enum"]
+        }
+      ]
+    },
+    {
+      "description": "enum with type - all values filtered",
+      "schema": {
+        "allOf": [
+          { "type": "boolean" },
+          { "enum": ["foo", 42] }
+        ]
+      },
+      "instance": "foo",
+      "errors": [
+        {
+          "messageId": "boolean-schema-message",
+          "messageParams": {},
+          "instanceLocation": "#",
+          "schemaLocations": [
+            "#/allOf/0/type",
+            "#/allOf/1/enum"
+          ]
+        }
+      ]
     }
   ]
 }

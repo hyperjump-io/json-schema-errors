@@ -29,6 +29,112 @@
       },
       "instance": 42,
       "errors": []
+    },
+    {
+      "description": "const with enum",
+      "compatibility": "6",
+      "schema": {
+        "allOf": [
+          { "enum": ["a", "b", "c"] },
+          { "enum": ["a", "b"] },
+          { "const": "a" }
+        ]
+      },
+      "instance": "x",
+      "errors": [
+        {
+          "messageId": "const-message",
+          "messageParams": { "expected": "\"a\"" },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/allOf/2/const"]
+        }
+      ]
+    },
+    {
+      "description": "const with enum - deterministic key order",
+      "compatibility": "6",
+      "schema": {
+        "allOf": [
+          { "enum": [{ "a": 1, "b": 2 }, { "c": 3 }] },
+          { "const": { "b": 2, "a": 1 } }
+        ]
+      },
+      "instance": "x",
+      "errors": [
+        {
+          "messageId": "const-message",
+          "messageParams": {
+            "expected": "{\n  \"a\": 1,\n  \"b\": 2\n}"
+          },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/allOf/1/const"]
+        }
+      ]
+    },
+    {
+      "description": "contradictory const",
+      "compatibility": "6",
+      "schema": {
+        "allOf": [
+          { "const": "a" },
+          { "const": "b" }
+        ]
+      },
+      "instance": "a",
+      "errors": [
+        {
+          "messageId": "boolean-schema-message",
+          "messageParams": {},
+          "instanceLocation": "#",
+          "schemaLocations": [
+            "#/allOf/0/const",
+            "#/allOf/1/const"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "const with type - filter by type",
+      "compatibility": "6",
+      "schema": {
+        "allOf": [
+          { "type": "number" },
+          { "const": "foo" }
+        ]
+      },
+      "instance": "foo",
+      "errors": [
+        {
+          "messageId": "boolean-schema-message",
+          "messageParams": {},
+          "instanceLocation": "#",
+          "schemaLocations": [
+            "#/allOf/0/type",
+            "#/allOf/1/const"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "const with matching type",
+      "compatibility": "6",
+      "schema": {
+        "allOf": [
+          { "type": "string" },
+          { "const": "foo" }
+        ]
+      },
+      "instance": 42,
+      "errors": [
+        {
+          "messageId": "const-message",
+          "messageParams": {
+            "expected": "\"foo\""
+          },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/allOf/1/const"]
+        }
+      ]
     }
   ]
 }

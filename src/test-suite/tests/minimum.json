@@ -86,6 +86,78 @@
       },
       "instance": 4,
       "errors": []
+    },
+    {
+      "description": "minimum with multiple constraints (highest value considered)",
+      "schema": {
+        "allOf": [{ "minimum": 5 }, { "minimum": 3 }]
+      },
+      "instance": 1,
+      "errors": [
+        {
+          "messageId": "minimum-message",
+          "messageParams": {
+            "minimum": "5"
+          },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/allOf/0/minimum"]
+        }
+      ]
+    },
+    {
+      "description": "exclusiveMinimum with multiple constraints (highest value considered)",
+      "compatibility": "6",
+      "schema": {
+        "allOf": [{ "exclusiveMinimum": 4 }, { "exclusiveMinimum": 6 }]
+      },
+      "instance": 3,
+      "errors": [
+        {
+          "messageId": "exclusiveMinimum-message",
+          "messageParams": {
+            "exclusiveMinimum": "6"
+          },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/allOf/1/exclusiveMinimum"]
+        }
+      ]
+    },
+    {
+      "description": "combined minimum and exclusive minimum with draft04 compatiblity",
+      "compatibility": "=4",
+      "schema": {
+        "allOf": [{ "minimum": 4, "exclusiveMinimum": true }, { "minimum": 3 }]
+      },
+      "instance": 2,
+      "errors": [
+        {
+          "messageId": "exclusiveMinimum-message",
+          "messageParams": {
+            "exclusiveMinimum": "4"
+          },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/allOf/0/minimum","#/allOf/0/exclusiveMinimum"] 
+        }
+      ]
+    },
+    {
+      "description": "combined minimum and exclusive minimum ",
+      "compatibility": "6",
+      "schema": {
+        "allOf": [{ "minimum": 4 }, { "minimum": 7 }, { "exclusiveMinimum": 5 }]
+      },
+
+      "instance": 2,
+      "errors": [
+        {
+          "messageId": "minimum-message",
+          "messageParams": {
+            "minimum": "7"
+          },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/allOf/1/minimum"]
+        }
+      ]
     }
   ]
 }

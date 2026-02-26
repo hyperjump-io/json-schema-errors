@@ -15,10 +15,11 @@ const multipleOfErrorHandler = async (normalizedErrors, instance, localization) 
   let combinedMultipleOf = null;
   /** @type string[] */
   const schemaLocations = [];
+  let hasError = false;
 
   for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/multipleOf"]) {
-    if (normalizedErrors["https://json-schema.org/keyword/multipleOf"][schemaLocation]) {
-      continue;
+    if (!normalizedErrors["https://json-schema.org/keyword/multipleOf"][schemaLocation]) {
+      hasError = true;
     }
 
     const keyword = await getSchema(schemaLocation);
@@ -28,7 +29,7 @@ const multipleOfErrorHandler = async (normalizedErrors, instance, localization) 
     schemaLocations.push(schemaLocation);
   }
 
-  if (combinedMultipleOf !== null) {
+  if (combinedMultipleOf !== null && hasError) {
     errors.push({
       message: localization.getMultipleOfErrorMessage(combinedMultipleOf),
       instanceLocation: Instance.uri(instance),

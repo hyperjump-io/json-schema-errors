@@ -86,6 +86,81 @@
       },
       "instance": 2,
       "errors": []
+    },
+    {
+      "description": "maximum with multiple constraints (lowest value considered)",
+      "schema": {
+        "allOf": [{ "maximum": 3 }, { "maximum": 2 }]
+      },
+      "instance": 6,
+      "errors": [
+        {
+          "messageId": "maximum-message",
+          "messageParams": {
+            "maximum": "2"
+          },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/allOf/1/maximum"]
+        }
+      ]
+    },
+    {
+      "description": "exclusiveMaximum with multiple constraints (lowest value considered)",
+      "compatibility": "6",
+      "schema": {
+        "allOf": [{ "exclusiveMaximum": 3 }, { "exclusiveMaximum": 2 }]
+      },
+      "instance": 6,
+      "errors": [
+        {
+          "messageId": "exclusiveMaximum-message",
+          "messageParams": {
+            "exclusiveMaximum": "2"
+          },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/allOf/1/exclusiveMaximum"]
+        }
+      ]
+    },
+    {
+      "description": "combined maximum and exclusive maximum with draft04 compatiblity",
+      "compatibility": "=4",
+      "schema": {
+        "allOf": [
+          { "maximum": 2, "exclusiveMaximum": true },
+          { "maximum": 4 }
+        ]
+      },
+      "instance": 5,
+      "errors": [
+        {
+          "messageId": "exclusiveMaximum-message",
+          "messageParams": {
+            "exclusiveMaximum": "2"
+          },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/allOf/0/maximum","#/allOf/0/exclusiveMaximum"]
+        }
+      ]
+    },
+    {
+      "description": "combined maximum and exclusive maximum ",
+      "compatibility": "6",
+      "schema": {
+        "allOf": [{ "maximum": 3 }, { "maximum": 2 }, { "exclusiveMaximum": 5 }]
+      },
+
+      "instance": 6,
+      "errors": [
+        {
+          "messageId": "maximum-message",
+          "messageParams": {
+            "maximum": "2"
+          },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/allOf/1/maximum"]
+        }
+      ]
     }
   ]
 }

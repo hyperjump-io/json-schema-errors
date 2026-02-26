@@ -47,17 +47,8 @@
         {
           "messageId": "required-message",
           "messageParams": {
-            "count": 1,
-            "required": { "and": ["baz"] }
-          },
-          "instanceLocation": "#",
-          "schemaLocations": ["#/dependencies"]
-        },
-        {
-          "messageId": "required-message",
-          "messageParams": {
-            "count": 1,
-            "required": { "and": ["bbb"] }
+            "count": 2,
+            "required": { "and": ["baz", "bbb"] }
           },
           "instanceLocation": "#",
           "schemaLocations": ["#/dependencies"]
@@ -110,20 +101,14 @@
         {
           "messageId": "required-message",
           "messageParams": {
-            "count": 1,
-            "required": { "and": ["baz"] }
+            "count": 2,
+            "required": { "and": ["baz", "bbb"] }
           },
           "instanceLocation": "#",
-          "schemaLocations": ["#/dependentSchemas/foo/required"]
-        },
-        {
-          "messageId": "required-message",
-          "messageParams": {
-            "count": 1,
-            "required": { "and": ["bbb"] }
-          },
-          "instanceLocation": "#",
-          "schemaLocations": ["#/dependentSchemas/aaa/required"]
+          "schemaLocations": [
+            "#/dependentSchemas/foo/required",
+            "#/dependentSchemas/aaa/required"
+          ]
         }
       ]
     },

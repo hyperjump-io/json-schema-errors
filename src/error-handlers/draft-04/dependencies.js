@@ -1,6 +1,3 @@
-import { getSchema } from "@hyperjump/json-schema/experimental";
-import * as Schema from "@hyperjump/browser";
-import * as Instance from "@hyperjump/json-schema/instance/experimental";
 import { getErrors } from "../../json-schema-errors.js";
 
 /**
@@ -21,25 +18,6 @@ const dependenciesErrorHandler = async (normalizedErrors, instance, localization
     for (const dependentSchemaOutput of dependentSchemaOutputs) {
       const dependentSchemaErrors = await getErrors(dependentSchemaOutput, instance, localization);
       errors.push(...dependentSchemaErrors);
-    }
-
-    const dependencies = await getSchema(schemaLocation);
-    for await (const [propertyName, dependency] of Schema.entries(dependencies)) {
-      if (!Instance.has(propertyName, instance)) {
-        continue;
-      }
-
-      if (Schema.typeOf(dependency) !== "array") {
-        continue;
-      }
-
-      const dependentRequired = /** @type {string[]} */ (Schema.value(dependency));
-      const missing = dependentRequired.filter((required) => !Instance.has(required, instance));
-      errors.push({
-        message: localization.getRequiredErrorMessage(missing),
-        instanceLocation: Instance.uri(instance),
-        schemaLocations: [schemaLocation]
-      });
     }
   }
 
