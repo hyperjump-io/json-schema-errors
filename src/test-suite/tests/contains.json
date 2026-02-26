@@ -96,6 +96,88 @@
       },
       "instance": ["foo", 42],
       "errors": []
+    },
+    {
+      "description": "contains fails due to too many matching items with success explanations",
+      "compatibility": "2019",
+      "schema": {
+        "contains": { "type": "string" },
+        "maxContains": 1
+      },
+      "instance": [42, "foo", "bar"],
+      "errors": [
+        {
+          "messageId": "contains-exact-message",
+          "messageParams": {
+            "minContains": 1,
+            "maxContains": 1
+          },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/contains", "#/maxContains"],
+          "alternatives": [
+            [
+              {
+                "messageId": "type-success",
+                "messageParams": {
+                  "actualType": "string"
+                },
+                "instanceLocation": "#/1",
+                "schemaLocations": ["#/contains/type"]
+              }
+            ],
+            [
+              {
+                "messageId": "type-success",
+                "messageParams": {
+                  "actualType": "string"
+                },
+                "instanceLocation": "#/2",
+                "schemaLocations": ["#/contains/type"]
+              }
+            ]
+          ]
+        },
+        {
+          "description": "contains fails with multiple object matches",
+          "compatibility": "2019",
+          "schema": {
+            "contains": {
+              "required": ["a"]
+            },
+            "maxContains": 1
+          },
+          "instance": [{ "a": 1 }, { "a": 2 }],
+          "errors": [
+            {
+              "messageId": "contains-exact-message",
+              "messageParams": {
+                "minContains": 1,
+                "maxContains": 1
+              },
+              "instanceLocation": "#",
+              "schemaLocations": ["#/contains", "#/maxContains"],
+              "alternatives": [
+                [
+                  {
+                    "messageId": "required-success",
+                    "messageParams": { "property": "a" },
+                    "instanceLocation": "#/0",
+                    "schemaLocations": ["#/contains/required"]
+                  }
+                ],
+                [
+                  {
+                    "messageId": "required-success",
+                    "messageParams": { "property": "a" },
+                    "instanceLocation": "#/1",
+                    "schemaLocations": ["#/contains/required"]
+                  }
+                ]
+              ]
+            }
+          ]
+        }
+      ]
     }
   ]
 }
