@@ -2,36 +2,79 @@ import * as Instance from "@hyperjump/json-schema/instance/experimental";
 import { getErrors } from "../json-schema-errors.js";
 
 /**
- * @import { ErrorHandler, ErrorObject } from "../index.d.ts"
+ * @import { ErrorHandler, ErrorObject, NormalizedOutput } from "../index.d.ts"
  */
+
+/** @type (alternative: NormalizedOutput, propLocation: string) => boolean */
+const propertyPasses = (alternative, propLocation) => {
+  const propOutput = alternative[propLocation];
+  if (!propOutput || Object.keys(propOutput).length === 0) return false;
+  return Object.values(propOutput).every((keywordResults) =>
+    Object.values(keywordResults).every((v) => v === true)
+  );
+};
 
 /** @type ErrorHandler */
 const anyOfErrorHandler = async (normalizedErrors, instance, localization) => {
   /** @type ErrorObject[] */
   const errors = [];
 
-  for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/anyOf"]) {
-    const anyOf = normalizedErrors["https://json-schema.org/keyword/anyOf"][schemaLocation];
+  for (const schemaLocation in normalizedErrors[
+    "https://json-schema.org/keyword/anyOf"
+  ]) {
+    const anyOf
+      = normalizedErrors["https://json-schema.org/keyword/anyOf"][schemaLocation];
     if (typeof anyOf === "boolean") {
       continue;
     }
-
-    const alternatives = [];
     const instanceLocation = Instance.uri(instance);
+    let filtered = anyOf;
 
-    for (const alternative of anyOf) {
-      const typeErrors = alternative[instanceLocation]?.["https://json-schema.org/keyword/type"];
-      const match = !typeErrors || Object.values(typeErrors).every((isValid) => isValid);
+    if (Instance.typeOf(instance) === "object") {
+      const instanceProps = new Set(
+        [...Instance.keys(instance)].map(
+          (keyNode) => /** @type {string} */ (Instance.value(keyNode))
+        )
+      );
+      const prefix = `${instanceLocation}/`;
 
-      if (match) {
-        alternatives.push(await getErrors(alternative, instance, localization));
+      filtered = filtered.filter((alternative) => {
+        const declaredProps = Object.keys(alternative)
+          .filter((loc) => loc.startsWith(prefix))
+          .map((loc) => loc.slice(prefix.length));
+
+        if (declaredProps.length === 0) return true;
+        return declaredProps.some((prop) => instanceProps.has(prop));
+      });
+
+      filtered = filtered.filter((alternative) =>
+        [...instanceProps].some((prop) =>
+          propertyPasses(alternative, `${instanceLocation}/${prop}`)
+        )
+      );
+
+      if (filtered.length === 0) {
+        filtered = anyOf;
+      }
+    } else {
+      filtered = filtered.filter((alternative) => {
+        const typeResults
+          = alternative[instanceLocation]?.[
+            "https://json-schema.org/keyword/type"
+          ];
+        return (
+          !typeResults || Object.values(typeResults).every((isValid) => isValid)
+        );
+      });
+
+      if (filtered.length === 0) {
+        filtered = anyOf;
       }
     }
 
-    if (alternatives.length === 0) {
-      for (const alternative of anyOf) {
-        alternatives.push(await getErrors(alternative, instance, localization));
-      }
+    const alternatives = [];
+    for (const alternative of filtered) {
+      alternatives.push(await getErrors(alternative, instance, localization));
     }
 
     if (alternatives.length === 1) {
@@ -40,7 +83,7 @@ const anyOfErrorHandler = async (normalizedErrors, instance, localization) => {
       errors.push({
         message: localization.getAnyOfErrorMessage(),
         alternatives: alternatives,
-        instanceLocation: Instance.uri(instance),
+        instanceLocation,
         schemaLocations: [schemaLocation]
       });
     }
