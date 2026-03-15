@@ -8,7 +8,33 @@ import * as Instance from "@hyperjump/json-schema/instance/experimental";
  */
 
 /** @type ErrorHandler */
-const requiredErrorHandler = async (normalizedErrors, instance, localization) => {
+const requiredErrorHandler = async (normalizedErrors, instance, localization, context={mode:"fail",negated:false}) => {
+  if (context.mode === "pass") {
+  const errors = [];
+
+  for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/required"]) {
+    const passed = normalizedErrors["https://json-schema.org/keyword/required"][schemaLocation];
+
+    if (!passed) continue;
+
+    const keyword = await getSchema(schemaLocation);
+    const required = /** @type string[] */ (Schema.value(keyword));
+
+    for (const propertyName of required) {
+      if (Instance.has(propertyName, instance)) {
+        errors.push({
+          message: context.negated
+            ? localization.getRequiredNegatedMessage(propertyName)
+            : localization.getRequiredSuccessMessage(propertyName),
+          instanceLocation: Instance.uri(instance),
+          schemaLocations: [schemaLocation]
+        });
+      }
+    }
+  }
+
+  return errors;
+  }
   /** @type {Set<string>} */
   const allMissingRequired = new Set();
   const allSchemaLocations = [];

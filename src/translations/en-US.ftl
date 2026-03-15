@@ -39,6 +39,8 @@ required-message = Missing required {$count ->
   [one] property: {$required}
  *[other] properties: {$required}
 }
+required-success-message = The '{$property}' property is present
+required-negated-message = The '{$property}' property should not be present
 
 // Applicators
 anyOf-message = Expected the value to match at least one alternative

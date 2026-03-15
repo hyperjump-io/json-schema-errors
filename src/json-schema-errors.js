@@ -196,3 +196,28 @@ export const getErrors = async (normalizedErrors, rootInstance, localization) =>
 
   return errors;
 };
+
+/** @type (normalizedErrors: API.InstanceOutput, rootInstance: JsonNode, localization: Localization, options?: { negated?: boolean }) => Promise<API.ErrorObject[][]> */
+export const getPassing = async (normalizedErrors, instance, localization, options = {}) => {
+  /** @type API.ErrorObject[][] */
+  const alternatives = [];
+
+    for (const errorHandler of errorHandlers) {
+      // prevent recursive loop
+    if (errorHandler.name === "notErrorHandler") {
+      continue;
+    }
+      const messages = await errorHandler(
+        normalizedErrors,
+        instance,
+        localization,
+        { mode: "pass", negated: options.negated }
+      );
+
+      if (messages.length) {
+        alternatives.push(messages);
+      }
+    }
+  
+  return alternatives;
+};
