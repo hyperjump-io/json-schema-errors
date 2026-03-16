@@ -164,6 +164,16 @@ export class Localization {
     });
   }
 
+  /**@type (property: string)=> string */
+  getRequiredSuccessMessage(property) {
+    return this.#formatMessage("required-success-message", { property })
+  }
+
+  /**@type (property: string)=> string */
+  getRequiredNegatedMessage(property) {
+    return this.#formatMessage("required-negated-message", { property })
+  }
+
   /** @type () => string */
   getAnyOfErrorMessage() {
     return this.#formatMessage("anyOf-message", {});
