@@ -96,7 +96,6 @@ const typeConstEnumErrorHandler = async (normalizedErrors, instance, localizatio
     }];
   } else if (allowedJson?.size) {
     /** @type Json[] */
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     const allowedValues = [...allowedJson ?? []].map((json) => JSON.parse(json));
 
     return [{

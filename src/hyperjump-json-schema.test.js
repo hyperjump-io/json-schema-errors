@@ -70,7 +70,6 @@ const runTests = (dialectUri, dialect) => {
       }
 
       const file = `${entry.parentPath}/${entry.name}`;
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const suite = /** @type TestSuite */ (JSON.parse(await readFile(file, "utf8")));
 
       for (const testCase of suite.tests) {

@@ -75,7 +75,7 @@ describe("Normalization", async () => {
       valid: false,
       errors: [
         {
-          keywordLocation: `/type`,
+          keywordLocation: "/type",
           instanceLocation: "#"
         }
       ]
@@ -104,7 +104,7 @@ describe("Normalization", async () => {
       valid: false,
       errors: [
         {
-          keywordLocation: `#/type`,
+          keywordLocation: "#/type",
           instanceLocation: "#"
         }
       ]
@@ -139,7 +139,7 @@ describe("Normalization", async () => {
       valid: false,
       errors: [
         {
-          keywordLocation: `/properties/foo/$ref/type`,
+          keywordLocation: "/properties/foo/$ref/type",
           instanceLocation: "#/foo"
         }
       ]

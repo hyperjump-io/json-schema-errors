@@ -6,7 +6,6 @@ import jsonStringify from "json-stringify-deterministic";
  */
 
 /** @type ErrorHandler */
-// eslint-disable-next-line @typescript-eslint/require-await
 const uniqueItemsErrorHandler = async (normalizedErrors, instance, localization) => {
   /** @type ErrorObject[] */
   const errors = [];
