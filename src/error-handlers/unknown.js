@@ -6,7 +6,6 @@ import { pointerSegments } from "@hyperjump/json-pointer";
  */
 
 /** @type ErrorHandler */
-// eslint-disable-next-line @typescript-eslint/require-await
 const unknownErrorHandler = async (normalizedErrors, instance, localization) => {
   /** @type ErrorObject[] */
   const errors = [];

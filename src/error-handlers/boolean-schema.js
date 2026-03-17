@@ -5,7 +5,6 @@ import * as Instance from "@hyperjump/json-schema/instance/experimental";
  */
 
 /** @type ErrorHandler */
-// eslint-disable-next-line @typescript-eslint/require-await
 const booleanSchemaErrorHandler = async (normalizedErrors, instance, localization) => {
   /** @type ErrorObject[] */
   const errors = [];
