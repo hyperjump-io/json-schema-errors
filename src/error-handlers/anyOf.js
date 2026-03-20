@@ -1,8 +1,10 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
+import * as JsonPointer from "@hyperjump/json-pointer";
+import * as Pact from "@hyperjump/pact";
 import { getErrors } from "../json-schema-errors.js";
 
 /**
- * @import { ErrorHandler, ErrorObject } from "../index.d.ts"
+ * @import { ErrorHandler, ErrorObject, NormalizedOutput } from "../index.d.ts"
  */
 
 /** @type ErrorHandler */
@@ -15,23 +17,56 @@ const anyOfErrorHandler = async (normalizedErrors, instance, localization) => {
     if (typeof anyOf === "boolean") {
       continue;
     }
-
-    const alternatives = [];
     const instanceLocation = Instance.uri(instance);
+    let filtered = anyOf;
 
-    for (const alternative of anyOf) {
-      const typeErrors = alternative[instanceLocation]["https://json-schema.org/keyword/type"];
-      const match = !typeErrors || Object.values(typeErrors).every((isValid) => isValid);
+    if (Instance.typeOf(instance) === "object") {
+      const instanceProps = Pact.collectSet(
+        Pact.map(
+          (keyNode) => /** @type {string} */ (Instance.value(keyNode)),
+          Instance.keys(instance)
+        )
+      );
+      const prefix = `${instanceLocation}/`;
 
-      if (match) {
-        alternatives.push(await getErrors(alternative, instance, localization));
+      filtered = [];
+      for (const alternative of anyOf) {
+        const typeResults = alternative[instanceLocation]["https://json-schema.org/keyword/type"];
+        if (typeResults && !Object.values(typeResults).every((isValid) => isValid)) {
+          continue;
+        }
+
+        const declaredProps = Object.keys(alternative)
+          .filter((loc) => loc.startsWith(prefix))
+          .map((loc) => /** @type {string} */ (Pact.head(JsonPointer.pointerSegments(loc.slice(prefix.length - 1)))));
+
+        if (declaredProps.length > 0 && !declaredProps.some((prop) => instanceProps.has(prop))) {
+          continue;
+        }
+
+        if (!Pact.some((prop) => propertyPasses(alternative[JsonPointer.append(prop, instanceLocation)]), instanceProps)) {
+          continue;
+        }
+
+        filtered.push(alternative);
+      }
+    } else {
+      filtered = [];
+      for (const alternative of anyOf) {
+        const typeResults = alternative[instanceLocation]["https://json-schema.org/keyword/type"];
+        if (!typeResults || Object.values(typeResults).every((isValid) => isValid)) {
+          filtered.push(alternative);
+        }
       }
     }
 
-    if (alternatives.length === 0) {
-      for (const alternative of anyOf) {
-        alternatives.push(await getErrors(alternative, instance, localization));
-      }
+    if (filtered.length === 0) {
+      filtered = anyOf;
+    }
+
+    const alternatives = [];
+    for (const alternative of filtered) {
+      alternatives.push(await getErrors(alternative, instance, localization));
     }
 
     if (alternatives.length === 1) {
@@ -40,13 +75,21 @@ const anyOfErrorHandler = async (normalizedErrors, instance, localization) => {
       errors.push({
         message: localization.getAnyOfErrorMessage(),
         alternatives: alternatives,
-        instanceLocation: Instance.uri(instance),
+        instanceLocation,
         schemaLocations: [schemaLocation]
       });
     }
   }
 
   return errors;
+};
+
+/** @type (propOutput: NormalizedOutput[string] | undefined) => boolean */
+const propertyPasses = (propOutput) => {
+  if (!propOutput || Object.keys(propOutput).length === 0) return false;
+  return Object.values(propOutput).every((keywordResults) =>
+    Object.values(keywordResults).every((v) => v === true)
+  );
 };
 
 export default anyOfErrorHandler;
