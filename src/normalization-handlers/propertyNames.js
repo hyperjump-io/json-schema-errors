@@ -16,7 +16,6 @@ const propertyNamesNormalizationHandler = {
     }
 
     for (const propertyName of Instance.keys(instance)) {
-      propertyName.pointer = propertyName.pointer.replace(/^\*/, "");
       outputs.push(evaluateSchema(propertyNames, propertyName, context));
     }
 

@@ -58,7 +58,8 @@ const constructErrorIndex = async (outputUnit, schema, errorIndex = {}) => {
 
     const absoluteKeywordLocation = errorOutputUnit.absoluteKeywordLocation
       ?? await toAbsoluteKeywordLocation(schema, /** @type string */ (errorOutputUnit.keywordLocation));
-    const instanceLocation = normalizeInstanceLocation(/** @type string */ (errorOutputUnit.instanceLocation));
+    const instanceLocation = /** @type string */ (errorOutputUnit.instanceLocation)
+      .replace(/^#?\*?/, "#");
 
     errorIndex[absoluteKeywordLocation] ??= {};
     errorIndex[absoluteKeywordLocation][instanceLocation] = true;
@@ -83,12 +84,6 @@ async function toAbsoluteKeywordLocation(schema, keywordLocation) {
   }
 
   return `${schema.document.baseUri}#${schema.cursor}`;
-}
-
-/** @type {(location: string) => string} */
-function normalizeInstanceLocation(location) {
-  const instanceLocation = location.startsWith("/") || location === "" ? `#${location}` : location;
-  return instanceLocation.replace(/(#|^)\*\//, "$1/");
 }
 
 /** @type API.evaluateSchema */
@@ -134,7 +129,7 @@ export const evaluateSchema = (schemaLocation, instance, context) => {
       }
 
       const keywordOutput = keyword.evaluate(keywordValue, instance, keywordContext);
-      const isKeywordValid = !context.errorIndex[keywordLocation]?.[instanceLocation];
+      const isKeywordValid = !context.errorIndex[keywordLocation]?.[instanceLocation.replace(/^#\*/, "#")];
       if (!isKeywordValid) {
         valid = false;
       }
