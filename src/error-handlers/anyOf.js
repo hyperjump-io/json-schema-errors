@@ -86,10 +86,10 @@ const anyOfErrorHandler = async (normalizedErrors, instance, localization) => {
 
 /** @type (propOutput: NormalizedOutput[string] | undefined) => boolean */
 const propertyPasses = (propOutput) => {
-  if (!propOutput || Object.keys(propOutput).length === 0) return false;
-  return Object.values(propOutput).every((keywordResults) =>
-    Object.values(keywordResults).every((v) => v === true)
-  );
+  if (!propOutput || Object.keys(propOutput).length === 0) {
+    return false;
+  }
+  return Object.values(propOutput).every((keywordResults) => Object.values(keywordResults).every((v) => v === true));
 };
 
 export default anyOfErrorHandler;
