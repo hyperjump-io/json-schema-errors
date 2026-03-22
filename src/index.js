@@ -171,6 +171,7 @@ addErrorHandler(unknownErrorHandler);
 export {
   addErrorHandler,
   evaluateSchema,
+  getErrors,
   jsonSchemaErrors,
   setNormalizationHandler
 } from "./json-schema-errors.js";

@@ -181,7 +181,7 @@ export const addErrorHandler = (errorHandler) => {
   errorHandlers.push(errorHandler);
 };
 
-/** @type (normalizedErrors: API.NormalizedOutput, rootInstance: JsonNode, language: Localization) => Promise<API.ErrorObject[]> */
+/** @type API.getErrors */
 export const getErrors = async (normalizedErrors, rootInstance, localization) => {
   /** @type API.ErrorObject[] */
   const errors = [];

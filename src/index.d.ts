@@ -73,3 +73,5 @@ export const addErrorHandler: (handler: ErrorHandler) => void;
 export type ErrorHandler = (normalizedErrors: InstanceOutput, instance: JsonNode, localization: Localization) => Promise<ErrorObject[]>;
 
 export const evaluateSchema: (schemaLocation: string, instance: JsonNode, context: EvaluationContext) => NormalizedOutput;
+
+export const getErrors: (normalizedErrors: NormalizedOutput, rootInstance: JsonNode, language: Localization) => Promise<ErrorObject[]>;
