@@ -92,7 +92,7 @@ export const evaluateSchema = (schemaLocation, instance, context) => {
 
   let valid = true;
   /** @type API.NormalizedOutput */
-  const output = { [instanceLocation]: {} };
+  const output = {};
 
   for (const plugin of context.plugins) {
     plugin.beforeSchema?.(schemaLocation, instance, context);
@@ -101,6 +101,7 @@ export const evaluateSchema = (schemaLocation, instance, context) => {
   const schemaNode = context.ast[schemaLocation];
   if (typeof schemaNode === "boolean") {
     if (context.errorIndex[schemaLocation]?.[instanceLocation]) {
+      output[instanceLocation] ??= {};
       output[instanceLocation] = {
         "https://json-schema.org/validation": {
           [schemaLocation]: schemaNode
@@ -139,6 +140,7 @@ export const evaluateSchema = (schemaLocation, instance, context) => {
           mergeOutput(output, suboutput);
         }
       } else {
+        output[instanceLocation] ??= {};
         output[instanceLocation][normalizedKeywordUri] ??= {};
         output[instanceLocation][normalizedKeywordUri][keywordLocation] = isKeywordValid || (keywordOutput ?? false);
       }

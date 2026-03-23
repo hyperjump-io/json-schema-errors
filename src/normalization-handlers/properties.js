@@ -1,6 +1,5 @@
 import { evaluateSchema } from "../json-schema-errors.js";
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
-import * as JsonPointer from "@hyperjump/json-pointer";
 
 /**
  * @import { NormalizationHandler, NormalizedOutput } from "../index.d.ts"
@@ -16,13 +15,10 @@ const propertiesNormalizationHandler = {
       return outputs;
     }
 
-    for (const propertyName in properties) {
-      const propertyNode = Instance.step(propertyName, instance);
-      if (!propertyNode) {
-        outputs.push({
-          [JsonPointer.append(propertyName, Instance.uri(instance))]: {}
-        });
-      } else {
+    for (const [propertyNameNode, propertyNode] of Instance.entries(instance)) {
+      const propertyName = Instance.value(propertyNameNode);
+
+      if (properties[propertyName]) {
         outputs.push(evaluateSchema(properties[propertyName], propertyNode, context));
       }
     }
