@@ -3,14 +3,7 @@ import { FluentBundle, FluentResource } from "@fluent/bundle";
 
 /**
  * @import { FluentVariable} from "@fluent/bundle"
- * @import { Json } from "./index.js"
- */
-
-/**
- * @typedef {{
- *   minContains?: number;
- *   maxContains?: number;
- * }} ContainsRange
+ * @import { ContainsRange, Json } from "./index.d.ts"
  */
 
 export class Localization {

@@ -32,7 +32,7 @@
     "lint": "oxlint",
     "test": "vitest run",
     "type-check": "tsc --noEmit",
-    "docs": "typedoc --excludeExternals"
+    "docs": "typedoc --excludeExternals src/index.d.ts"
   },
   "dependencies": {
     "@fluent/bundle": "^0.19.1",

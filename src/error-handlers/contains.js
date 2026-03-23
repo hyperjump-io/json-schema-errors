@@ -3,8 +3,7 @@ import * as Schema from "@hyperjump/browser";
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
 
 /**
- * @import { ContainsRange } from "../localization.js"
- * @import { ErrorHandler, ErrorObject } from "../index.d.ts"
+ * @import { ContainsRange, ErrorHandler, ErrorObject } from "../index.d.ts"
  */
 
 /** @type ErrorHandler */

@@ -16,7 +16,7 @@ import { Localization } from "./localization.js";
 export const jsonSchemaErrors = async (errorOutput, schemaUri, instance, options = {}) => {
   const normalizedErrors = await normalizedOutput(instance, errorOutput, schemaUri);
   const rootInstance = Instance.fromJs(instance);
-  const localization = await Localization.forLocale(options.language ?? "en-US");
+  const localization = await Localization.forLocale(options.locale ?? "en-US");
   return await getErrors(normalizedErrors, rootInstance, localization);
 };
 
@@ -24,8 +24,8 @@ export const jsonSchemaErrors = async (errorOutput, schemaUri, instance, options
 const normalizationHandlers = {};
 
 /** @type API.setNormalizationHandler */
-export const setNormalizationHandler = (uri, handler) => {
-  normalizationHandlers[uri] = handler;
+export const setNormalizationHandler = (schemaUri, handler) => {
+  normalizationHandlers[schemaUri] = handler;
 };
 
 /** @type (instance: API.Json, errorOutput: API.OutputUnit, subjectUri: string) => Promise<API.NormalizedOutput> */
