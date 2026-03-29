@@ -358,6 +358,39 @@
       ]
     },
     {
+      "description": "oneOf object alternatives filters to matching branch by declared property intersection",
+      "compatibility": "6",
+      "schema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "a": { "type": "string" }
+            },
+            "required": ["a"]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "b": { "type": "string" }
+            },
+            "required": ["b"]
+          }
+        ]
+      },
+      "instance": { "a": 42 },
+      "errors": [
+        {
+          "messageId": "type-message",
+          "messageParams": {
+            "expectedTypes": "string"
+          },
+          "instanceLocation": "#/a",
+          "schemaLocations": ["#/oneOf/0/properties/a/type"]
+        }
+      ]
+    },
+    {
       "description": "oneOf object alternatives fallback to all when no instance property passes in any branch",
       "compatibility": "6",
       "schema": {

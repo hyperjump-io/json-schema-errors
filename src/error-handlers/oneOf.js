@@ -49,48 +49,55 @@ const oneOfErrorHandler = async (normalizedErrors, instance, localization) => {
 
     let filtered = oneOf;
 
-    if (Instance.typeOf(instance) === "object") {
-      const instanceProps = Pact.collectSet(
-        Pact.map(
-          (keyNode) => /** @type {string} */ (Instance.value(keyNode)),
-          Instance.keys(instance)
-        )
-      );
-      const prefix = `${instanceLocation}/`;
+    const isObject = Instance.typeOf(instance) === "object";
+    const instanceProps = isObject
+      ? Pact.collectSet(Pact.map((keyNode) => /** @type {string} */ (Instance.value(keyNode)), Instance.keys(instance)))
+      : undefined;
+    const prefix = `${instanceLocation}/`;
 
-      filtered = [];
-      for (const alternative of oneOf) {
-        const typeResults = alternative[instanceLocation]?.["https://json-schema.org/keyword/type"];
-        if (typeResults && !Object.values(typeResults).every((isValid) => isValid)) {
-          continue;
-        }
-
-        const declaredProps = Object.keys(alternative)
-          .filter((loc) => loc.startsWith(prefix))
-          .map((loc) => /** @type {string} */ (Pact.head(JsonPointer.pointerSegments(loc.slice(prefix.length - 1)))));
-
-        if (declaredProps.length > 0 && !declaredProps.some((prop) => instanceProps.has(prop))) {
-          continue;
-        }
-
-        if (!Pact.some((prop) => propertyPasses(alternative[JsonPointer.append(prop, instanceLocation)]), instanceProps)) {
-          continue;
-        }
-
-        filtered.push(alternative);
+    filtered = [];
+    for (const alternative of oneOf) {
+      const typeResults = alternative[instanceLocation]?.["https://json-schema.org/keyword/type"];
+      if (typeResults && !Object.values(typeResults).every((isValid) => isValid)) {
+        continue;
       }
-    } else {
-      filtered = [];
-      for (const alternative of oneOf) {
-        const typeResults = alternative[instanceLocation]["https://json-schema.org/keyword/type"];
-        if (!typeResults || Object.values(typeResults).every((isValid) => isValid)) {
-          filtered.push(alternative);
+
+      if (isObject) {
+        const declaredProps = Pact.map(
+          (loc) => /** @type {string} */ (Pact.head(JsonPointer.pointerSegments(loc.slice(prefix.length - 1)))),
+          Pact.filter((loc) => loc.startsWith(prefix), Object.keys(alternative))
+        );
+
+        let hasDeclaredProps = false;
+        const hasMatchingProp = Pact.some((prop) => {
+          hasDeclaredProps = true;
+          return /** @type {Set<string>} */ (instanceProps).has(prop);
+        }, declaredProps);
+        if (hasDeclaredProps && !hasMatchingProp) {
+          continue;
         }
       }
+
+      filtered.push(alternative);
     }
 
     if (filtered.length === 0) {
       filtered = oneOf;
+    }
+
+    if (isObject) {
+      const discriminators = Pact.collectSet(
+        Pact.filter(
+          (prop) => Pact.some((alternative) => propertyPasses(alternative[JsonPointer.append(prop, instanceLocation)]), filtered),
+          /** @type {Set<string>} */ (instanceProps)
+        )
+      );
+
+      const afterRule2 = Pact.collectArray(Pact.filter((alternative) => !Pact.some((prop) => !propertyPasses(alternative[JsonPointer.append(prop, instanceLocation)]), discriminators), filtered));
+
+      if (afterRule2.length > 0) {
+        filtered = afterRule2;
+      }
     }
 
     const alternatives = [];
@@ -122,7 +129,7 @@ const oneOfErrorHandler = async (normalizedErrors, instance, localization) => {
 
 /** @type (propOutput: NormalizedOutput[string] | undefined) => boolean */
 const propertyPasses = (propOutput) => {
-  if (!propOutput || Object.keys(propOutput).length === 0) {
+  if (!propOutput) {
     return false;
   }
   return Object.values(propOutput).every((keywordResults) => Object.values(keywordResults).every((v) => v === true));
