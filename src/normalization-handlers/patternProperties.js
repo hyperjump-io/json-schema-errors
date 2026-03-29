@@ -16,11 +16,9 @@ const patternPropertiesNormalizationHandler = {
     }
 
     for (const [pattern, schemaLocation] of patternProperties) {
-      const regex = new RegExp(pattern);
-
       for (const [propertyNameNode, propertyValue] of Instance.entries(instance)) {
         const propertyName = /** @type string */ (Instance.value(propertyNameNode));
-        if (regex.test(propertyName)) {
+        if (pattern.test(propertyName)) {
           outputs.push(evaluateSchema(schemaLocation, propertyValue, context));
         }
       }
