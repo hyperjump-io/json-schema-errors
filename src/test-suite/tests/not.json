@@ -24,6 +24,95 @@
       },
       "instance": "foo",
       "errors": []
+    },
+    {
+      "description": "not fails with success explanation",
+      "schema": {
+        "not": { "pattern": "^a" }
+      },
+      "instance": "apple",
+      "errors": [
+        {
+          "messageId": "not-message",
+          "instanceLocation": "#",
+          "schemaLocations": ["#/not"],
+          "alternatives": [
+            [
+              {
+                "messageId": "pattern-success",
+                "messageParams": {
+                  "pattern": "^a"
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/pattern"]
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "description": "not fails due to subschema match with success explanation",
+      "schema": {
+        "not": {
+          "required": ["a"]
+        }
+      },
+      "instance": { "a": 1 },
+      "errors": [
+        {
+          "messageId": "not-message",
+          "instanceLocation": "#",
+          "schemaLocations": ["#/not"],
+          "alternatives": [
+            [
+              {
+                "messageId": "required-success",
+                "messageParams": { "property": "a" },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/required"]
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "description": "not with nested schema producing a match",
+      "schema": {
+        "not": {
+          "oneOf":[
+            { "required": ["a"] },
+            { "required": ["b"] }
+          ]
+        }
+      },
+      "instance": { "a": 1, "b": 2 },
+      "errors": [
+        {
+          "messageId": "not-message",
+          "instanceLocation": "#",
+          "schemaLocations": ["#/not"],
+          "alternatives": [
+            [
+              {
+                "messageId": "required-success",
+                "messageParams": { "property": "a" },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/oneOf/0/required"]
+              }
+            ],
+            [
+              {
+                "messageId": "required-success",
+                "messageParams": { "property": "b" },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/oneOf/1/required"]
+              }
+            ]
+          ]
+        }
+      ]
     }
   ]
 }
