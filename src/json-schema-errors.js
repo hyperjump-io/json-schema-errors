@@ -14,9 +14,11 @@ import { Localization } from "./localization.js";
 
 /** @type API.jsonSchemaErrors */
 export const jsonSchemaErrors = async (errorOutput, schemaUri, instance, options = {}) => {
-  const normalizedErrors = await normalizedOutput(instance, errorOutput, schemaUri);
   const rootInstance = Instance.fromJs(instance);
-  const localization = await Localization.forLocale(options.locale ?? "en-US");
+  const [normalizedErrors, localization] = await Promise.all([
+    normalizedOutput(rootInstance, errorOutput, schemaUri),
+    Localization.forLocale(options.locale ?? "en-US")
+  ]);
   return await getErrors(normalizedErrors, rootInstance, localization);
 };
 
@@ -28,12 +30,11 @@ export const setNormalizationHandler = (schemaUri, handler) => {
   normalizationHandlers[schemaUri] = handler;
 };
 
-/** @type (instance: API.Json, errorOutput: API.OutputUnit, subjectUri: string) => Promise<API.NormalizedOutput> */
-async function normalizedOutput(instance, errorOutput, subjectUri) {
+/** @type (value: JsonNode, errorOutput: API.OutputUnit, subjectUri: string) => Promise<API.NormalizedOutput> */
+async function normalizedOutput(value, errorOutput, subjectUri) {
   const schema = await getSchema(subjectUri);
   const errorIndex = await constructErrorIndex(errorOutput, schema);
   const { schemaUri, ast } = await compile(schema);
-  const value = Instance.fromJs(instance);
   return evaluateSchema(schemaUri, value, { ast, errorIndex, plugins: [...ast.plugins] });
 }
 
