@@ -17,13 +17,16 @@ const anyOfErrorHandler = async (normalizedErrors, instance, localization) => {
     if (typeof anyOf === "boolean") {
       continue;
     }
+
     const instanceLocation = Instance.uri(instance);
     let filtered = anyOf;
 
     const isObject = Instance.typeOf(instance) === "object";
-    const instanceProps = isObject
-      ? Pact.collectSet(Pact.pipe(Instance.keys(instance), Pact.map((keyNode) => /** @type {string} */ (Instance.value(keyNode)))))
-      : undefined;
+    const instanceProps = Pact.pipe(
+      Instance.keys(instance),
+      Pact.map((keyNode) => /** @type {string} */ (Instance.value(keyNode))),
+      Pact.collectSet
+    );
     const prefix = `${instanceLocation}/`;
 
     filtered = [];
@@ -34,11 +37,12 @@ const anyOfErrorHandler = async (normalizedErrors, instance, localization) => {
       }
 
       if (isObject) {
-        const declaredProps = Pact.collectSet(Pact.pipe(
+        const declaredProps = Pact.pipe(
           Object.keys(alternative),
           Pact.filter((loc) => loc.startsWith(prefix)),
-          Pact.map((loc) => /** @type {string} */ (Pact.head(JsonPointer.pointerSegments(loc.slice(prefix.length - 1)))))
-        ));
+          Pact.map((loc) => /** @type {string} */ (Pact.head(JsonPointer.pointerSegments(loc.slice(prefix.length - 1))))),
+          Pact.collectSet
+        );
 
         if (declaredProps.size > 0 && !Pact.some((prop) => declaredProps.has(prop), /** @type {Set<string>} */ (instanceProps))) {
           continue;
@@ -56,15 +60,13 @@ const anyOfErrorHandler = async (normalizedErrors, instance, localization) => {
     const alternatives = [];
 
     if (isObject) {
-      const discriminators = Pact.collectSet(
-        /** @type {Iterable<string>} */ (Pact.pipe(
-          filtered,
-          Pact.map((alternative) => Pact.pipe(
-            /** @type {Set<string>} */ (instanceProps),
-            Pact.filter((prop) => propertyPasses(alternative[JsonPointer.append(prop, instanceLocation)]))
-          )),
-          Pact.flatten
-        ))
+      const discriminators = Pact.pipe(
+        instanceProps,
+        Pact.filter((prop) => {
+          const propLocation = JsonPointer.append(prop, instanceLocation);
+          return Pact.some((alternative) => propertyPasses(alternative[propLocation]), filtered);
+        }),
+        Pact.collectSet
       );
 
       for (const alternative of filtered) {
