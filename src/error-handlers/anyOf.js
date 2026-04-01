@@ -21,22 +21,32 @@ const anyOfErrorHandler = async (normalizedErrors, instance, localization) => {
     const instanceLocation = Instance.uri(instance);
     let filtered = anyOf;
 
-    const isObject = Instance.typeOf(instance) === "object";
     const instanceProps = Pact.pipe(
       Instance.keys(instance),
       Pact.map((keyNode) => /** @type {string} */ (Instance.value(keyNode))),
       Pact.collectSet
     );
+
+    const discriminators = Pact.pipe(
+      instanceProps,
+      Pact.filter((prop) => {
+        const propLocation = JsonPointer.append(prop, instanceLocation);
+        return Pact.some((alternative) => propertyPasses(alternative[propLocation]), anyOf);
+      }),
+      Pact.collectSet
+    );
+
     const prefix = `${instanceLocation}/`;
 
     filtered = [];
     for (const alternative of anyOf) {
+      // Filter alternatives whose declared type doesn't match the instance type
       const typeResults = alternative[instanceLocation]["https://json-schema.org/keyword/type"];
       if (typeResults && !Object.values(typeResults).every((isValid) => isValid)) {
         continue;
       }
 
-      if (isObject) {
+      if (Instance.typeOf(instance) === "object") {
         const declaredProps = Pact.pipe(
           Object.keys(alternative),
           Pact.filter((loc) => loc.startsWith(prefix)),
@@ -44,7 +54,13 @@ const anyOfErrorHandler = async (normalizedErrors, instance, localization) => {
           Pact.collectSet
         );
 
-        if (declaredProps.size > 0 && !Pact.some((prop) => declaredProps.has(prop), /** @type {Set<string>} */ (instanceProps))) {
+        // Filter alternative if it has no declared properties in common with the instance
+        if (!Pact.some((prop) => declaredProps.has(prop), instanceProps)) {
+          continue;
+        }
+
+        // Filter alternative if it has failing properties that are decalred and passing in another alternative
+        if (Pact.some((prop) => !propertyPasses(alternative[JsonPointer.append(prop, instanceLocation)]), discriminators)) {
           continue;
         }
       }
@@ -58,23 +74,6 @@ const anyOfErrorHandler = async (normalizedErrors, instance, localization) => {
 
     /** @type ErrorObject[][] */
     const alternatives = [];
-
-    if (isObject) {
-      const discriminators = Pact.pipe(
-        instanceProps,
-        Pact.filter((prop) => {
-          const propLocation = JsonPointer.append(prop, instanceLocation);
-          return Pact.some((alternative) => propertyPasses(alternative[propLocation]), filtered);
-        }),
-        Pact.collectSet
-      );
-
-      for (const alternative of filtered) {
-        if (!Pact.some((prop) => !propertyPasses(alternative[JsonPointer.append(prop, instanceLocation)]), discriminators)) {
-          alternatives.push(await getErrors(alternative, instance, localization));
-        }
-      }
-    }
 
     if (alternatives.length === 0) {
       for (const alternative of filtered) {
