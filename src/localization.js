@@ -6,7 +6,7 @@ import { FluentBundle, FluentResource } from "@fluent/bundle";
  * @import { ContainsRange, Json } from "./index.d.ts"
  */
 
-/** @type Map<string, Promise<Localization>> */
+/** @type Map<string, Localization> */
 const localizationCache = new Map();
 
 export class Localization {
@@ -24,20 +24,18 @@ export class Localization {
   /** @type (locale: string) => Promise<Localization> */
   static async forLocale(locale) {
     if (!localizationCache.has(locale)) {
-      localizationCache.set(locale, (async () => {
-        try {
-          const ftl = await readFile(`${import.meta.dirname}/translations/${locale}.ftl`, "utf-8");
-          const resource = new FluentResource(ftl);
-          const bundle = new FluentBundle(locale);
-          bundle.addResource(resource);
-          return new Localization(locale, bundle);
-        } catch (error) {
-          localizationCache.delete(locale);
-          throw Error(`The ${locale} locale is not supported.`, { cause: error });
-        }
-      })());
+      try {
+        const ftl = await readFile(`${import.meta.dirname}/translations/${locale}.ftl`, "utf-8");
+        const resource = new FluentResource(ftl);
+        const bundle = new FluentBundle(locale);
+        bundle.addResource(resource);
+        localizationCache.set(locale, new Localization(locale, bundle));
+      } catch (error) {
+        throw Error(`The ${locale} locale is not supported.`, { cause: error });
+      }
     }
-    return /** @type Promise<Localization> */ (localizationCache.get(locale));
+
+    return /** @type Localization */ (localizationCache.get(locale));
   }
 
   /** @type (messageId: string, args: Record<string, FluentVariable>) => string */
