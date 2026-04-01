@@ -207,6 +207,53 @@
           "schemaLocations": ["#/$defs/bar/maxLength"]
         }
       ]
+    },
+    {
+      "description": "anyOf with no declared type",
+      "schema": {
+        "anyOf": [
+          {
+            "properties": {
+              "foo": { "type": "string" }
+            }
+          },
+          {
+            "properties": {
+              "foo": { "type": "boolean" }
+            }
+          }
+        ]
+      },
+      "instance": { "foo": 42 },
+      "errors": [
+        {
+          "messageId": "anyOf-message",
+          "alternatives": [
+            [
+              {
+                "messageId": "type-message",
+                "messageParams": {
+                  "expectedTypes": { "or": ["string"] }
+                },
+                "instanceLocation": "#/foo",
+                "schemaLocations": ["https://example.com/main#/anyOf/0/properties/foo/type"]
+              }
+            ],
+            [
+              {
+                "messageId": "type-message",
+                "messageParams": {
+                  "expectedTypes": { "or": ["boolean"] }
+                },
+                "instanceLocation": "#/foo",
+                "schemaLocations": ["https://example.com/main#/anyOf/1/properties/foo/type"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["https://example.com/main#/anyOf"]
+        }
+      ]
     }
   ]
 }

@@ -21,7 +21,7 @@ const oneOfErrorHandler = async (normalizedErrors, instance, localization) => {
     let matchCount = 0;
 
     for (const alternative of oneOf) {
-      const typeErrors = alternative[instanceLocation]["https://json-schema.org/keyword/type"];
+      const typeErrors = alternative[instanceLocation]?.["https://json-schema.org/keyword/type"];
       const match = !typeErrors || Object.values(typeErrors).every((isValid) => isValid);
 
       if (match) {

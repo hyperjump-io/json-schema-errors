@@ -272,6 +272,56 @@
           ]
         }
       ]
+    },
+    {
+      "description": "oneOf with no declared type",
+      "schema": {
+        "oneOf": [
+          {
+            "properties": {
+              "foo": { "type": "string" }
+            }
+          },
+          {
+            "properties": {
+              "foo": { "type": "boolean" }
+            }
+          }
+        ]
+      },
+      "instance": { "foo": 42 },
+      "errors": [
+        {
+          "messageId": "oneOf-message",
+          "messageParams": {
+            "matchCount": 0
+          },
+          "alternatives": [
+            [
+              {
+                "messageId": "type-message",
+                "messageParams": {
+                  "expectedTypes": { "or": ["string"] }
+                },
+                "instanceLocation": "#/foo",
+                "schemaLocations": ["https://example.com/main#/oneOf/0/properties/foo/type"]
+              }
+            ],
+            [
+              {
+                "messageId": "type-message",
+                "messageParams": {
+                  "expectedTypes": { "or": ["boolean"] }
+                },
+                "instanceLocation": "#/foo",
+                "schemaLocations": ["https://example.com/main#/oneOf/1/properties/foo/type"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["https://example.com/main#/oneOf"]
+        }
+      ]
     }
   ]
 }
