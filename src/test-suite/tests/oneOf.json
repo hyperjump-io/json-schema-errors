@@ -272,6 +272,191 @@
           ]
         }
       ]
+    },
+    {
+      "description": "oneOf object alternatives keep only one branch when only one branch has a passing instance property",
+      "compatibility": "6",
+      "schema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "type": { "const": "a" },
+              "a": { "type": "string" }
+            },
+            "required": ["type", "a"]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": { "const": "b" },
+              "b": { "type": "number" }
+            },
+            "required": ["type", "b"]
+          }
+        ]
+      },
+      "instance": { "type": "b", "b": "oops" },
+      "errors": [
+        {
+          "messageId": "type-message",
+          "messageParams": {
+            "expectedTypes": "number"
+          },
+          "instanceLocation": "#/b",
+          "schemaLocations": ["#/oneOf/1/properties/b/type"]
+        }
+      ]
+    },
+    {
+      "description": "oneOf object alternatives filters to matching branch by declared property intersection",
+      "compatibility": "6",
+      "schema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "a": { "type": "string" }
+            },
+            "required": ["a"]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "b": { "type": "string" }
+            },
+            "required": ["b"]
+          }
+        ]
+      },
+      "instance": { "a": 42 },
+      "errors": [
+        {
+          "messageId": "type-message",
+          "messageParams": {
+            "expectedTypes": "string"
+          },
+          "instanceLocation": "#/a",
+          "schemaLocations": ["#/oneOf/0/properties/a/type"]
+        }
+      ]
+    },
+    {
+      "description": "oneOf object alternatives fallback to all when no instance property passes in any branch",
+      "compatibility": "6",
+      "schema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "kind": { "const": "a" }
+            },
+            "required": ["kind"]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": { "const": "b" }
+            },
+            "required": ["kind"]
+          }
+        ]
+      },
+      "instance": { "kind": "c" },
+      "errors": [
+        {
+          "messageId": "oneOf-message",
+          "messageParams": {
+            "matchCount": 0
+          },
+          "alternatives": [
+            [
+              {
+                "messageId": "const-message",
+                "messageParams": {
+                  "expected": "\"a\""
+                },
+                "instanceLocation": "#/kind",
+                "schemaLocations": ["#/oneOf/0/properties/kind/const"]
+              }
+            ],
+            [
+              {
+                "messageId": "const-message",
+                "messageParams": {
+                  "expected": "\"b\""
+                },
+                "instanceLocation": "#/kind",
+                "schemaLocations": ["#/oneOf/1/properties/kind/const"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/oneOf"]
+        }
+      ]
+    },
+    {
+      "description": "oneOf object alternatives keep both branches when each branch has at least one passing instance property",
+      "compatibility": "6",
+      "schema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "type": { "const": "a" },
+              "x": { "type": "string" }
+            },
+            "required": ["type", "x"]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "allOf": [
+                  { "type": "string" },
+                  { "minLength": 2 }
+                ]
+              },
+              "x": { "type": "number" }
+            },
+            "required": ["type", "x"]
+          }
+        ]
+      },
+      "instance": { "type": "a", "x": 42 },
+      "errors": [
+        {
+          "messageId": "oneOf-message",
+          "messageParams": {
+            "matchCount": 0
+          },
+          "alternatives": [
+            [
+              {
+                "messageId": "type-message",
+                "messageParams": {
+                  "expectedTypes": "string"
+                },
+                "instanceLocation": "#/x",
+                "schemaLocations": ["#/oneOf/0/properties/x/type"]
+              }
+            ],
+            [
+              {
+                "messageId": "minLength-message",
+                "messageParams": {
+                  "minLength": "2"
+                },
+                "instanceLocation": "#/type",
+                "schemaLocations": ["#/oneOf/1/properties/type/allOf/1/minLength"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/oneOf"]
+        }
+      ]
     }
   ]
 }
