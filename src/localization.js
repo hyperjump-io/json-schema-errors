@@ -6,6 +6,9 @@ import { FluentBundle, FluentResource } from "@fluent/bundle";
  * @import { ContainsRange, Json } from "./index.d.ts"
  */
 
+/** @type Map<string, Localization> */
+const localizationCache = new Map();
+
 export class Localization {
   /**
    * @param {string} locale
@@ -20,16 +23,19 @@ export class Localization {
 
   /** @type (locale: string) => Promise<Localization> */
   static async forLocale(locale) {
-    try {
-      const ftl = await readFile(`${import.meta.dirname}/translations/${locale}.ftl`, "utf-8");
-      const resource = new FluentResource(ftl);
-      const bundle = new FluentBundle(locale);
-      bundle.addResource(resource);
-
-      return new Localization(locale, bundle);
-    } catch (error) {
-      throw Error(`The ${locale} locale is not supported.`, { cause: error });
+    if (!localizationCache.has(locale)) {
+      try {
+        const ftl = await readFile(`${import.meta.dirname}/translations/${locale}.ftl`, "utf-8");
+        const resource = new FluentResource(ftl);
+        const bundle = new FluentBundle(locale);
+        bundle.addResource(resource);
+        localizationCache.set(locale, new Localization(locale, bundle));
+      } catch (error) {
+        throw Error(`The ${locale} locale is not supported.`, { cause: error });
+      }
     }
+
+    return /** @type Localization */ (localizationCache.get(locale));
   }
 
   /** @type (messageId: string, args: Record<string, FluentVariable>) => string */
