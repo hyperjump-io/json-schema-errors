@@ -22,7 +22,7 @@ const anyOfErrorHandler = async (normalizedErrors, instance, localization) => {
 
     const isObject = Instance.typeOf(instance) === "object";
     const instanceProps = isObject
-      ? Pact.collectSet(Pact.map((keyNode) => /** @type {string} */ (Instance.value(keyNode)), Instance.keys(instance)))
+      ? Pact.collectSet(Pact.pipe(Instance.keys(instance), Pact.map((keyNode) => /** @type {string} */ (Instance.value(keyNode)))))
       : undefined;
     const prefix = `${instanceLocation}/`;
 
@@ -34,17 +34,13 @@ const anyOfErrorHandler = async (normalizedErrors, instance, localization) => {
       }
 
       if (isObject) {
-        const declaredProps = Pact.map(
-          (loc) => /** @type {string} */ (Pact.head(JsonPointer.pointerSegments(loc.slice(prefix.length - 1)))),
-          Pact.filter((loc) => loc.startsWith(prefix), Object.keys(alternative))
-        );
+        const declaredProps = Pact.collectSet(Pact.pipe(
+          Object.keys(alternative),
+          Pact.filter((loc) => loc.startsWith(prefix)),
+          Pact.map((loc) => /** @type {string} */ (Pact.head(JsonPointer.pointerSegments(loc.slice(prefix.length - 1)))))
+        ));
 
-        let hasDeclaredProps = false;
-        const hasMatchingProp = Pact.some((prop) => {
-          hasDeclaredProps = true;
-          return /** @type {Set<string>} */ (instanceProps).has(prop);
-        }, declaredProps);
-        if (hasDeclaredProps && !hasMatchingProp) {
+        if (declaredProps.size > 0 && !Pact.some((prop) => declaredProps.has(prop), /** @type {Set<string>} */ (instanceProps))) {
           continue;
         }
       }
@@ -56,24 +52,32 @@ const anyOfErrorHandler = async (normalizedErrors, instance, localization) => {
       filtered = anyOf;
     }
 
+    /** @type ErrorObject[][] */
+    const alternatives = [];
+
     if (isObject) {
       const discriminators = Pact.collectSet(
-        Pact.filter(
-          (prop) => Pact.some((alternative) => propertyPasses(alternative[JsonPointer.append(prop, instanceLocation)]), filtered),
-          /** @type {Set<string>} */ (instanceProps)
-        )
+        /** @type {Iterable<string>} */ (Pact.pipe(
+          filtered,
+          Pact.map((alternative) => Pact.pipe(
+            /** @type {Set<string>} */ (instanceProps),
+            Pact.filter((prop) => propertyPasses(alternative[JsonPointer.append(prop, instanceLocation)]))
+          )),
+          Pact.flatten
+        ))
       );
 
-      const afterRule2 = Pact.collectArray(Pact.filter((alternative) => !Pact.some((prop) => !propertyPasses(alternative[JsonPointer.append(prop, instanceLocation)]), discriminators), filtered));
-
-      if (afterRule2.length > 0) {
-        filtered = afterRule2;
+      for (const alternative of filtered) {
+        if (!Pact.some((prop) => !propertyPasses(alternative[JsonPointer.append(prop, instanceLocation)]), discriminators)) {
+          alternatives.push(await getErrors(alternative, instance, localization));
+        }
       }
     }
 
-    const alternatives = [];
-    for (const alternative of filtered) {
-      alternatives.push(await getErrors(alternative, instance, localization));
+    if (alternatives.length === 0) {
+      for (const alternative of filtered) {
+        alternatives.push(await getErrors(alternative, instance, localization));
+      }
     }
 
     if (alternatives.length === 1) {
@@ -81,7 +85,7 @@ const anyOfErrorHandler = async (normalizedErrors, instance, localization) => {
     } else {
       errors.push({
         message: localization.getAnyOfErrorMessage(),
-        alternatives: alternatives,
+        alternatives,
         instanceLocation,
         schemaLocations: [schemaLocation]
       });
