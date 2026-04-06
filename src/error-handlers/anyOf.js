@@ -19,26 +19,20 @@ const anyOfErrorHandler = async (normalizedErrors, instance, localization) => {
     }
 
     const instanceLocation = Instance.uri(instance);
-    let filtered = anyOf;
 
     const instanceProps = Pact.pipe(
       Instance.keys(instance),
-      Pact.map((keyNode) => /** @type {string} */ (Instance.value(keyNode))),
+      Pact.map((keyNode) => JsonPointer.append(/** @type {string} */ (Instance.value(keyNode)), instanceLocation)),
       Pact.collectSet
     );
 
     const discriminators = Pact.pipe(
       instanceProps,
-      Pact.filter((prop) => {
-        const propLocation = JsonPointer.append(prop, instanceLocation);
-        return Pact.some((alternative) => propertyPasses(alternative[propLocation]), anyOf);
-      }),
+      Pact.filter((propLocation) => Pact.some((alternative) => propertyPasses(alternative[propLocation]), anyOf)),
       Pact.collectSet
     );
 
-    const prefix = `${instanceLocation}/`;
-
-    filtered = [];
+    let filtered = [];
     for (const alternative of anyOf) {
       // Filter alternatives whose declared type doesn't match the instance type
       const typeResults = alternative[instanceLocation]?.["https://json-schema.org/keyword/type"];
@@ -49,18 +43,17 @@ const anyOfErrorHandler = async (normalizedErrors, instance, localization) => {
       if (Instance.typeOf(instance) === "object") {
         const declaredProps = Pact.pipe(
           Object.keys(alternative),
-          Pact.filter((loc) => loc.startsWith(prefix)),
-          Pact.map((loc) => /** @type {string} */ (Pact.head(JsonPointer.pointerSegments(loc.slice(prefix.length - 1))))),
+          Pact.filter((loc) => instanceProps.has(loc)),
           Pact.collectSet
         );
 
         // Filter alternative if it has no declared properties in common with the instance
-        if (!Pact.some((prop) => declaredProps.has(prop), instanceProps)) {
+        if (!declaredProps.size) {
           continue;
         }
 
-        // Filter alternative if it has failing properties that are decalred and passing in another alternative
-        if (Pact.some((prop) => !propertyPasses(alternative[JsonPointer.append(prop, instanceLocation)]), discriminators)) {
+        // Filter alternative if it has failing properties that are declared and passing in another alternative
+        if (Pact.some((propLocation) => !propertyPasses(alternative[propLocation]), discriminators)) {
           continue;
         }
       }

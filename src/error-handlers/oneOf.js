@@ -49,11 +49,17 @@ const oneOfErrorHandler = async (normalizedErrors, instance, localization) => {
 
     let filtered = oneOf;
 
-    const isObject = Instance.typeOf(instance) === "object";
-    const instanceProps = isObject
-      ? Pact.collectSet(Pact.pipe(Instance.keys(instance), Pact.map((keyNode) => /** @type {string} */ (Instance.value(keyNode)))))
-      : undefined;
-    const prefix = `${instanceLocation}/`;
+    const instanceProps = Pact.pipe(
+      Instance.keys(instance),
+      Pact.map((keyNode) => JsonPointer.append(/** @type {string} */ (Instance.value(keyNode)), instanceLocation)),
+      Pact.collectSet
+    );
+
+    const discriminators = Pact.pipe(
+      instanceProps,
+      Pact.filter((propLocation) => Pact.some((alternative) => propertyPasses(alternative[propLocation]), oneOf)),
+      Pact.collectSet
+    );
 
     filtered = [];
     for (const alternative of oneOf) {
@@ -62,14 +68,18 @@ const oneOfErrorHandler = async (normalizedErrors, instance, localization) => {
         continue;
       }
 
-      if (isObject) {
-        const declaredProps = Pact.collectSet(Pact.pipe(
+      if (Instance.typeOf(instance) === "object") {
+        const declaredProps = Pact.pipe(
           Object.keys(alternative),
-          Pact.filter((loc) => loc.startsWith(prefix)),
-          Pact.map((loc) => /** @type {string} */ (Pact.head(JsonPointer.pointerSegments(loc.slice(prefix.length - 1)))))
-        ));
+          Pact.filter((loc) => instanceProps.has(loc)),
+          Pact.collectSet
+        );
 
-        if (declaredProps.size > 0 && !Pact.some((prop) => declaredProps.has(prop), /** @type {Set<string>} */ (instanceProps))) {
+        if (!declaredProps.size) {
+          continue;
+        }
+
+        if (Pact.some((propLocation) => !propertyPasses(alternative[propLocation]), discriminators)) {
           continue;
         }
       }
@@ -83,28 +93,6 @@ const oneOfErrorHandler = async (normalizedErrors, instance, localization) => {
 
     /** @type ErrorObject[][] */
     const alternatives = [];
-
-    if (isObject) {
-      const discriminators = Pact.collectSet(
-        /** @type {Iterable<string>} */ (Pact.pipe(
-          filtered,
-          Pact.map((alternative) => Pact.pipe(
-            /** @type {Set<string>} */ (instanceProps),
-            Pact.filter((prop) => propertyPasses(alternative[JsonPointer.append(prop, instanceLocation)]))
-          )),
-          Pact.flatten
-        ))
-      );
-
-      for (const alternative of filtered) {
-        if (!Pact.some((prop) => !propertyPasses(alternative[JsonPointer.append(prop, instanceLocation)]), discriminators)) {
-          const alternativeErrors = await getErrors(alternative, instance, localization);
-          if (alternativeErrors.length) {
-            alternatives.push(alternativeErrors);
-          }
-        }
-      }
-    }
 
     if (alternatives.length === 0) {
       for (const alternative of filtered) {
