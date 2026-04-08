@@ -15,7 +15,9 @@
       "errors": [
         {
           "messageId": "oneOf-message",
-          "messageParams": { "matchCount": 0 },
+          "messageParams": {
+            "matchCount": 0
+          },
           "alternatives": [
             [
               {
@@ -323,6 +325,94 @@
       ]
     },
     {
+      "description": "alternatives with no declared properties matching the instance are filtered out",
+      "schema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "a": { "type": "string" }
+            },
+            "required": ["a"]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "b": { "type": "string" }
+            },
+            "required": ["b"]
+          }
+        ]
+      },
+      "instance": { "a": 42 },
+      "errors": [
+        {
+          "messageId": "type-message",
+          "messageParams": {
+            "expectedTypes": { "or": ["string"] }
+          },
+          "instanceLocation": "#/a",
+          "schemaLocations": ["#/oneOf/0/properties/a/type"]
+        }
+      ]
+    },
+    {
+      "description": "None of the instance properties are declared in any of the alternatives",
+      "schema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "a": { "type": "string" }
+            },
+            "required": ["a"]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "b": { "type": "string" }
+            },
+            "required": ["b"]
+          }
+        ]
+      },
+      "instance": { "c": 42 },
+      "errors": [
+        {
+          "messageId": "oneOf-message",
+          "messageParams": {
+            "matchCount": 0
+          },
+          "alternatives": [
+            [
+              {
+                "messageId": "required-message",
+                "messageParams": {
+                  "required": { "and": ["a"] },
+                  "count": 1
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/0/required"]
+              }
+            ],
+            [
+              {
+                "messageId": "required-message",
+                "messageParams": {
+                  "required": { "and": ["b"] },
+                  "count": 1
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/1/required"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/oneOf"]
+        }
+      ]
+    },
+    {
       "description": "oneOf object alternatives keep only one branch when only one branch has a passing instance property",
       "compatibility": "6",
       "schema": {
@@ -350,7 +440,7 @@
         {
           "messageId": "type-message",
           "messageParams": {
-            "expectedTypes": "number"
+            "expectedTypes": { "or": ["number"] }
           },
           "instanceLocation": "#/b",
           "schemaLocations": ["#/oneOf/1/properties/b/type"]
@@ -383,7 +473,7 @@
         {
           "messageId": "type-message",
           "messageParams": {
-            "expectedTypes": "string"
+            "expectedTypes": { "or": ["string"] }
           },
           "instanceLocation": "#/a",
           "schemaLocations": ["#/oneOf/0/properties/a/type"]
@@ -485,7 +575,7 @@
               {
                 "messageId": "type-message",
                 "messageParams": {
-                  "expectedTypes": "string"
+                  "expectedTypes": { "or": ["string"] }
                 },
                 "instanceLocation": "#/x",
                 "schemaLocations": ["#/oneOf/0/properties/x/type"]
@@ -504,6 +594,42 @@
           ],
           "instanceLocation": "#",
           "schemaLocations": ["#/oneOf"]
+        }
+      ]
+    },
+    {
+      "description": "Compound discriminators",
+      "schema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "foo": { "enum": ["a"] },
+              "bar": { "enum": ["b"] },
+              "a": { "type": "string" }
+            },
+            "required": ["foo", "bar"]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "foo": { "enum": ["a"] },
+              "bar": { "enum": ["c"] },
+              "b": { "type": "string" }
+            },
+            "required": ["foo", "bar"]
+          }
+        ]
+      },
+      "instance": { "foo": "a", "bar": "c", "b": 42 },
+      "errors": [
+        {
+          "messageId": "type-message",
+          "messageParams": {
+            "expectedTypes": { "or": ["string"] }
+          },
+          "instanceLocation": "#/b",
+          "schemaLocations": ["#/oneOf/1/properties/b/type"]
         }
       ]
     }
