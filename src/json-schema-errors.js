@@ -1,14 +1,15 @@
-import { compile, getKeyword, getSchema } from "@hyperjump/json-schema/experimental";
+import { compile, getKeyword, getSchema, Validation } from "@hyperjump/json-schema/experimental";
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
 import * as Schema from "@hyperjump/browser";
 import { pointerSegments } from "@hyperjump/json-pointer";
 import { toAbsoluteIri } from "@hyperjump/uri";
 import { Localization } from "./localization.js";
+import { JsonSchemaErrorsOutputPlugin } from "./output-plugin.js";
 
 /**
  * @import * as API from "./index.d.ts"
  * @import { Browser } from "@hyperjump/browser";
- * @import { SchemaDocument } from "@hyperjump/json-schema/experimental";
+ * @import { SchemaDocument, CompiledSchema } from "@hyperjump/json-schema/experimental";
  * @import { JsonNode } from "@hyperjump/json-schema/instance/experimental"
  */
 
@@ -193,4 +194,54 @@ export const getErrors = async (normalizedErrors, rootInstance, localization) =>
   }
 
   return errors;
+};
+
+/**
+ * @overload
+ * @param {string} schemaUri
+ * @returns {Promise<API.EvaluateInstance>}
+ *
+ * @overload
+ * @param {string} schemaUri
+ * @param {API.Json} instance
+ * @param {API.JsonSchemaErrorsOptions} [options]
+ * @returns {Promise<API.ValidationResult>}
+ *
+ * @param {string} schemaUri
+ * @param {API.Json} instance
+ * @param {API.JsonSchemaErrorsOptions} [options]
+ */
+export const validate = async (schemaUri, instance, options) => {
+  const schema = await getSchema(schemaUri);
+  const compiledSchema = await compile(schema);
+
+  if (instance === undefined) {
+    /** @type API.EvaluateInstance */
+    return (instance, options) => {
+      return evaluateCompiledSchema(compiledSchema, instance, options);
+    };
+  } else {
+    return evaluateCompiledSchema(compiledSchema, instance, options);
+  }
+};
+
+/** @type (compiledSchema: CompiledSchema, instance: API.Json, options?: API.ValidationOptions) => Promise<API.ValidationResult> */
+const evaluateCompiledSchema = async (compiledSchema, instance, options = {}) => {
+  const localization = await Localization.forLocale(options.locale ?? "en-US");
+  const jsonNode = Instance.fromJs(instance);
+  const outputPlugin = new JsonSchemaErrorsOutputPlugin();
+  const context = {
+    ast: compiledSchema.ast,
+    plugins: [...compiledSchema.ast.plugins, outputPlugin, ...options.plugins ?? []]
+  };
+  const valid = Validation.interpret(compiledSchema.schemaUri, jsonNode, context);
+
+  if (valid) {
+    return { valid };
+  } else {
+    return {
+      valid,
+      errors: await getErrors(outputPlugin.output, jsonNode, localization)
+    };
+  }
 };

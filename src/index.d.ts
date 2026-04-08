@@ -157,3 +157,39 @@ export type ContainsRange = {
   minContains?: number;
   maxContains?: number;
 };
+
+/**
+ * Validate an instance against a schema and get error messages in one step instead
+ * of getting output from validation and passing it to jsonSchemaErrors. The
+ * function is curried so you can compile the schema one time and evaluate multiple
+ * instances against the same compiled schema.
+ *
+ * Ideally, this function should be in @hyperjump/json-schema instead and this will
+ * be removed in the future.
+ *
+ * @deprecated
+ */
+export const validate: (
+  (schemaUri: string) => Promise<EvaluateInstance>
+) & (
+  (schemaUri: string, instance: Json, options?: ValidationOptions) => Promise<ValidationResult>
+);
+
+export type EvaluateInstance = (instance: Json, options?: ValidationOptions) => Promise<ValidationResult>;
+
+export type ValidationOptions = {
+  /**
+   * A locale identifier in the form of "{language}-{region}".
+   *
+   * @example "en-US"
+   */
+  locale?: string;
+  plugins?: EvaluationPlugin[];
+};
+
+export type ValidationResult = {
+  valid: true;
+} | {
+  valid: false;
+  errors: JsonSchemaErrors;
+};

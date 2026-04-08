@@ -173,5 +173,6 @@ export {
   evaluateSchema,
   getErrors,
   jsonSchemaErrors,
-  setNormalizationHandler
+  setNormalizationHandler,
+  validate
 } from "./json-schema-errors.js";

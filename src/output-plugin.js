@@ -14,6 +14,11 @@ import * as Instance from "@hyperjump/json-schema/instance/experimental";
 
 /** @implements EvaluationPlugin<ErrorsContext> */
 export class JsonSchemaErrorsOutputPlugin {
+  constructor() {
+    /** @type NormalizedOutput */
+    this.output = {};
+  }
+
   /** @type NonNullable<EvaluationPlugin<ErrorsContext>["beforeSchema"]> */
   beforeSchema(_url, _instance, context) {
     context.output = {};
