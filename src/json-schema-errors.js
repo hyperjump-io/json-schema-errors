@@ -9,7 +9,7 @@ import { JsonSchemaErrorsOutputPlugin } from "./output-plugin.js";
 /**
  * @import * as API from "./index.d.ts"
  * @import { Browser } from "@hyperjump/browser";
- * @import { SchemaDocument, CompiledSchema } from "@hyperjump/json-schema/experimental";
+ * @import { AST, SchemaDocument, CompiledSchema } from "@hyperjump/json-schema/experimental";
  * @import { JsonNode } from "@hyperjump/json-schema/instance/experimental"
  */
 
@@ -194,6 +194,53 @@ export const getErrors = async (normalizedErrors, rootInstance, localization) =>
   }
 
   return errors;
+};
+
+/**
+ * @param {AST} ast
+ * @param {string} schemaLocation
+ * @returns {unknown}
+ */
+const getCompiledKeywordValue = (ast, schemaLocation) => {
+  const parentLocation = schemaLocation.replace(/\/[^/]+$/, "");
+  const parentNode = ast[parentLocation];
+  if (!Array.isArray(parentNode)) {
+    return undefined;
+  }
+
+  for (const [, keywordLocation, keywordValue] of parentNode) {
+    if (keywordLocation === schemaLocation) {
+      return keywordValue;
+    }
+  }
+
+  return undefined;
+};
+
+/**
+ * @param {AST} ast
+ * @param {string} schemaLocation
+ * @param {string} siblingKeywordUri
+ * @returns {{ keywordLocation: string; keywordValue: unknown } | undefined}
+ */
+const getSiblingKeywordValue = (ast, schemaLocation, siblingKeywordUri) => {
+  const parentLocation = schemaLocation.replace(/\/[^/]+$/, "");
+  const parentNode = ast[parentLocation];
+
+  if (!Array.isArray(parentNode)) {
+    return undefined;
+  }
+
+  for (const [keywordUri, keywordLocation, keywordValue] of parentNode) {
+    if (keywordUri === siblingKeywordUri) {
+      return {
+        keywordLocation,
+        keywordValue
+      };
+    }
+  }
+
+  return undefined;
 };
 
 /**
