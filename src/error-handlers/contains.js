@@ -6,10 +6,6 @@ import * as Instance from "@hyperjump/json-schema/instance/experimental";
 
 /** @type ErrorHandler */
 const containsErrorHandler = (normalizedErrors, instance, localization, resolver) => {
-  /** @type {{
-   *   getSiblingKeywordValue?: (schemaLocation: string, siblingKeywordUri: string) =>
-   *     { keywordLocation: string; keywordValue: unknown } | undefined
-   * } | undefined} */
   if (!resolver?.getSiblingKeywordValue) {
     throw new Error("Missing resolver.getSiblingKeywordValue in error handler context");
   }

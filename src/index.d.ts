@@ -147,7 +147,7 @@ export type ErrorResolver = {
   getSiblingKeywordValue: (
     schemaLocation: string,
     siblingKeywordUri: string
-  ) => { keywordLocation: string; keywordValue: unknown } | undefined; 
+  ) => { keywordLocation: string; keywordValue: unknown } | undefined;
 };
 
 /**

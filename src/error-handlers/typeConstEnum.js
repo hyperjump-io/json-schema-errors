@@ -1,5 +1,4 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
-import jsonStringify from "json-stringify-deterministic";
 
 /**
  * @import { ErrorHandler, Json } from "../index.d.ts"

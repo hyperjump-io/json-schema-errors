@@ -36,9 +36,9 @@ async function normalizedOutput(value, errorOutput, subjectUri) {
   const schema = await getSchema(subjectUri);
   const errorIndex = await constructErrorIndex(errorOutput, schema);
   const { schemaUri, ast } = await compile(schema);
-  return { 
-    normalizedErrors: evaluateSchema(schemaUri, value, { ast, errorIndex, plugins: [...ast.plugins] }), 
-    ast 
+  return {
+    normalizedErrors: evaluateSchema(schemaUri, value, { ast, errorIndex, plugins: [...ast.plugins] }),
+    ast
   };
 }
 

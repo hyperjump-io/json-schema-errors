@@ -6,11 +6,6 @@ import * as Instance from "@hyperjump/json-schema/instance/experimental";
 
 /** @type ErrorHandler */
 const maximumErrorHandler = (normalizedErrors, instance, localization, resolver) => {
-  /** @type {{
-   *   getCompiledKeywordValue?: (schemaLocation: string) => unknown;
-   *   getSiblingKeywordValue?: (schemaLocation: string, siblingKeywordUri: string) =>
-   *     { keywordLocation: string; keywordValue: unknown } | undefined
-   * } | undefined} */
   if (!resolver?.getCompiledKeywordValue || !resolver.getSiblingKeywordValue) {
     throw new Error("Missing resolver functions in error handler context");
   }
