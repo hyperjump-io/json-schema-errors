@@ -16,11 +16,12 @@ import { JsonSchemaErrorsOutputPlugin } from "./output-plugin.js";
 /** @type API.jsonSchemaErrors */
 export const jsonSchemaErrors = async (errorOutput, schemaUri, instance, options = {}) => {
   const rootInstance = Instance.fromJs(instance);
-  const [{ normalizedErrors, ast }, localization] = await Promise.all([
-    normalizedOutput(rootInstance, errorOutput, schemaUri),
-    Localization.forLocale(options.locale ?? "en-US")
-  ]);
-  return getErrors(normalizedErrors, rootInstance, localization, createErrorResolver(ast));
+  const schema = await getSchema(schemaUri);
+  const errorIndex = await constructErrorIndex(errorOutput, schema);
+  const { schemaUri: compiledSchemaUri, ast } = await compile(schema);
+  const normalizedErrors = evaluateSchema(compiledSchemaUri, rootInstance, { ast, errorIndex, plugins: [...ast.plugins] });
+  const localization = await Localization.forLocale(options.locale ?? "en-US");
+  return getErrors(normalizedErrors, rootInstance, localization, ast);
 };
 
 /** @type Record<string, API.NormalizationHandler> */
@@ -30,17 +31,6 @@ const normalizationHandlers = {};
 export const setNormalizationHandler = (schemaUri, handler) => {
   normalizationHandlers[schemaUri] = handler;
 };
-
-/** @type (value: JsonNode, errorOutput: API.OutputUnit, subjectUri: string) => Promise<{ normalizedErrors: API.NormalizedOutput; ast: AST }>} */
-async function normalizedOutput(value, errorOutput, subjectUri) {
-  const schema = await getSchema(subjectUri);
-  const errorIndex = await constructErrorIndex(errorOutput, schema);
-  const { schemaUri, ast } = await compile(schema);
-  return {
-    normalizedErrors: evaluateSchema(schemaUri, value, { ast, errorIndex, plugins: [...ast.plugins] }),
-    ast
-  };
-}
 
 /** @type (outputUnit: API.OutputUnit, schema: Browser<SchemaDocument>, errorIndex?: API.ErrorIndex) => Promise<API.ErrorIndex> */
 const constructErrorIndex = async (outputUnit, schema, errorIndex = {}) => {
@@ -184,9 +174,17 @@ export const addErrorHandler = (errorHandler) => {
 };
 
 /** @type API.getErrors */
-export const getErrors = (normalizedErrors, rootInstance, localization, resolver) => {
+export const getErrors = (normalizedErrors, rootInstance, localization, astOrResolver) => {
   /** @type API.ErrorObject[] */
   const errors = [];
+
+  /** @type API.ErrorResolver | AST */
+  const resolver = "getCompiledKeywordValue" in astOrResolver
+    ? astOrResolver
+    : {
+        getCompiledKeywordValue: (schemaLocation) => getCompiledKeywordValue(astOrResolver, schemaLocation),
+        getSiblingKeywordValue: (schemaLocation, siblingKeywordUri) => getSiblingKeywordValue(astOrResolver, schemaLocation, siblingKeywordUri)
+      };
 
   for (const instanceLocation in normalizedErrors) {
     const instance = /** @type JsonNode */ (Instance.get(instanceLocation, rootInstance));
@@ -198,17 +196,6 @@ export const getErrors = (normalizedErrors, rootInstance, localization, resolver
 
   return errors;
 };
-
-/**
- * @param {AST} ast
- * @returns {API.ErrorResolver}
- */
-const createErrorResolver = (ast) => ({
-  getCompiledKeywordValue: (schemaLocation) => getCompiledKeywordValue(ast, schemaLocation),
-  getSiblingKeywordValue: (schemaLocation, siblingKeywordUri) => {
-    return getSiblingKeywordValue(ast, schemaLocation, siblingKeywordUri);
-  }
-});
 
 /**
  * @param {AST} ast
@@ -302,7 +289,7 @@ const evaluateCompiledSchema = async (compiledSchema, instance, options = {}) =>
   } else {
     return {
       valid,
-      errors: getErrors(outputPlugin.output, jsonNode, localization, createErrorResolver(compiledSchema.ast))
+      errors: getErrors(outputPlugin.output, jsonNode, localization, compiledSchema.ast)
     };
   }
 };

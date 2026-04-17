@@ -154,13 +154,13 @@ export type ErrorResolver = {
  * A function that transforms normalized errors for one or more keywords into human
  * readable messages.
  */
-export type ErrorHandler = (normalizedErrors: InstanceOutput, instance: JsonNode, localization: Localization, resolver: ErrorResolver) => ErrorObject[];
+export type ErrorHandler = (normalizedErrors: InstanceOutput, instance: JsonNode, localization: Localization, resolver: AST | ErrorResolver) => ErrorObject[];
 
 /**
  * Converts the normalized error format to human readable errors. It's used to
  * build errors in applicator error handlers.
  */
-export const getErrors: (normalizedErrors: NormalizedOutput, instance: JsonNode, localization: Localization, resolver: ErrorResolver) => ErrorObject[];
+export const getErrors: (normalizedErrors: NormalizedOutput, instance: JsonNode, localization: Localization, astOrResolver: AST | ErrorResolver) => ErrorObject[];
 
 export type { Localization };
 
