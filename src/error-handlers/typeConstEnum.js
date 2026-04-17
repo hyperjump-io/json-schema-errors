@@ -50,8 +50,7 @@ const typeConstEnumErrorHandler = (normalizedErrors, instance, localization, res
 
     const keywordJson = new Set();
     const constValueJson = /** @type string */ (resolver.getCompiledKeywordValue(schemaLocation));
-    const constValue = JSON.parse(constValueJson);
-    if (allowedTypes.has(jsonTypeOf(constValue))) {
+    if (allowedTypes.has(jsonTypeOf(constValueJson))) {
       keywordJson.add(constValueJson);
     } else {
       typeFiltered = true;
@@ -69,8 +68,7 @@ const typeConstEnumErrorHandler = (normalizedErrors, instance, localization, res
     const keywordJson = new Set();
     const enumValuesJson = /** @type string[] */ (resolver.getCompiledKeywordValue(schemaLocation));
     for (const enumValueJson of enumValuesJson) {
-      const enumValue = JSON.parse(enumValueJson);
-      if (allowedTypes.has(jsonTypeOf(enumValue))) {
+      if (allowedTypes.has(jsonTypeOf(enumValueJson))) {
         keywordJson.add(enumValueJson);
       } else {
         typeFiltered = true;
@@ -113,20 +111,24 @@ const typeConstEnumErrorHandler = (normalizedErrors, instance, localization, res
 };
 
 /**
- * @param {unknown} value
+ * @param {string} value
  * @returns {string}
  */
 const jsonTypeOf = (value) => {
-  if (value === null) {
+  const firstChar = value[0];
+  if (firstChar === "n") {
     return "null";
-  }
-  if (Array.isArray(value)) {
+  } else if (firstChar === "[") {
     return "array";
-  }
-  if (typeof value === "number") {
+  } else if ((firstChar >= "0" && firstChar <= "9") || firstChar === "-") {
     return "number";
+  } else if (firstChar === "{") {
+    return "object";
+  } else if (firstChar === "\"") {
+    return "string";
+  } else {
+    return "boolean";
   }
-  return typeof value;
 };
 
 export default typeConstEnumErrorHandler;

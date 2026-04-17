@@ -15,7 +15,7 @@ const patternErrorHandler = (normalizedErrors, instance, localization, resolver)
     }
 
     const compiledPattern = resolver.getCompiledKeywordValue(schemaLocation);
-    const pattern = typeof compiledPattern === "string" ? compiledPattern : /** @type RegExp */ (compiledPattern).source;
+    const pattern = /** @type RegExp */ (compiledPattern).source;
 
     errors.push({
       message: localization.getPatternErrorMessage(pattern),
