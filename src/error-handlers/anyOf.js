@@ -7,7 +7,7 @@ import { getErrors } from "../json-schema-errors.js";
  */
 
 /** @type ErrorHandler */
-const anyOfErrorHandler = (normalizedErrors, instance, localization, resolver) => {
+const anyOfErrorHandler = (normalizedErrors, instance, localization, ast) => {
   /** @type ErrorObject[] */
   const errors = [];
 
@@ -51,13 +51,13 @@ const anyOfErrorHandler = (normalizedErrors, instance, localization, resolver) =
       }
 
       // The alternative passed all the filters
-      alternatives.push(getErrors(alternative, instance, localization, resolver));
+      alternatives.push(getErrors(alternative, instance, localization, ast));
     }
 
     // If all alternatives were filtered out, default to returning all of them
     if (alternatives.length === 0) {
       for (const alternative of anyOf) {
-        alternatives.push(getErrors(alternative, instance, localization, resolver));
+        alternatives.push(getErrors(alternative, instance, localization, ast));
       }
     }
 

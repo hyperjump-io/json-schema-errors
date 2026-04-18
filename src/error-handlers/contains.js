@@ -1,11 +1,12 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
+import { getSiblingKeywordValue } from "../json-schema-errors.js";
 
 /**
  * @import { ContainsRange, ErrorHandler, ErrorObject } from "../index.d.ts"
  */
 
 /** @type ErrorHandler */
-const containsErrorHandler = (normalizedErrors, instance, localization, resolver) => {
+const containsErrorHandler = (normalizedErrors, instance, localization, ast) => {
   /** @type ErrorObject[] */
   const errors = [];
 
@@ -23,18 +24,23 @@ const containsErrorHandler = (normalizedErrors, instance, localization, resolver
       /** @type string[] */
       const schemaLocations = [schemaLocation];
 
+      const parentLocation = schemaLocation.replace(/\/[^/]+$/, "");
+      const parentNode = ast[parentLocation];
+      const containsNode = Array.isArray(parentNode) ? parentNode.find(([, keywordLocation]) => keywordLocation === schemaLocation) : undefined;
+      const containsRange = /** @type {ContainsRange} */ (containsNode?.[2] ?? {});
+
       /** @type ContainsRange */
       const range = {};
-      const minContains = resolver.getSiblingKeywordValue(schemaLocation, "https://json-schema.org/keyword/minContains");
+      const minContains = getSiblingKeywordValue(ast, schemaLocation, "https://json-schema.org/keyword/minContains");
       if (minContains) {
-        range.minContains = /** @type number */ (minContains.keywordValue);
-        schemaLocations.push(minContains.keywordLocation);
+        range.minContains = containsRange.minContains;
+        schemaLocations.push(minContains);
       }
 
-      const maxContains = resolver.getSiblingKeywordValue(schemaLocation, "https://json-schema.org/keyword/maxContains");
+      const maxContains = getSiblingKeywordValue(ast, schemaLocation, "https://json-schema.org/keyword/maxContains");
       if (maxContains) {
-        range.maxContains = /** @type number */ (maxContains.keywordValue);
-        schemaLocations.push(maxContains.keywordLocation);
+        range.maxContains = containsRange.maxContains;
+        schemaLocations.push(maxContains);
       }
 
       errors.push({

@@ -1,11 +1,12 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
+import { getCompiledKeywordValue } from "../json-schema-errors.js";
 
 /**
  * @import { ErrorHandler, ErrorObject } from "../index.d.ts"
  */
 
 /** @type ErrorHandler */
-const maxPropertiesErrorHandler = (normalizedErrors, instance, localization, resolver) => {
+const maxPropertiesErrorHandler = (normalizedErrors, instance, localization, ast) => {
   /** @type ErrorObject[] */
   const errors = [];
   let lowestMaxProperties = Infinity;
@@ -15,7 +16,7 @@ const maxPropertiesErrorHandler = (normalizedErrors, instance, localization, res
       continue;
     }
 
-    const maxProperties = /** @type number */ (resolver.getCompiledKeywordValue(schemaLocation));
+    const maxProperties = /** @type number */ (getCompiledKeywordValue(ast, schemaLocation));
 
     if (maxProperties < lowestMaxProperties) {
       lowestMaxProperties = maxProperties;

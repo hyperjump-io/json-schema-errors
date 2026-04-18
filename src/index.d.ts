@@ -140,27 +140,16 @@ export const evaluateSchema: (schemaLocation: string, instance: JsonNode, contex
 export const addErrorHandler: (handler: ErrorHandler) => void;
 
 /**
- * Provides access to compiled keyword values and sibling keyword values for error
- */
-export type ErrorResolver = {
-  getCompiledKeywordValue: (schemaLocation: string) => unknown;
-  getSiblingKeywordValue: (
-    schemaLocation: string,
-    siblingKeywordUri: string
-  ) => { keywordLocation: string; keywordValue: unknown } | undefined;
-};
-
-/**
  * A function that transforms normalized errors for one or more keywords into human
  * readable messages.
  */
-export type ErrorHandler = (normalizedErrors: InstanceOutput, instance: JsonNode, localization: Localization, resolver: ErrorResolver) => ErrorObject[];
+export type ErrorHandler = (normalizedErrors: InstanceOutput, instance: JsonNode, localization: Localization, ast: AST) => ErrorObject[];
 
 /**
  * Converts the normalized error format to human readable errors. It's used to
  * build errors in applicator error handlers.
  */
-export const getErrors: (normalizedErrors: NormalizedOutput, instance: JsonNode, localization: Localization, astOrResolver: AST | ErrorResolver) => ErrorObject[];
+export const getErrors: (normalizedErrors: NormalizedOutput, instance: JsonNode, localization: Localization, ast: AST) => ErrorObject[];
 
 export type { Localization };
 

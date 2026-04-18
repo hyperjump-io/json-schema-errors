@@ -1,11 +1,12 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
+import { getCompiledKeywordValue, getSiblingKeywordValue } from "../json-schema-errors.js";
 
 /**
  * @import { ErrorHandler } from "../index.d.ts"
  */
 
 /** @type ErrorHandler */
-const maximumErrorHandler = (normalizedErrors, instance, localization, resolver) => {
+const maximumErrorHandler = (normalizedErrors, instance, localization, ast) => {
   let lowestMaximum = Infinity;
   let isExclusive = false;
 
@@ -17,7 +18,7 @@ const maximumErrorHandler = (normalizedErrors, instance, localization, resolver)
       continue;
     }
 
-    const maximum = /** @type number */ (resolver.getCompiledKeywordValue(schemaLocation));
+    const maximum = /** @type number */ (getCompiledKeywordValue(ast, schemaLocation));
     if (maximum < lowestMaximum) {
       lowestMaximum = maximum;
       schemaLocations = [schemaLocation];
@@ -29,7 +30,7 @@ const maximumErrorHandler = (normalizedErrors, instance, localization, resolver)
       continue;
     }
 
-    const exclusiveMaximum = /** @type number */ (resolver.getCompiledKeywordValue(schemaLocation));
+    const exclusiveMaximum = /** @type number */ (getCompiledKeywordValue(ast, schemaLocation));
     if (exclusiveMaximum < lowestMaximum) {
       lowestMaximum = exclusiveMaximum;
       isExclusive = true;
@@ -42,11 +43,11 @@ const maximumErrorHandler = (normalizedErrors, instance, localization, resolver)
       continue;
     }
 
-    const draft04Maximum = /** @type [number, boolean] */ (resolver.getCompiledKeywordValue(schemaLocation));
+    const draft04Maximum = /** @type [number, boolean] */ (getCompiledKeywordValue(ast, schemaLocation));
     const maximum = draft04Maximum[0];
     const exclusive = draft04Maximum[1];
-    const exclusiveKeyword = resolver.getSiblingKeywordValue(schemaLocation, "https://json-schema.org/keyword/draft-04/exclusiveMaximum");
-    const exclusiveLocation = exclusive && exclusiveKeyword ? exclusiveKeyword.keywordLocation : "";
+    const exclusiveKeywordLocation = getSiblingKeywordValue(ast, schemaLocation, "https://json-schema.org/keyword/draft-04/exclusiveMaximum");
+    const exclusiveLocation = exclusive && exclusiveKeywordLocation ? exclusiveKeywordLocation : "";
 
     if (maximum < lowestMaximum) {
       lowestMaximum = maximum;

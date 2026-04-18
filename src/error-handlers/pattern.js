@@ -1,11 +1,12 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
+import { getCompiledKeywordValue } from "../json-schema-errors.js";
 
 /**
  * @import { ErrorHandler, ErrorObject } from "../index.d.ts"
  */
 
 /** @type ErrorHandler */
-const patternErrorHandler = (normalizedErrors, instance, localization, resolver) => {
+const patternErrorHandler = (normalizedErrors, instance, localization, ast) => {
   /** @type ErrorObject[] */
   const errors = [];
 
@@ -14,8 +15,8 @@ const patternErrorHandler = (normalizedErrors, instance, localization, resolver)
       continue;
     }
 
-    const compiledPattern = resolver.getCompiledKeywordValue(schemaLocation);
-    const pattern = /** @type RegExp */ (compiledPattern).source;
+    const compiledPattern = /** @type RegExp */ (getCompiledKeywordValue(ast, schemaLocation));
+    const pattern = compiledPattern.source;
 
     errors.push({
       message: localization.getPatternErrorMessage(pattern),

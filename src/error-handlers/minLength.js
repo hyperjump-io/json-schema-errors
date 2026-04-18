@@ -1,11 +1,12 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
+import { getCompiledKeywordValue } from "../json-schema-errors.js";
 
 /**
  * @import { ErrorHandler, ErrorObject } from "../index.d.ts"
  */
 
 /** @type ErrorHandler */
-const minLengthErrorHandler = (normalizedErrors, instance, localization, resolver) => {
+const minLengthErrorHandler = (normalizedErrors, instance, localization, ast) => {
   /** @type ErrorObject[] */
   const errors = [];
   let highestMinLength = -Infinity;
@@ -16,7 +17,7 @@ const minLengthErrorHandler = (normalizedErrors, instance, localization, resolve
       continue;
     }
 
-    const minLength = /** @type number */ (resolver.getCompiledKeywordValue(schemaLocation));
+    const minLength = /** @type number */ (getCompiledKeywordValue(ast, schemaLocation));
 
     if (minLength > highestMinLength) {
       highestMinLength = minLength;

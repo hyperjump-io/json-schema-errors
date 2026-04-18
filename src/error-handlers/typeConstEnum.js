@@ -1,4 +1,5 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
+import { getCompiledKeywordValue } from "../json-schema-errors.js";
 
 /**
  * @import { ErrorHandler, Json } from "../index.d.ts"
@@ -7,7 +8,7 @@ import * as Instance from "@hyperjump/json-schema/instance/experimental";
 const ALL_TYPES = new Set(["null", "boolean", "number", "string", "array", "object", "integer"]);
 
 /** @type {ErrorHandler} */
-const typeConstEnumErrorHandler = (normalizedErrors, instance, localization, resolver) => {
+const typeConstEnumErrorHandler = (normalizedErrors, instance, localization, ast) => {
   let allowedTypes = new Set(ALL_TYPES);
   /** @type {string[]} */
   const failedTypeLocations = [];
@@ -17,7 +18,7 @@ const typeConstEnumErrorHandler = (normalizedErrors, instance, localization, res
       failedTypeLocations.push(schemaLocation);
 
       /** @type {string | string[]} */
-      const value = /** @type {string | string[]} */ (resolver.getCompiledKeywordValue(schemaLocation));
+      const value = /** @type {string | string[]} */ (getCompiledKeywordValue(ast, schemaLocation));
       const types = Array.isArray(value) ? value : [value];
       /** @type {Set<string>} */
       const keywordTypes = new Set(types);
@@ -49,7 +50,7 @@ const typeConstEnumErrorHandler = (normalizedErrors, instance, localization, res
     }
 
     const keywordJson = new Set();
-    const constValueJson = /** @type string */ (resolver.getCompiledKeywordValue(schemaLocation));
+    const constValueJson = /** @type string */ (getCompiledKeywordValue(ast, schemaLocation));
     if (allowedTypes.has(jsonTypeOf(constValueJson))) {
       keywordJson.add(constValueJson);
     } else {
@@ -66,7 +67,7 @@ const typeConstEnumErrorHandler = (normalizedErrors, instance, localization, res
     }
 
     const keywordJson = new Set();
-    const enumValuesJson = /** @type string[] */ (resolver.getCompiledKeywordValue(schemaLocation));
+    const enumValuesJson = /** @type string[] */ (getCompiledKeywordValue(ast, schemaLocation));
     for (const enumValueJson of enumValuesJson) {
       if (allowedTypes.has(jsonTypeOf(enumValueJson))) {
         keywordJson.add(enumValueJson);

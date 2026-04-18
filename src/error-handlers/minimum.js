@@ -1,11 +1,12 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
+import { getCompiledKeywordValue, getSiblingKeywordValue } from "../json-schema-errors.js";
 
 /**
  * @import { ErrorHandler } from "../index.d.ts"
  */
 
 /** @type ErrorHandler */
-const minimumErrorHandler = (normalizedErrors, instance, localization, resolver) => {
+const minimumErrorHandler = (normalizedErrors, instance, localization, ast) => {
   let highestMinimum = -Infinity;
   let isExclusive = false;
   /** @type string[] */
@@ -16,7 +17,7 @@ const minimumErrorHandler = (normalizedErrors, instance, localization, resolver)
       continue;
     }
 
-    const minimum = /** @type number */ (resolver.getCompiledKeywordValue(schemaLocation));
+    const minimum = /** @type number */ (getCompiledKeywordValue(ast, schemaLocation));
 
     if (minimum > highestMinimum) {
       highestMinimum = minimum;
@@ -30,7 +31,7 @@ const minimumErrorHandler = (normalizedErrors, instance, localization, resolver)
       continue;
     }
 
-    const exclusiveMinimum = /** @type number */ (resolver.getCompiledKeywordValue(schemaLocation));
+    const exclusiveMinimum = /** @type number */ (getCompiledKeywordValue(ast, schemaLocation));
 
     if (exclusiveMinimum > highestMinimum) {
       highestMinimum = exclusiveMinimum;
@@ -43,11 +44,11 @@ const minimumErrorHandler = (normalizedErrors, instance, localization, resolver)
       continue;
     }
 
-    const draft04Minimum = /** @type [number, boolean] */ (resolver.getCompiledKeywordValue(schemaLocation));
+    const draft04Minimum = /** @type [number, boolean] */ (getCompiledKeywordValue(ast, schemaLocation));
     const minimum = draft04Minimum[0];
     const exclusive = draft04Minimum[1];
-    const exclusiveKeyword = resolver.getSiblingKeywordValue(schemaLocation, "https://json-schema.org/keyword/draft-04/exclusiveMinimum");
-    const exclusiveLocation = exclusive && exclusiveKeyword ? exclusiveKeyword.keywordLocation : "";
+    const exclusiveKeywordLocation = getSiblingKeywordValue(ast, schemaLocation, "https://json-schema.org/keyword/draft-04/exclusiveMinimum");
+    const exclusiveLocation = exclusive && exclusiveKeywordLocation ? exclusiveKeywordLocation : "";
     if (minimum > highestMinimum) {
       highestMinimum = minimum;
       isExclusive = exclusive;

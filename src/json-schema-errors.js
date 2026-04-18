@@ -174,22 +174,14 @@ export const addErrorHandler = (errorHandler) => {
 };
 
 /** @type API.getErrors */
-export const getErrors = (normalizedErrors, rootInstance, localization, astOrResolver) => {
+export const getErrors = (normalizedErrors, rootInstance, localization, ast) => {
   /** @type API.ErrorObject[] */
   const errors = [];
-
-  /** @type API.ErrorResolver */
-  const resolver = "getCompiledKeywordValue" in astOrResolver
-    ? /** @type API.ErrorResolver */ (astOrResolver)
-    : {
-        getCompiledKeywordValue: (schemaLocation) => getCompiledKeywordValue(astOrResolver, schemaLocation),
-        getSiblingKeywordValue: (schemaLocation, siblingKeywordUri) => getSiblingKeywordValue(astOrResolver, schemaLocation, siblingKeywordUri)
-      };
 
   for (const instanceLocation in normalizedErrors) {
     const instance = /** @type JsonNode */ (Instance.get(instanceLocation, rootInstance));
     for (const errorHandler of errorHandlers) {
-      const errorObject = errorHandler(normalizedErrors[instanceLocation], instance, localization, resolver);
+      const errorObject = errorHandler(normalizedErrors[instanceLocation], instance, localization, ast);
       errors.push(...errorObject);
     }
   }
@@ -204,7 +196,7 @@ const getParentNode = (ast, schemaLocation) => {
 };
 
 /** @type (ast: AST, schemaLocation: string) => unknown */
-const getCompiledKeywordValue = (ast, schemaLocation) => {
+export const getCompiledKeywordValue = (ast, schemaLocation) => {
   const parentNode = getParentNode(ast, schemaLocation);
   if (!Array.isArray(parentNode)) {
     return undefined;
@@ -214,15 +206,15 @@ const getCompiledKeywordValue = (ast, schemaLocation) => {
   return node?.[2];
 };
 
-/** @type (ast: AST, schemaLocation: string, siblingKeywordUri: string) => { keywordLocation: string; keywordValue: unknown } | undefined */
-const getSiblingKeywordValue = (ast, schemaLocation, siblingKeywordUri) => {
+/** @type (ast: AST, schemaLocation: string, siblingKeywordUri: string) => string | undefined */
+export const getSiblingKeywordValue = (ast, schemaLocation, siblingKeywordUri) => {
   const parentNode = getParentNode(ast, schemaLocation);
   if (!Array.isArray(parentNode)) {
     return undefined;
   }
 
   const node = parentNode.find(([keywordUri]) => keywordUri === siblingKeywordUri);
-  return (!node) ? undefined : { keywordLocation: node[1], keywordValue: node[2] };
+  return node?.[1];
 };
 
 /**

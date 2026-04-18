@@ -1,4 +1,5 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
+import { getCompiledKeywordValue } from "../json-schema-errors.js";
 
 /**
  * @import { ErrorHandler } from "../index.d.ts"
@@ -6,7 +7,7 @@ import * as Instance from "@hyperjump/json-schema/instance/experimental";
  */
 
 /** @type ErrorHandler */
-const requiredErrorHandler = (normalizedErrors, instance, localization, resolver) => {
+const requiredErrorHandler = (normalizedErrors, instance, localization, ast) => {
   /** @type {Set<string>} */
   const allMissingRequired = new Set();
   const allSchemaLocations = [];
@@ -17,7 +18,7 @@ const requiredErrorHandler = (normalizedErrors, instance, localization, resolver
     }
 
     allSchemaLocations.push(schemaLocation);
-    const required = /** @type string[] */ (resolver.getCompiledKeywordValue(schemaLocation));
+    const required = /** @type string[] */ (getCompiledKeywordValue(ast, schemaLocation));
 
     addMissingProperties(required, instance, allMissingRequired);
   }
@@ -28,7 +29,7 @@ const requiredErrorHandler = (normalizedErrors, instance, localization, resolver
     }
 
     allSchemaLocations.push(schemaLocation);
-    const dependencies = /** @type {[string, string[]][]} */ (resolver.getCompiledKeywordValue(schemaLocation));
+    const dependencies = /** @type {[string, string[]][]} */ (getCompiledKeywordValue(ast, schemaLocation));
 
     for (const [propertyName, requiredProperties] of dependencies) {
       if (!Instance.has(propertyName, instance)) {
@@ -43,7 +44,7 @@ const requiredErrorHandler = (normalizedErrors, instance, localization, resolver
       continue;
     }
 
-    const dependencies = /** @type {[string, unknown][]} */ (resolver.getCompiledKeywordValue(schemaLocation));
+    const dependencies = /** @type {[string, unknown][]} */ (getCompiledKeywordValue(ast, schemaLocation));
 
     let hasArrayFormDependencies = false;
     for (const [propertyName, dependency] of dependencies) {
