@@ -60,16 +60,16 @@ const doesTypeSubsume = (valA, failedB, getValue) => {
     }
   }
 
-  if (typeA.includes("string") && (failedB["https://json-schema.org/keyword/minLength"] || failedB["https://json-schema.org/keyword/maxLength"] || failedB["https://json-schema.org/keyword/pattern"])) {
+  if (typeA.includes("string") && (failedB["https://json-schema.org/keyword/minLength"] || failedB["https://json-schema.org/keyword/maxLength"] || failedB["https://json-schema.org/keyword/pattern"] || failedB["https://json-schema.org/keyword/format"])) {
     return true;
   }
-  if ((typeA.includes("number") || typeA.includes("integer")) && (failedB["https://json-schema.org/keyword/minimum"] || failedB["https://json-schema.org/keyword/maximum"] || failedB["https://json-schema.org/keyword/multipleOf"])) {
+  if ((typeA.includes("number") || typeA.includes("integer")) && (failedB["https://json-schema.org/keyword/minimum"] || failedB["https://json-schema.org/keyword/maximum"] || failedB["https://json-schema.org/keyword/exclusiveMinimum"] || failedB["https://json-schema.org/keyword/exclusiveMaximum"] || failedB["https://json-schema.org/keyword/multipleOf"])) {
     return true;
   }
-  if (typeA.includes("object") && (failedB["https://json-schema.org/keyword/properties"] || failedB["https://json-schema.org/keyword/required"])) {
+  if (typeA.includes("object") && (failedB["https://json-schema.org/keyword/properties"] || failedB["https://json-schema.org/keyword/required"] || failedB["https://json-schema.org/keyword/minProperties"] || failedB["https://json-schema.org/keyword/maxProperties"] || failedB["https://json-schema.org/keyword/patternProperties"] || failedB["https://json-schema.org/keyword/additionalProperties"] || failedB["https://json-schema.org/keyword/dependentRequired"])) {
     return true;
   }
-  if (typeA.includes("array") && (failedB["https://json-schema.org/keyword/items"] || failedB["https://json-schema.org/keyword/minItems"])) {
+  if (typeA.includes("array") && (failedB["https://json-schema.org/keyword/items"] || failedB["https://json-schema.org/keyword/minItems"] || failedB["https://json-schema.org/keyword/maxItems"] || failedB["https://json-schema.org/keyword/minContains"] || failedB["https://json-schema.org/keyword/maxContains"] || failedB["https://json-schema.org/keyword/contains"] || failedB["https://json-schema.org/keyword/prefixItems"] || failedB["https://json-schema.org/keyword/additionalItems"] || failedB["https://json-schema.org/keyword/unevaluatedItems"] || failedB["https://json-schema.org/keyword/uniqueItems"])) {
     return true;
   }
 
