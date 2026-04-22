@@ -1,13 +1,12 @@
-import { getSchema } from "@hyperjump/json-schema/experimental";
-import * as Schema from "@hyperjump/browser";
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
+import { getCompiledKeywordValue } from "../json-schema-errors.js";
 
 /**
  * @import { ErrorHandler, ErrorObject } from "../index.d.ts"
  */
 
 /** @type ErrorHandler */
-const formatErrorHandler = async (normalizedErrors, instance, localization) => {
+const formatErrorHandler = (normalizedErrors, instance, localization, ast) => {
   /** @type ErrorObject[] */
   const errors = [];
 
@@ -26,8 +25,7 @@ const formatErrorHandler = async (normalizedErrors, instance, localization) => {
         continue;
       }
 
-      const keyword = await getSchema(schemaLocation);
-      const format = /** @type string */ (Schema.value(keyword));
+      const format = /** @type string */ (getCompiledKeywordValue(ast, schemaLocation));
 
       errors.push({
         message: localization.getFormatErrorMessage(format),

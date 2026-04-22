@@ -1,7 +1,5 @@
-import { getSchema } from "@hyperjump/json-schema/experimental";
-import * as Schema from "@hyperjump/browser";
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
-import jsonStringify from "json-stringify-deterministic";
+import { getCompiledKeywordValue } from "../json-schema-errors.js";
 
 /**
  * @import { ErrorHandler, Json } from "../index.d.ts"
@@ -10,7 +8,7 @@ import jsonStringify from "json-stringify-deterministic";
 const ALL_TYPES = new Set(["null", "boolean", "number", "string", "array", "object", "integer"]);
 
 /** @type {ErrorHandler} */
-const typeConstEnumErrorHandler = async (normalizedErrors, instance, localization) => {
+const typeConstEnumErrorHandler = (normalizedErrors, instance, localization, ast) => {
   let allowedTypes = new Set(ALL_TYPES);
   /** @type {string[]} */
   const failedTypeLocations = [];
@@ -19,9 +17,8 @@ const typeConstEnumErrorHandler = async (normalizedErrors, instance, localizatio
     if (!normalizedErrors["https://json-schema.org/keyword/type"][schemaLocation]) {
       failedTypeLocations.push(schemaLocation);
 
-      const keyword = await getSchema(schemaLocation);
       /** @type {string | string[]} */
-      const value = Schema.value(keyword);
+      const value = /** @type {string | string[]} */ (getCompiledKeywordValue(ast, schemaLocation));
       const types = Array.isArray(value) ? value : [value];
       /** @type {Set<string>} */
       const keywordTypes = new Set(types);
@@ -52,10 +49,10 @@ const typeConstEnumErrorHandler = async (normalizedErrors, instance, localizatio
       failedConstLocations.push(schemaLocation);
     }
 
-    const keyword = await getSchema(schemaLocation);
     const keywordJson = new Set();
-    if (allowedTypes.has(Schema.typeOf(keyword))) {
-      keywordJson.add(jsonStringify(Schema.value(keyword)));
+    const constValueJson = /** @type string */ (getCompiledKeywordValue(ast, schemaLocation));
+    if (allowedTypes.has(jsonTypeOf(constValueJson))) {
+      keywordJson.add(constValueJson);
     } else {
       typeFiltered = true;
     }
@@ -69,11 +66,11 @@ const typeConstEnumErrorHandler = async (normalizedErrors, instance, localizatio
       failedEnumLocations.push(schemaLocation);
     }
 
-    const keyword = await getSchema(schemaLocation);
     const keywordJson = new Set();
-    for await (const enumValueNode of Schema.iter(keyword)) {
-      if (allowedTypes.has(Schema.typeOf(enumValueNode))) {
-        keywordJson.add(jsonStringify(Schema.value(enumValueNode)));
+    const enumValuesJson = /** @type string[] */ (getCompiledKeywordValue(ast, schemaLocation));
+    for (const enumValueJson of enumValuesJson) {
+      if (allowedTypes.has(jsonTypeOf(enumValueJson))) {
+        keywordJson.add(enumValueJson);
       } else {
         typeFiltered = true;
       }
@@ -111,6 +108,27 @@ const typeConstEnumErrorHandler = async (normalizedErrors, instance, localizatio
       instanceLocation: Instance.uri(instance),
       schemaLocations: failedTypeLocations
     }];
+  }
+};
+
+/**
+ * @param {string} value
+ * @returns {string}
+ */
+const jsonTypeOf = (value) => {
+  const firstChar = value[0];
+  if (firstChar === "n") {
+    return "null";
+  } else if (firstChar === "[") {
+    return "array";
+  } else if ((firstChar >= "0" && firstChar <= "9") || firstChar === "-") {
+    return "number";
+  } else if (firstChar === "{") {
+    return "object";
+  } else if (firstChar === "\"") {
+    return "string";
+  } else {
+    return "boolean";
   }
 };
 

@@ -6,7 +6,7 @@ import { pointerSegments } from "@hyperjump/json-pointer";
  */
 
 /** @type ErrorHandler */
-const unknownErrorHandler = async (normalizedErrors, instance, localization) => {
+const unknownErrorHandler = (normalizedErrors, instance, localization) => {
   /** @type ErrorObject[] */
   const errors = [];
 

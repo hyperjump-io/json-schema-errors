@@ -7,7 +7,7 @@ import { getErrors } from "../json-schema-errors.js";
  */
 
 /** @type ErrorHandler */
-const oneOfErrorHandler = async (normalizedErrors, instance, localization) => {
+const oneOfErrorHandler = (normalizedErrors, instance, localization, ast) => {
   /** @type ErrorObject[] */
   const errors = [];
 
@@ -51,7 +51,7 @@ const oneOfErrorHandler = async (normalizedErrors, instance, localization) => {
       }
 
       // The alternative passed all the filters
-      const alternativeErrors = await getErrors(alternative, instance, localization);
+      const alternativeErrors = getErrors(alternative, instance, localization, ast);
       if (alternativeErrors.length) {
         alternatives.push(alternativeErrors);
       } else {
@@ -61,7 +61,7 @@ const oneOfErrorHandler = async (normalizedErrors, instance, localization) => {
 
     if (matchCount === 0 && alternatives.length === 0) {
       for (const alternative of oneOf) {
-        const alternativeErrors = await getErrors(alternative, instance, localization);
+        const alternativeErrors = getErrors(alternative, instance, localization, ast);
         alternatives.push(alternativeErrors);
       }
     }

@@ -5,7 +5,7 @@ import { getErrors } from "../../json-schema-errors.js";
  */
 
 /** @type ErrorHandler */
-const dependenciesErrorHandler = async (normalizedErrors, instance, localization) => {
+const dependenciesErrorHandler = (normalizedErrors, instance, localization, ast) => {
   /** @type ErrorObject[] */
   const errors = [];
 
@@ -16,7 +16,7 @@ const dependenciesErrorHandler = async (normalizedErrors, instance, localization
 
     const dependentSchemaOutputs = normalizedErrors["https://json-schema.org/keyword/draft-04/dependencies"][schemaLocation];
     for (const dependentSchemaOutput of dependentSchemaOutputs) {
-      const dependentSchemaErrors = await getErrors(dependentSchemaOutput, instance, localization);
+      const dependentSchemaErrors = getErrors(dependentSchemaOutput, instance, localization, ast);
       errors.push(...dependentSchemaErrors);
     }
   }

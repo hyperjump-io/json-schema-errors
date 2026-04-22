@@ -1,13 +1,12 @@
-import { getSchema } from "@hyperjump/json-schema/experimental";
-import * as Schema from "@hyperjump/browser";
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
+import { getCompiledKeywordValue, getSiblingKeywordLocation } from "../json-schema-errors.js";
 
 /**
  * @import { ErrorHandler } from "../index.d.ts"
  */
 
 /** @type ErrorHandler */
-const maximumErrorHandler = async (normalizedErrors, instance, localization) => {
+const maximumErrorHandler = (normalizedErrors, instance, localization, ast) => {
   let lowestMaximum = Infinity;
   let isExclusive = false;
 
@@ -19,8 +18,7 @@ const maximumErrorHandler = async (normalizedErrors, instance, localization) => 
       continue;
     }
 
-    const keyword = await getSchema(schemaLocation);
-    const maximum = /** @type number */ (Schema.value(keyword));
+    const maximum = /** @type number */ (getCompiledKeywordValue(ast, schemaLocation));
     if (maximum < lowestMaximum) {
       lowestMaximum = maximum;
       schemaLocations = [schemaLocation];
@@ -32,8 +30,7 @@ const maximumErrorHandler = async (normalizedErrors, instance, localization) => 
       continue;
     }
 
-    const keyword = await getSchema(schemaLocation);
-    const exclusiveMaximum = /** @type number */ (Schema.value(keyword));
+    const exclusiveMaximum = /** @type number */ (getCompiledKeywordValue(ast, schemaLocation));
     if (exclusiveMaximum < lowestMaximum) {
       lowestMaximum = exclusiveMaximum;
       isExclusive = true;
@@ -46,27 +43,15 @@ const maximumErrorHandler = async (normalizedErrors, instance, localization) => 
       continue;
     }
 
-    const parentLocation = pointerPop(schemaLocation);
-    /** @type string */
-    let exclusiveLocation = "";
-    for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/draft-04/exclusiveMaximum"]) {
-      const exclusiveParentLocation = pointerPop(schemaLocation);
-      if (exclusiveParentLocation === parentLocation) {
-        const exclusiveNode = await getSchema(schemaLocation);
-        if (Schema.value(exclusiveNode)) {
-          exclusiveLocation = schemaLocation;
-        }
-        break;
-      }
-    }
-
-    const keywordNode = await getSchema(schemaLocation);
-    const maximum = /** @type number */ (Schema.value(keywordNode));
-
+    const [maximum, exclusive] = /** @type [number, boolean] */ (getCompiledKeywordValue(ast, schemaLocation));
     if (maximum < lowestMaximum) {
       lowestMaximum = maximum;
-      isExclusive = !!exclusiveLocation;
-      schemaLocations = exclusiveLocation ? [schemaLocation, exclusiveLocation] : [schemaLocation];
+      isExclusive = exclusive;
+      schemaLocations = [schemaLocation];
+      if (exclusive) {
+        const exclusiveLocation = getSiblingKeywordLocation(ast, schemaLocation, "https://json-schema.org/keyword/draft-04/exclusiveMaximum");
+        schemaLocations.push(exclusiveLocation);
+      }
     }
   }
 
@@ -86,8 +71,5 @@ const maximumErrorHandler = async (normalizedErrors, instance, localization) => 
     }];
   }
 };
-
-/** @type (pointer: string) => string */
-const pointerPop = (pointer) => pointer.replace(/\/[^/]+$/, "");
 
 export default maximumErrorHandler;

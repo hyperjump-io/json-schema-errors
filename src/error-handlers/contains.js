@@ -1,13 +1,13 @@
-import { getSchema } from "@hyperjump/json-schema/experimental";
-import * as Schema from "@hyperjump/browser";
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
+import { getCompiledKeywordValue, getSiblingKeywordLocation } from "../json-schema-errors.js";
 
 /**
+ * @import { ContainsAst } from "../normalization-handlers/contains.js"
  * @import { ContainsRange, ErrorHandler, ErrorObject } from "../index.d.ts"
  */
 
 /** @type ErrorHandler */
-const containsErrorHandler = async (normalizedErrors, instance, localization) => {
+const containsErrorHandler = (normalizedErrors, instance, localization, ast) => {
   /** @type ErrorObject[] */
   const errors = [];
 
@@ -25,25 +25,21 @@ const containsErrorHandler = async (normalizedErrors, instance, localization) =>
       /** @type string[] */
       const schemaLocations = [schemaLocation];
 
+      const contains = /** @type ContainsAst */ (getCompiledKeywordValue(ast, schemaLocation));
+
       /** @type ContainsRange */
       const range = {};
-      const parentLocation = pointerPop(schemaLocation);
-
-      for (const minContainsLocation in normalizedErrors["https://json-schema.org/keyword/minContains"]) {
-        if (pointerPop(minContainsLocation) === parentLocation) {
-          const minContainsNode = await getSchema(minContainsLocation);
-          range.minContains = /** @type number */ (Schema.value(minContainsNode));
+      if (typeof contains !== "string") {
+        if (contains.minContains !== 1) {
+          range.minContains = contains.minContains;
+          const minContainsLocation = getSiblingKeywordLocation(ast, schemaLocation, "https://json-schema.org/keyword/minContains");
           schemaLocations.push(minContainsLocation);
-          break;
         }
-      }
 
-      for (const maxContainsLocation in normalizedErrors["https://json-schema.org/keyword/maxContains"]) {
-        if (pointerPop(maxContainsLocation) === parentLocation) {
-          const maxContainsNode = await getSchema(maxContainsLocation);
-          range.maxContains = /** @type number */ (Schema.value(maxContainsNode));
+        if (contains.maxContains !== Number.MAX_SAFE_INTEGER) {
+          range.maxContains = contains.maxContains;
+          const maxContainsLocation = getSiblingKeywordLocation(ast, schemaLocation, "https://json-schema.org/keyword/maxContains");
           schemaLocations.push(maxContainsLocation);
-          break;
         }
       }
 
@@ -57,8 +53,5 @@ const containsErrorHandler = async (normalizedErrors, instance, localization) =>
 
   return errors;
 };
-
-/** @type (pointer: string) => string */
-const pointerPop = (pointer) => pointer.replace(/\/[^/]+$/, "");
 
 export default containsErrorHandler;

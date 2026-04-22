@@ -9,18 +9,23 @@ import { JsonSchemaErrorsOutputPlugin } from "./output-plugin.js";
 /**
  * @import * as API from "./index.d.ts"
  * @import { Browser } from "@hyperjump/browser";
- * @import { SchemaDocument, CompiledSchema } from "@hyperjump/json-schema/experimental";
+ * @import { AST, SchemaDocument, CompiledSchema, Node } from "@hyperjump/json-schema/experimental";
  * @import { JsonNode } from "@hyperjump/json-schema/instance/experimental"
  */
 
 /** @type API.jsonSchemaErrors */
 export const jsonSchemaErrors = async (errorOutput, schemaUri, instance, options = {}) => {
   const rootInstance = Instance.fromJs(instance);
-  const [normalizedErrors, localization] = await Promise.all([
-    normalizedOutput(rootInstance, errorOutput, schemaUri),
-    Localization.forLocale(options.locale ?? "en-US")
-  ]);
-  return await getErrors(normalizedErrors, rootInstance, localization);
+  const schema = await getSchema(schemaUri);
+  const errorIndex = await constructErrorIndex(errorOutput, schema);
+  const { schemaUri: compiledSchemaUri, ast } = await compile(schema);
+  const normalizedErrors = evaluateSchema(compiledSchemaUri, rootInstance, {
+    ast,
+    errorIndex,
+    plugins: [...ast.plugins]
+  });
+  const localization = await Localization.forLocale(options.locale ?? "en-US");
+  return getErrors(normalizedErrors, rootInstance, localization, ast);
 };
 
 /** @type Record<string, API.NormalizationHandler> */
@@ -30,14 +35,6 @@ const normalizationHandlers = {};
 export const setNormalizationHandler = (schemaUri, handler) => {
   normalizationHandlers[schemaUri] = handler;
 };
-
-/** @type (value: JsonNode, errorOutput: API.OutputUnit, subjectUri: string) => Promise<API.NormalizedOutput> */
-async function normalizedOutput(value, errorOutput, subjectUri) {
-  const schema = await getSchema(subjectUri);
-  const errorIndex = await constructErrorIndex(errorOutput, schema);
-  const { schemaUri, ast } = await compile(schema);
-  return evaluateSchema(schemaUri, value, { ast, errorIndex, plugins: [...ast.plugins] });
-}
 
 /** @type (outputUnit: API.OutputUnit, schema: Browser<SchemaDocument>, errorIndex?: API.ErrorIndex) => Promise<API.ErrorIndex> */
 const constructErrorIndex = async (outputUnit, schema, errorIndex = {}) => {
@@ -71,11 +68,7 @@ const constructErrorIndex = async (outputUnit, schema, errorIndex = {}) => {
   return errorIndex;
 };
 
-/**
- * @param {Browser} schema
- * @param {string} keywordLocation
- * @returns {Promise<string>}
- */
+/** @type (schema: Browser, keywordLocation: string) => Promise<string> */
 async function toAbsoluteKeywordLocation(schema, keywordLocation) {
   if (keywordLocation.startsWith("#")) {
     keywordLocation = keywordLocation.slice(1);
@@ -181,19 +174,55 @@ export const addErrorHandler = (errorHandler) => {
 };
 
 /** @type API.getErrors */
-export const getErrors = async (normalizedErrors, rootInstance, localization) => {
+export const getErrors = (normalizedErrors, rootInstance, localization, ast) => {
   /** @type API.ErrorObject[] */
   const errors = [];
 
   for (const instanceLocation in normalizedErrors) {
     const instance = /** @type JsonNode */ (Instance.get(instanceLocation, rootInstance));
     for (const errorHandler of errorHandlers) {
-      const errorObject = await errorHandler(normalizedErrors[instanceLocation], instance, localization);
+      const errorObject = errorHandler(normalizedErrors[instanceLocation], instance, localization, ast);
       errors.push(...errorObject);
     }
   }
 
   return errors;
+};
+
+/** @type (ast: AST, schemaLocation: string) => Node<unknown>[] | boolean | undefined */
+const getParentNode = (ast, schemaLocation) => {
+  const parentLocation = schemaLocation.replace(/\/[^/]+$/, "");
+  return ast[parentLocation];
+};
+
+/** @type (ast: AST, schemaLocation: string) => unknown */
+export const getCompiledKeywordValue = (ast, schemaLocation) => {
+  const parentNode = getParentNode(ast, schemaLocation);
+  if (typeof parentNode === "boolean") {
+    return parentNode;
+  }
+
+  const node = parentNode?.find(([, keywordLocation]) => keywordLocation === schemaLocation);
+  if (!node) {
+    throw Error("AST node not found");
+  }
+
+  return node[2];
+};
+
+/** @type (ast: AST, schemaLocation: string, siblingKeywordUri: string) => string */
+export const getSiblingKeywordLocation = (ast, schemaLocation, siblingKeywordUri) => {
+  let parentNode = getParentNode(ast, schemaLocation);
+  if (typeof parentNode === "boolean") {
+    parentNode = undefined;
+  }
+
+  const node = parentNode?.find(([keywordUri]) => keywordUri === siblingKeywordUri);
+  if (!node) {
+    throw Error("AST node not found");
+  }
+
+  return node[1];
 };
 
 /**
@@ -241,7 +270,7 @@ const evaluateCompiledSchema = async (compiledSchema, instance, options = {}) =>
   } else {
     return {
       valid,
-      errors: await getErrors(outputPlugin.output, jsonNode, localization)
+      errors: getErrors(outputPlugin.output, jsonNode, localization, compiledSchema.ast)
     };
   }
 };
