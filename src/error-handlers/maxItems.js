@@ -1,13 +1,12 @@
-import { getSchema } from "@hyperjump/json-schema/experimental";
-import * as Schema from "@hyperjump/browser";
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
+import { getCompiledKeywordValue } from "../json-schema-errors.js";
 
 /**
  * @import { ErrorHandler, ErrorObject } from "../index.d.ts"
  */
 
 /** @type ErrorHandler */
-const maxItemsErrorHandler = async (normalizedErrors, instance, localization) => {
+const maxItemsErrorHandler = (normalizedErrors, instance, localization, ast) => {
   /** @type ErrorObject[] */
   const errors = [];
   let lowestMaxItems = Infinity;
@@ -18,8 +17,7 @@ const maxItemsErrorHandler = async (normalizedErrors, instance, localization) =>
       continue;
     }
 
-    const keyword = await getSchema(schemaLocation);
-    const maxItems = /** @type number */ (Schema.value(keyword));
+    const maxItems = /** @type number */ (getCompiledKeywordValue(ast, schemaLocation));
 
     if (maxItems < lowestMaxItems) {
       lowestMaxItems = maxItems;

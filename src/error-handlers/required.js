@@ -1,6 +1,5 @@
-import { getSchema } from "@hyperjump/json-schema/experimental";
-import * as Schema from "@hyperjump/browser";
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
+import { getCompiledKeywordValue } from "../json-schema-errors.js";
 
 /**
  * @import { ErrorHandler } from "../index.d.ts"
@@ -8,7 +7,7 @@ import * as Instance from "@hyperjump/json-schema/instance/experimental";
  */
 
 /** @type ErrorHandler */
-const requiredErrorHandler = async (normalizedErrors, instance, localization) => {
+const requiredErrorHandler = (normalizedErrors, instance, localization, ast) => {
   /** @type {Set<string>} */
   const allMissingRequired = new Set();
   const allSchemaLocations = [];
@@ -19,8 +18,7 @@ const requiredErrorHandler = async (normalizedErrors, instance, localization) =>
     }
 
     allSchemaLocations.push(schemaLocation);
-    const keyword = await getSchema(schemaLocation);
-    const required = /** @type string[] */ (Schema.value(keyword));
+    const required = /** @type string[] */ (getCompiledKeywordValue(ast, schemaLocation));
 
     addMissingProperties(required, instance, allMissingRequired);
   }
@@ -31,14 +29,12 @@ const requiredErrorHandler = async (normalizedErrors, instance, localization) =>
     }
 
     allSchemaLocations.push(schemaLocation);
-    const keyword = await getSchema(schemaLocation);
+    const dependencies = /** @type {[string, string[]][]} */ (getCompiledKeywordValue(ast, schemaLocation));
 
-    for await (const [propertyName, dependencyNode] of Schema.entries(keyword)) {
+    for (const [propertyName, requiredProperties] of dependencies) {
       if (!Instance.has(propertyName, instance)) {
         continue;
       }
-
-      const requiredProperties = /** @type string[] */ (Schema.value(dependencyNode));
       addMissingProperties(requiredProperties, instance, allMissingRequired);
     }
   }
@@ -48,16 +44,16 @@ const requiredErrorHandler = async (normalizedErrors, instance, localization) =>
       continue;
     }
 
-    const keyword = await getSchema(schemaLocation);
+    const dependencies = /** @type {[string, unknown][]} */ (getCompiledKeywordValue(ast, schemaLocation));
 
     let hasArrayFormDependencies = false;
-    for await (const [propertyName, dependency] of Schema.entries(keyword)) {
-      if (!Instance.has(propertyName, instance) || Schema.typeOf(dependency) !== "array") {
+    for (const [propertyName, dependency] of dependencies) {
+      if (!Instance.has(propertyName, instance) || !Array.isArray(dependency)) {
         continue;
       }
 
       hasArrayFormDependencies = true;
-      const dependencyArray = /** @type {string[]} */ (Schema.value(dependency));
+      const dependencyArray = /** @type {string[]} */ (dependency);
       addMissingProperties(dependencyArray, instance, allMissingRequired);
     }
 

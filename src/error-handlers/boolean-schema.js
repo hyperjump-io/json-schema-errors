@@ -5,7 +5,7 @@ import * as Instance from "@hyperjump/json-schema/instance/experimental";
  */
 
 /** @type ErrorHandler */
-const booleanSchemaErrorHandler = async (normalizedErrors, instance, localization) => {
+const booleanSchemaErrorHandler = (normalizedErrors, instance, localization) => {
   /** @type ErrorObject[] */
   const errors = [];
 

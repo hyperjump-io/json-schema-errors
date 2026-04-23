@@ -6,7 +6,7 @@ import jsonStringify from "json-stringify-deterministic";
  */
 
 /** @type ErrorHandler */
-const uniqueItemsErrorHandler = async (normalizedErrors, instance, localization) => {
+const uniqueItemsErrorHandler = (normalizedErrors, instance, localization) => {
   /** @type ErrorObject[] */
   const errors = [];
 
