@@ -1,3 +1,6 @@
+/** @type Record<string,string> */
+export const translations = {
+  "en-US": `
 // Any type keywords
 boolean-schema-message = A value is not allowed here
 type-message = Expected a {$expectedTypes}
@@ -47,3 +50,6 @@ oneOf-message = Expected the value to match exactly one alternative, {$matchCoun
  *[other] but more than one
 } matched
 not-message = Expected a value that doesn't match the 'not' schema
+`,
+  "fx-TR": `test = unsupported locale`
+};

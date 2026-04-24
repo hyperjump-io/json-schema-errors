@@ -9,7 +9,7 @@ import { Localization } from "./localization.js";
 
 describe("Normalization", async () => {
   const schemaUri = "https://example.com/main";
-  const localization = await Localization.forLocale("en-US");
+  const localization = Localization.forLocale("en-US");
 
   afterEach(() => {
     unregisterSchema(schemaUri);
