@@ -14,6 +14,7 @@ import "@hyperjump/json-schema/formats";
 import { BASIC } from "@hyperjump/json-schema/experimental";
 import { jsonSchemaErrors } from "../src/index.js";
 import { FluentBundle, FluentResource } from "@fluent/bundle";
+import { translations } from "./translations.js";
 
 /**
  * @import { SchemaObject } from "@hyperjump/json-schema"
@@ -153,8 +154,8 @@ const isCompatible = (compatibility, versionUnderTest) => {
 };
 
 /** @type (messageId: string, messageParams: MessageParams) => string */
-const getMessage = await (async function () {
-  const ftl = await readFile(`${import.meta.dirname}/translations/en-US.ftl`, "utf-8");
+const getMessage = (function () {
+  const ftl = translations["en-US"];
   const resource = new FluentResource(ftl);
   const bundle = new FluentBundle("en-US");
   bundle.addResource(resource);
