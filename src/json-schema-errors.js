@@ -24,7 +24,7 @@ export const jsonSchemaErrors = async (errorOutput, schemaUri, instance, options
     errorIndex,
     plugins: [...ast.plugins]
   });
-  const localization = await Localization.forLocale(options.locale ?? "en-US");
+  const localization = Localization.forLocale(options.locale ?? "en-US");
   return getErrors(normalizedErrors, rootInstance, localization, ast);
 };
 
@@ -256,7 +256,7 @@ export const validate = async (schemaUri, instance, options) => {
 
 /** @type (compiledSchema: CompiledSchema, instance: API.Json, options?: API.ValidationOptions) => Promise<API.ValidationResult> */
 const evaluateCompiledSchema = async (compiledSchema, instance, options = {}) => {
-  const localization = await Localization.forLocale(options.locale ?? "en-US");
+  const localization = Localization.forLocale(options.locale ?? "en-US");
   const jsonNode = Instance.fromJs(instance);
   const outputPlugin = new JsonSchemaErrorsOutputPlugin();
   const context = {
