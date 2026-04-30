@@ -1,4 +1,4 @@
-import { readFile } from "node:fs/promises";
+import { translations } from "./translations/index.js";
 import { FluentBundle, FluentResource } from "@fluent/bundle";
 
 /**
@@ -21,18 +21,17 @@ export class Localization {
     this.conjunction = new Intl.ListFormat(this.locale, { type: "conjunction" });
   }
 
-  /** @type (locale: string) => Promise<Localization> */
-  static async forLocale(locale) {
+  /** @type (locale: string) => Localization */
+  static forLocale(locale) {
     if (!localizationCache.has(locale)) {
-      try {
-        const ftl = await readFile(`${import.meta.dirname}/translations/${locale}.ftl`, "utf-8");
-        const resource = new FluentResource(ftl);
-        const bundle = new FluentBundle(locale);
-        bundle.addResource(resource);
-        localizationCache.set(locale, new Localization(locale, bundle));
-      } catch (error) {
-        throw Error(`The ${locale} locale is not supported.`, { cause: error });
+      const ftl = translations[locale];
+      if (!ftl) {
+        throw Error(`The ${locale} locale is not supported.`);
       }
+      const resource = new FluentResource(ftl);
+      const bundle = new FluentBundle(locale);
+      bundle.addResource(resource);
+      localizationCache.set(locale, new Localization(locale, bundle));
     }
 
     return /** @type Localization */ (localizationCache.get(locale));

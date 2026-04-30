@@ -1,25 +1,24 @@
-import { afterEach, beforeEach, describe, expect, test } from "vitest";
-import { rm, writeFile } from "node:fs/promises";
+import { beforeAll, afterAll, describe, expect, test } from "vitest";
+import { translations } from "./translations/index.js";
 import { Localization } from "./localization.js";
 
 describe("Localization", () => {
   const fixtureLocale = "fx-TR";
 
-  beforeEach(async () => {
-    await writeFile(`src/translations/${fixtureLocale}.ftl`, "example = message");
+  beforeAll(() => {
+    translations[fixtureLocale] = `test = unsupported locale`;
   });
 
-  afterEach(async () => {
-    await rm(`src/translations/${fixtureLocale}.ftl`);
+  afterAll(() => {
+    delete translations[fixtureLocale];
   });
 
-  test("unsupported locale", async () => {
-    const localization = Localization.forLocale("xx-XX");
-    await expect(localization).rejects.to.throw(Error);
+  test("unsupported locale", () => {
+    expect(() => Localization.forLocale("xx-XX")).to.throw(Error);
   });
 
-  test("unsupported message", async () => {
-    const localization = await Localization.forLocale(fixtureLocale);
+  test("unsupported message", () => {
+    const localization = Localization.forLocale(fixtureLocale);
     expect(() => localization.getBooleanSchemaErrorMessage()).to.throw(Error);
   });
 });

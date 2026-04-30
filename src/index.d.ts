@@ -172,10 +172,10 @@ export type ContainsRange = {
 export const validate: (
   (schemaUri: string) => Promise<EvaluateInstance>
 ) & (
-  (schemaUri: string, instance: Json, options?: ValidationOptions) => Promise<ValidationResult>
+  (schemaUri: string, instance: Json, options?: ValidationOptions) => ValidationResult
 );
 
-export type EvaluateInstance = (instance: Json, options?: ValidationOptions) => Promise<ValidationResult>;
+export type EvaluateInstance = (instance: Json, options?: ValidationOptions) => ValidationResult;
 
 export type ValidationOptions = {
   /**
