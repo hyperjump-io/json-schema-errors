@@ -1,4 +1,4 @@
-import { addErrorHandler, setNormalizationHandler } from "./json-schema-errors.js";
+import { setErrorHandler, setNormalizationHandler } from "./json-schema-errors.js";
 
 // Normalization Handlers
 import additionalItemsNormalizationHandler from "./normalization-handlers/draft-04/additionalItems.js";
@@ -146,33 +146,34 @@ setNormalizationHandler("https://json-schema.org/keyword/uniqueItems", uniqueIte
 setNormalizationHandler("https://json-schema.org/keyword/unknown", unknownNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/writeOnly", writeOnlyNormalizationHandler);
 
-addErrorHandler(anyOfErrorHandler);
-addErrorHandler(booleanSchemaErrorHandler);
-addErrorHandler(containsErrorHandler);
-addErrorHandler(dependenciesErrorHandler);
-addErrorHandler(formatErrorHandler);
-addErrorHandler(maximumErrorHandler);
-addErrorHandler(maxItemsErrorHandler);
-addErrorHandler(maxLengthErrorHandler);
-addErrorHandler(maxPropertiesErrorHandler);
-addErrorHandler(minimumErrorHandler);
-addErrorHandler(minItemsErrorHandler);
-addErrorHandler(minLengthErrorHandler);
-addErrorHandler(minPropertiesErrorHandler);
-addErrorHandler(multipleOfErrorHandler);
-addErrorHandler(notErrorHandler);
-addErrorHandler(oneOfErrorHandler);
-addErrorHandler(patternErrorHandler);
-addErrorHandler(requiredErrorHandler);
-addErrorHandler(typeConstEnumErrorHandler);
-addErrorHandler(uniqueItemsErrorHandler);
-addErrorHandler(unknownErrorHandler);
+setErrorHandler("https://hyperjump.io/error-handler/anyOf", anyOfErrorHandler);
+setErrorHandler("https://hyperjump.io/error-handler/boolean-schema", booleanSchemaErrorHandler);
+setErrorHandler("https://hyperjump.io/error-handler/contains", containsErrorHandler);
+setErrorHandler("https://hyperjump.io/error-handler/dependencies", dependenciesErrorHandler);
+setErrorHandler("https://hyperjump.io/error-handler/format", formatErrorHandler);
+setErrorHandler("https://hyperjump.io/error-handler/maximum", maximumErrorHandler);
+setErrorHandler("https://hyperjump.io/error-handler/maxItems", maxItemsErrorHandler);
+setErrorHandler("https://hyperjump.io/error-handler/maxLength", maxLengthErrorHandler);
+setErrorHandler("https://hyperjump.io/error-handler/maxProperties", maxPropertiesErrorHandler);
+setErrorHandler("https://hyperjump.io/error-handler/minimum", minimumErrorHandler);
+setErrorHandler("https://hyperjump.io/error-handler/minItems", minItemsErrorHandler);
+setErrorHandler("https://hyperjump.io/error-handler/minLength", minLengthErrorHandler);
+setErrorHandler("https://hyperjump.io/error-handler/minProperties", minPropertiesErrorHandler);
+setErrorHandler("https://hyperjump.io/error-handler/multipleOf", multipleOfErrorHandler);
+setErrorHandler("https://hyperjump.io/error-handler/not", notErrorHandler);
+setErrorHandler("https://hyperjump.io/error-handler/oneOf", oneOfErrorHandler);
+setErrorHandler("https://hyperjump.io/error-handler/pattern", patternErrorHandler);
+setErrorHandler("https://hyperjump.io/error-handler/required", requiredErrorHandler);
+setErrorHandler("https://hyperjump.io/error-handler/typeConstEnum", typeConstEnumErrorHandler);
+setErrorHandler("https://hyperjump.io/error-handler/uniqueItems", uniqueItemsErrorHandler);
+setErrorHandler("https://hyperjump.io/error-handler/unknown", unknownErrorHandler);
 
 export {
-  addErrorHandler,
   evaluateSchema,
   getErrors,
   jsonSchemaErrors,
+  removeErrorHandler,
+  setErrorHandler,
   setNormalizationHandler,
   validate
 } from "./json-schema-errors.js";

@@ -137,7 +137,20 @@ export type NormalizedOutput = {
  */
 export const evaluateSchema: (schemaLocation: string, instance: JsonNode, context: EvaluationContext) => NormalizedOutput;
 
-export const addErrorHandler: (handler: ErrorHandler) => void;
+/**
+ * Sets an error handler for the given URI. If an error handler already exists
+ * for this URI, it will be replaced with the new handler.
+ *
+ * @param errorHandlerUri - A URI for unique indentification of error handler
+ * @param handler
+ */
+export const setErrorHandler: (errorHandlerUri: string, handler: ErrorHandler) => void;
+
+/**
+ * Removes the error handler registered for the given URI.
+ * @param errorHandlerUri
+ */
+export const removeErrorHandler: (errorHandlerUri: string) => void;
 
 /**
  * A function that transforms normalized errors for one or more keywords into human

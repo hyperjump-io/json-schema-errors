@@ -165,12 +165,17 @@ const mergeOutput = (a, b) => {
   }
 };
 
-/** @type API.ErrorHandler[] */
-const errorHandlers = [];
+/** @type Record<string, API.ErrorHandler> */
+const errorHandlers = {};
 
-/** @type API.addErrorHandler */
-export const addErrorHandler = (errorHandler) => {
-  errorHandlers.push(errorHandler);
+/** @type API.setErrorHandler */
+export const setErrorHandler = (errorHandlerUri, errorHandler) => {
+  errorHandlers[errorHandlerUri] = errorHandler;
+};
+
+/** @type API.removeErrorHandler */
+export const removeErrorHandler = (errorHandlerUri) => {
+  delete errorHandlers[errorHandlerUri];
 };
 
 /** @type API.getErrors */
@@ -180,8 +185,8 @@ export const getErrors = (normalizedErrors, rootInstance, localization, ast) => 
 
   for (const instanceLocation in normalizedErrors) {
     const instance = /** @type JsonNode */ (Instance.get(instanceLocation, rootInstance));
-    for (const errorHandler of errorHandlers) {
-      const errorObject = errorHandler(normalizedErrors[instanceLocation], instance, localization, ast);
+    for (const errorHandlerUri in errorHandlers) {
+      const errorObject = errorHandlers[errorHandlerUri](normalizedErrors[instanceLocation], instance, localization, ast);
       errors.push(...errorObject);
     }
   }
