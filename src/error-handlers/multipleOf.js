@@ -6,36 +6,38 @@ import { getCompiledKeywordValue } from "../json-schema-errors.js";
  */
 
 /** @type ErrorHandler */
-const multipleOfErrorHandler = (normalizedErrors, instance, localization, ast) => {
-  /** @type ErrorObject[] */
-  const errors = [];
+const multipleOfErrorHandler = {
+  error: (normalizedErrors, instance, localization, ast) => {
+    /** @type ErrorObject[] */
+    const errors = [];
 
-  /** @type (number | null) */
-  let combinedMultipleOf = null;
-  /** @type string[] */
-  const schemaLocations = [];
-  let hasError = false;
+    /** @type (number | null) */
+    let combinedMultipleOf = null;
+    /** @type string[] */
+    const schemaLocations = [];
+    let hasError = false;
 
-  for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/multipleOf"]) {
-    if (!normalizedErrors["https://json-schema.org/keyword/multipleOf"][schemaLocation]) {
-      hasError = true;
+    for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/multipleOf"]) {
+      if (!normalizedErrors["https://json-schema.org/keyword/multipleOf"][schemaLocation]) {
+        hasError = true;
+      }
+
+      const multipleOf = /** @type number */ (getCompiledKeywordValue(ast, schemaLocation));
+
+      combinedMultipleOf = combinedMultipleOf === null ? multipleOf : lcm(combinedMultipleOf, multipleOf);
+      schemaLocations.push(schemaLocation);
     }
 
-    const multipleOf = /** @type number */ (getCompiledKeywordValue(ast, schemaLocation));
+    if (combinedMultipleOf !== null && hasError) {
+      errors.push({
+        message: localization.getMultipleOfErrorMessage(combinedMultipleOf),
+        instanceLocation: Instance.uri(instance),
+        schemaLocations
+      });
+    }
 
-    combinedMultipleOf = combinedMultipleOf === null ? multipleOf : lcm(combinedMultipleOf, multipleOf);
-    schemaLocations.push(schemaLocation);
+    return errors;
   }
-
-  if (combinedMultipleOf !== null && hasError) {
-    errors.push({
-      message: localization.getMultipleOfErrorMessage(combinedMultipleOf),
-      instanceLocation: Instance.uri(instance),
-      schemaLocations
-    });
-  }
-
-  return errors;
 };
 
 /**

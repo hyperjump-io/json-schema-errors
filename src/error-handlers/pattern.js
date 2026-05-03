@@ -6,26 +6,28 @@ import { getCompiledKeywordValue } from "../json-schema-errors.js";
  */
 
 /** @type ErrorHandler */
-const patternErrorHandler = (normalizedErrors, instance, localization, ast) => {
-  /** @type ErrorObject[] */
-  const errors = [];
+const patternErrorHandler = {
+  error: (normalizedErrors, instance, localization, ast) => {
+    /** @type ErrorObject[] */
+    const errors = [];
 
-  for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/pattern"]) {
-    if (normalizedErrors["https://json-schema.org/keyword/pattern"][schemaLocation]) {
-      continue;
+    for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/pattern"]) {
+      if (normalizedErrors["https://json-schema.org/keyword/pattern"][schemaLocation]) {
+        continue;
+      }
+
+      const compiledPattern = /** @type RegExp */ (getCompiledKeywordValue(ast, schemaLocation));
+      const pattern = compiledPattern.source;
+
+      errors.push({
+        message: localization.getPatternErrorMessage(pattern),
+        instanceLocation: Instance.uri(instance),
+        schemaLocations: [schemaLocation]
+      });
     }
 
-    const compiledPattern = /** @type RegExp */ (getCompiledKeywordValue(ast, schemaLocation));
-    const pattern = compiledPattern.source;
-
-    errors.push({
-      message: localization.getPatternErrorMessage(pattern),
-      instanceLocation: Instance.uri(instance),
-      schemaLocations: [schemaLocation]
-    });
+    return errors;
   }
-
-  return errors;
 };
 
 export default patternErrorHandler;

@@ -6,25 +6,27 @@ import { pointerSegments } from "@hyperjump/json-pointer";
  */
 
 /** @type ErrorHandler */
-const unknownErrorHandler = (normalizedErrors, instance, localization) => {
-  /** @type ErrorObject[] */
-  const errors = [];
+const unknownErrorHandler = {
+  error: (normalizedErrors, instance, localization) => {
+    /** @type ErrorObject[] */
+    const errors = [];
 
-  for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/unknown"]) {
-    if (normalizedErrors["https://json-schema.org/keyword/unknown"][schemaLocation]) {
-      continue;
+    for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/unknown"]) {
+      if (normalizedErrors["https://json-schema.org/keyword/unknown"][schemaLocation]) {
+        continue;
+      }
+
+      const keyword = /** @type string */ ([...pointerSegments(decodeURI(schemaLocation.split("#")[1]))].pop());
+
+      errors.push({
+        message: localization.getUnknownErrorMessage(keyword),
+        instanceLocation: Instance.uri(instance),
+        schemaLocations: [schemaLocation]
+      });
     }
 
-    const keyword = /** @type string */ ([...pointerSegments(decodeURI(schemaLocation.split("#")[1]))].pop());
-
-    errors.push({
-      message: localization.getUnknownErrorMessage(keyword),
-      instanceLocation: Instance.uri(instance),
-      schemaLocations: [schemaLocation]
-    });
+    return errors;
   }
-
-  return errors;
 };
 
 export default unknownErrorHandler;

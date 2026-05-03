@@ -5,19 +5,21 @@ import * as Instance from "@hyperjump/json-schema/instance/experimental";
  */
 
 /** @type ErrorHandler */
-const booleanSchemaErrorHandler = (normalizedErrors, instance, localization) => {
-  /** @type ErrorObject[] */
-  const errors = [];
+const booleanSchemaErrorHandler = {
+  error: (normalizedErrors, instance, localization) => {
+    /** @type ErrorObject[] */
+    const errors = [];
 
-  for (const schemaLocation in normalizedErrors["https://json-schema.org/validation"]) {
-    errors.push({
-      message: localization.getBooleanSchemaErrorMessage(),
-      instanceLocation: Instance.uri(instance),
-      schemaLocations: [schemaLocation]
-    });
+    for (const schemaLocation in normalizedErrors["https://json-schema.org/validation"]) {
+      errors.push({
+        message: localization.getBooleanSchemaErrorMessage(),
+        instanceLocation: Instance.uri(instance),
+        schemaLocations: [schemaLocation]
+      });
+    }
+
+    return errors;
   }
-
-  return errors;
 };
 
 export default booleanSchemaErrorHandler;
