@@ -7,82 +7,84 @@ import { getErrors } from "../json-schema-errors.js";
  */
 
 /** @type ErrorHandler */
-const oneOfErrorHandler = (normalizedErrors, instance, localization, ast) => {
-  /** @type ErrorObject[] */
-  const errors = [];
+const oneOfErrorHandler = {
+  error: (normalizedErrors, instance, localization, ast) => {
+    /** @type ErrorObject[] */
+    const errors = [];
 
-  for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/oneOf"]) {
-    const oneOf = normalizedErrors["https://json-schema.org/keyword/oneOf"][schemaLocation];
-    if (typeof oneOf === "boolean") {
-      continue;
-    }
-
-    const propertyLocations = Pact.pipe(
-      Instance.values(instance),
-      Pact.map(Instance.uri),
-      Pact.collectArray
-    );
-
-    const discriminators = propertyLocations.filter((propertyLocation) => {
-      return oneOf.some((alternative) => isPassingProperty(alternative[propertyLocation]));
-    });
-
-    const alternatives = [];
-    const instanceLocation = Instance.uri(instance);
-    let matchCount = 0;
-
-    for (const alternative of oneOf) {
-      // Filter alternatives whose declared type doesn't match the instance type
-      const typeResults = alternative[instanceLocation]?.["https://json-schema.org/keyword/type"];
-      if (typeResults && !Object.values(typeResults).every((isValid) => isValid)) {
+    for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/oneOf"]) {
+      const oneOf = normalizedErrors["https://json-schema.org/keyword/oneOf"][schemaLocation];
+      if (typeof oneOf === "boolean") {
         continue;
       }
 
-      if (Instance.typeOf(instance) === "object") {
-        // Filter alternative if it has no declared properties in common with the instance
-        if (!propertyLocations.some((propertyLocation) => propertyLocation in alternative)) {
-          continue;
-        }
+      const propertyLocations = Pact.pipe(
+        Instance.values(instance),
+        Pact.map(Instance.uri),
+        Pact.collectArray
+      );
 
-        // Filter alternative if it has failing properties that are declared and passing in another alternative
-        if (discriminators.some((propertyLocation) => !isPassingProperty(alternative[propertyLocation]))) {
-          continue;
-        }
-      }
+      const discriminators = propertyLocations.filter((propertyLocation) => {
+        return oneOf.some((alternative) => isPassingProperty(alternative[propertyLocation]));
+      });
 
-      // The alternative passed all the filters
-      const alternativeErrors = getErrors(alternative, instance, localization, ast);
-      if (alternativeErrors.length) {
-        alternatives.push(alternativeErrors);
-      } else {
-        matchCount++;
-      }
-    }
+      const alternatives = [];
+      const instanceLocation = Instance.uri(instance);
+      let matchCount = 0;
 
-    if (matchCount === 0 && alternatives.length === 0) {
       for (const alternative of oneOf) {
+        // Filter alternatives whose declared type doesn't match the instance type
+        const typeResults = alternative[instanceLocation]?.["https://json-schema.org/keyword/type"];
+        if (typeResults && !Object.values(typeResults).every((isValid) => isValid)) {
+          continue;
+        }
+
+        if (Instance.typeOf(instance) === "object") {
+          // Filter alternative if it has no declared properties in common with the instance
+          if (!propertyLocations.some((propertyLocation) => propertyLocation in alternative)) {
+            continue;
+          }
+
+          // Filter alternative if it has failing properties that are declared and passing in another alternative
+          if (discriminators.some((propertyLocation) => !isPassingProperty(alternative[propertyLocation]))) {
+            continue;
+          }
+        }
+
+        // The alternative passed all the filters
         const alternativeErrors = getErrors(alternative, instance, localization, ast);
-        alternatives.push(alternativeErrors);
+        if (alternativeErrors.length) {
+          alternatives.push(alternativeErrors);
+        } else {
+          matchCount++;
+        }
+      }
+
+      if (matchCount === 0 && alternatives.length === 0) {
+        for (const alternative of oneOf) {
+          const alternativeErrors = getErrors(alternative, instance, localization, ast);
+          alternatives.push(alternativeErrors);
+        }
+      }
+
+      if (alternatives.length === 1 && matchCount === 0) {
+        errors.push(...alternatives[0]);
+      } else {
+        /** @type ErrorObject */
+        const alternativeErrors = {
+          message: localization.getOneOfErrorMessage(matchCount),
+          instanceLocation: Instance.uri(instance),
+          schemaLocations: [schemaLocation]
+        };
+        if (alternatives.length) {
+          alternativeErrors.alternatives = alternatives;
+        }
+        errors.push(alternativeErrors);
       }
     }
 
-    if (alternatives.length === 1 && matchCount === 0) {
-      errors.push(...alternatives[0]);
-    } else {
-      /** @type ErrorObject */
-      const alternativeErrors = {
-        message: localization.getOneOfErrorMessage(matchCount),
-        instanceLocation: Instance.uri(instance),
-        schemaLocations: [schemaLocation]
-      };
-      if (alternatives.length) {
-        alternativeErrors.alternatives = alternatives;
-      }
-      errors.push(alternativeErrors);
-    }
+    return errors;
   }
-
-  return errors;
 };
 
 /** @type (alternative: InstanceOutput | undefined) => boolean */

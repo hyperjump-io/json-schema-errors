@@ -186,7 +186,7 @@ export const getErrors = (normalizedErrors, rootInstance, localization, ast) => 
   for (const instanceLocation in normalizedErrors) {
     const instance = /** @type JsonNode */ (Instance.get(instanceLocation, rootInstance));
     for (const errorHandlerUri in errorHandlers) {
-      const errorObject = errorHandlers[errorHandlerUri](normalizedErrors[instanceLocation], instance, localization, ast);
+      const errorObject = errorHandlers[errorHandlerUri].error(normalizedErrors[instanceLocation], instance, localization, ast);
       errors.push(...errorObject);
     }
   }

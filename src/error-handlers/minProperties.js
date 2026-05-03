@@ -6,35 +6,37 @@ import { getCompiledKeywordValue } from "../json-schema-errors.js";
  */
 
 /** @type ErrorHandler */
-const minPropertiesErrorHandler = (normalizedErrors, instance, localization, ast) => {
-  /** @type ErrorObject[] */
-  const errors = [];
+const minPropertiesErrorHandler = {
+  error: (normalizedErrors, instance, localization, ast) => {
+    /** @type ErrorObject[] */
+    const errors = [];
 
-  let highestMinProperties = -Infinity;
-  let mostConstrainingLocation = null;
+    let highestMinProperties = -Infinity;
+    let mostConstrainingLocation = null;
 
-  for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/minProperties"]) {
-    if (normalizedErrors["https://json-schema.org/keyword/minProperties"][schemaLocation]) {
-      continue;
+    for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/minProperties"]) {
+      if (normalizedErrors["https://json-schema.org/keyword/minProperties"][schemaLocation]) {
+        continue;
+      }
+
+      const minProperties = /** @type number */ (getCompiledKeywordValue(ast, schemaLocation));
+
+      if (minProperties > highestMinProperties) {
+        highestMinProperties = minProperties;
+        mostConstrainingLocation = schemaLocation;
+      }
     }
 
-    const minProperties = /** @type number */ (getCompiledKeywordValue(ast, schemaLocation));
-
-    if (minProperties > highestMinProperties) {
-      highestMinProperties = minProperties;
-      mostConstrainingLocation = schemaLocation;
+    if (mostConstrainingLocation !== null) {
+      errors.push({
+        message: localization.getMinPropertiesErrorMessage(highestMinProperties),
+        instanceLocation: Instance.uri(instance),
+        schemaLocations: [mostConstrainingLocation]
+      });
     }
-  }
 
-  if (mostConstrainingLocation !== null) {
-    errors.push({
-      message: localization.getMinPropertiesErrorMessage(highestMinProperties),
-      instanceLocation: Instance.uri(instance),
-      schemaLocations: [mostConstrainingLocation]
-    });
+    return errors;
   }
-
-  return errors;
 };
 
 export default minPropertiesErrorHandler;

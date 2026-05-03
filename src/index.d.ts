@@ -153,10 +153,12 @@ export const setErrorHandler: (errorHandlerUri: string, handler: ErrorHandler) =
 export const removeErrorHandler: (errorHandlerUri: string) => void;
 
 /**
- * A function that transforms normalized errors for one or more keywords into human
- * readable messages.
+ * Used to transform normalized errors for one or more keywords into human readable
+ * messages.
  */
-export type ErrorHandler = (normalizedErrors: InstanceOutput, instance: JsonNode, localization: Localization, ast: AST) => ErrorObject[];
+export type ErrorHandler = {
+  error: (normalizedErrors: InstanceOutput, instance: JsonNode, localization: Localization, ast: AST) => ErrorObject[];
+};
 
 /**
  * Converts the normalized error format to human readable errors. It's used to

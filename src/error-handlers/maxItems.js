@@ -6,34 +6,36 @@ import { getCompiledKeywordValue } from "../json-schema-errors.js";
  */
 
 /** @type ErrorHandler */
-const maxItemsErrorHandler = (normalizedErrors, instance, localization, ast) => {
-  /** @type ErrorObject[] */
-  const errors = [];
-  let lowestMaxItems = Infinity;
-  let effectiveSchemaLocation = "";
+const maxItemsErrorHandler = {
+  error: (normalizedErrors, instance, localization, ast) => {
+    /** @type ErrorObject[] */
+    const errors = [];
+    let lowestMaxItems = Infinity;
+    let effectiveSchemaLocation = "";
 
-  for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/maxItems"]) {
-    if (normalizedErrors["https://json-schema.org/keyword/maxItems"][schemaLocation]) {
-      continue;
+    for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/maxItems"]) {
+      if (normalizedErrors["https://json-schema.org/keyword/maxItems"][schemaLocation]) {
+        continue;
+      }
+
+      const maxItems = /** @type number */ (getCompiledKeywordValue(ast, schemaLocation));
+
+      if (maxItems < lowestMaxItems) {
+        lowestMaxItems = maxItems;
+        effectiveSchemaLocation = schemaLocation;
+      }
     }
 
-    const maxItems = /** @type number */ (getCompiledKeywordValue(ast, schemaLocation));
-
-    if (maxItems < lowestMaxItems) {
-      lowestMaxItems = maxItems;
-      effectiveSchemaLocation = schemaLocation;
+    if (lowestMaxItems != Infinity) {
+      errors.push({
+        message: localization.getMaxItemsErrorMessage(lowestMaxItems),
+        instanceLocation: Instance.uri(instance),
+        schemaLocations: [effectiveSchemaLocation]
+      });
     }
-  }
 
-  if (lowestMaxItems != Infinity) {
-    errors.push({
-      message: localization.getMaxItemsErrorMessage(lowestMaxItems),
-      instanceLocation: Instance.uri(instance),
-      schemaLocations: [effectiveSchemaLocation]
-    });
+    return errors;
   }
-
-  return errors;
 };
 
 export default maxItemsErrorHandler;
