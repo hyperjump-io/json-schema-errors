@@ -116,7 +116,7 @@ import type { ErrorObject } from "@hyperjump/json-schema-errors";
 const KEYWORD_URI = "https://example.com/keyword/startsWith";
 
 setNormalizationHandler(KEYWORD_URI, {
-  evalute() {
+  evaluate() {
     // Only applicator keywords need to return a value
   }
 });
