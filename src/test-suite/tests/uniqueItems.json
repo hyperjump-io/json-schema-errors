@@ -29,6 +29,44 @@
       },
       "instance": ["foo", "bar"],
       "errors": []
+    },
+    {
+      "description": "uniqueItems with duplicate objects",
+      "schema": { "uniqueItems": true },
+      "instance": [{ "a": 1 }, { "a": 1 }, { "b": 2 }],
+      "errors": [
+        {
+          "messageId": "uniqueItems-message",
+          "messageParams": {},
+          "instanceLocation": "#/0",
+          "schemaLocations": ["#/uniqueItems"]
+        },
+        {
+          "messageId": "uniqueItems-message",
+          "messageParams": {},
+          "instanceLocation": "#/1",
+          "schemaLocations": ["#/uniqueItems"]
+        }
+      ]
+    },
+    {
+      "description": "uniqueItems with duplicate booleans",
+      "schema": { "uniqueItems": true },
+      "instance": [true, true],
+      "errors": [
+        {
+          "messageId": "uniqueItems-message",
+          "messageParams": {},
+          "instanceLocation": "#/0",
+          "schemaLocations": ["#/uniqueItems"]
+        },
+        {
+          "messageId": "uniqueItems-message",
+          "messageParams": {},
+          "instanceLocation": "#/1",
+          "schemaLocations": ["#/uniqueItems"]
+        }
+      ]
     }
   ]
 }
