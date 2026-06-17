@@ -175,5 +175,6 @@ export {
   removeErrorHandler,
   setErrorHandler,
   setNormalizationHandler,
-  validate
+  validate,
+  evaluateCompiledSchema
 } from "./json-schema-errors.js";

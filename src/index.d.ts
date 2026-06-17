@@ -1,4 +1,4 @@
-import { AST, EvaluationPlugin } from "@hyperjump/json-schema/experimental";
+import { AST, CompiledSchema, EvaluationPlugin } from "@hyperjump/json-schema/experimental";
 import { JsonNode } from "@hyperjump/json-schema/instance/experimental";
 import { Localization } from "./localization.js";
 
@@ -187,6 +187,8 @@ export const validate: (
 ) & (
   (schemaUri: string, instance: Json, options?: ValidationOptions) => Promise<ValidationResult>
 );
+
+export const evaluateCompiledSchema: (compiledSchema: CompiledSchema, instance: Json, options?: ValidationOptions) => ValidationResult;
 
 export type EvaluateInstance = (instance: Json, options?: ValidationOptions) => ValidationResult;
 
