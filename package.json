@@ -44,7 +44,7 @@
   },
   "devDependencies": {
     "@stylistic/eslint-plugin": "*",
-    "@types/node": "^25.5.0",
+    "@types/node": "*",
     "@vitest/coverage-v8": "*",
     "oxlint": "*",
     "oxlint-tsgolint": "*",
