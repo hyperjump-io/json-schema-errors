@@ -5,6 +5,7 @@ import additionalItemsNormalizationHandler from "./normalization-handlers/draft-
 import additionalPropertiesNormalizationHandler from "./normalization-handlers/additionalProperties.js";
 import allOfNormalizationHandler from "./normalization-handlers/allOf.js";
 import anyOfNormalizationHandler from "./normalization-handlers/anyOf.js";
+import commentNormalizationHandler from "./normalization-handlers/comment.js";
 import constNormalizationHandler from "./normalization-handlers/const.js";
 import containsNormalizationHandler from "./normalization-handlers/contains.js";
 import containsDraft06NormalizationHandler from "./normalization-handlers/draft-06/contains.js";
@@ -86,6 +87,7 @@ setNormalizationHandler("https://json-schema.org/keyword/draft-04/additionalItem
 setNormalizationHandler("https://json-schema.org/keyword/additionalProperties", additionalPropertiesNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/allOf", allOfNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/anyOf", anyOfNormalizationHandler);
+setNormalizationHandler("https://json-schema.org/keyword/comment", commentNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/const", constNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/contains", containsNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/draft-06/contains", containsDraft06NormalizationHandler);
