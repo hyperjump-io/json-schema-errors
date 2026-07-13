@@ -1,0 +1,17 @@
+{
+  "$schema": "../test-suite.schema.json",
+
+  "description": "The comment keyword is ignored",
+  "tests": [
+    {
+      "description": "format",
+      "schema": {
+        "$comment":"this is a comment",
+        "type":"object"
+      },
+      "instance": {},
+      "errors": [
+      ]
+    }
+  ]
+}
