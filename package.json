@@ -1,6 +1,6 @@
 {
   "name": "@hyperjump/json-schema-errors",
-  "version": "0.1.0",
+  "version": "1.0.0-alpha.1",
   "description": "Get human friendly error messages from any of the standard JSON Schema output formats",
   "keywords": [
     "Hyperjump",
