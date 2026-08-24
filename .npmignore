@@ -1,6 +1,6 @@
 .github/
 .gitattributes
-oxlint.config.js
+oxlint.config.ts
 src/test-suite/
 **/*.test.js
 coverage/
