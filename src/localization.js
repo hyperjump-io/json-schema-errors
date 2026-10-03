@@ -24,12 +24,12 @@ export class Localization {
   /** @type (locale: string) => Localization */
   static forLocale(locale) {
     if (!localizationCache.has(locale)) {
-      const ftl = translations[locale];
-      if (!ftl) {
+      const translation = translations[locale];
+      if (!translation) {
         throw Error(`The ${locale} locale is not supported.`);
       }
-      const resource = new FluentResource(ftl);
-      const bundle = new FluentBundle(locale);
+      const resource = new FluentResource(translation.ftl);
+      const bundle = new FluentBundle(locale, { useIsolating: translation.direction === "rtl" });
       bundle.addResource(resource);
       localizationCache.set(locale, new Localization(locale, bundle));
     }

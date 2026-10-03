@@ -155,9 +155,9 @@ const isCompatible = (compatibility, versionUnderTest) => {
 
 /** @type (messageId: string, messageParams: MessageParams) => string */
 const getMessage = (function () {
-  const ftl = translations["en-US"];
-  const resource = new FluentResource(ftl);
-  const bundle = new FluentBundle("en-US");
+  const translation = translations["en-US"];
+  const resource = new FluentResource(translation.ftl);
+  const bundle = new FluentBundle("en-US", { useIsolating: translation.direction === "rtl" });
   bundle.addResource(resource);
 
   const disjunction = new Intl.ListFormat("en-US", { type: "disjunction" });
