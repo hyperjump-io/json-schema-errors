@@ -1,5 +1,5 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
-import { getCompiledKeywordValue, getSiblingKeywordLocation } from "../json-schema-errors.js";
+import { getCompiledKeywordValue, getSiblingKeywordLocation, getSuccesses, isPassing } from "../json-schema-errors.js";
 
 /**
  * @import { ContainsAst } from "../normalization-handlers/contains.js"
@@ -19,7 +19,8 @@ const containsErrorHandler = {
 
     for (const keywordUri of keywordUris) {
       for (const schemaLocation in normalizedErrors[keywordUri]) {
-        if (normalizedErrors[keywordUri][schemaLocation] == true) {
+        const containsOutput = normalizedErrors[keywordUri][schemaLocation];
+        if (containsOutput === true) {
           continue;
         }
 
@@ -41,6 +42,42 @@ const containsErrorHandler = {
             range.maxContains = contains.maxContains;
             const maxContainsLocation = getSiblingKeywordLocation(ast, schemaLocation, "https://json-schema.org/keyword/maxContains");
             schemaLocations.push(maxContainsLocation);
+
+            // Too many items matched. Report on each matching item how it
+            // satisfied the 'contains' schema so the user knows what needs to change.
+            const items = [...Instance.iter(instance)];
+            const itemOutputs = Array.isArray(containsOutput) ? containsOutput : [];
+            const matches = items.flatMap((item, index) => {
+              const itemOutput = itemOutputs[index];
+              return itemOutput && isPassing(itemOutput) ? [{ item, itemOutput }] : [];
+            });
+            if (matches.length > contains.maxContains) {
+              const descriptions = matches.map(({ itemOutput }) => {
+                return getSuccesses(itemOutput, instance, localization, ast);
+              });
+
+              // If any match can't be described, the errors would be misleading
+              if (descriptions.every((description) => description.length > 0)) {
+                matches.forEach(({ item }, index) => {
+                  errors.push({
+                    message: localization.getContainsTooManyErrorMessage(contains.maxContains),
+                    alternatives: [descriptions[index]],
+                    instanceLocation: Instance.uri(item),
+                    schemaLocations: [schemaLocation, maxContainsLocation]
+                  });
+                });
+                continue;
+              } else if (matches.length === itemOutputs.length) {
+                // Every item matched and there's nothing to say about why, so the
+                // problem is effectively that there are too many items.
+                errors.push({
+                  message: localization.getMaxItemsErrorMessage(contains.maxContains),
+                  instanceLocation: Instance.uri(instance),
+                  schemaLocations: [schemaLocation, maxContainsLocation]
+                });
+                continue;
+              }
+            }
           }
         }
 

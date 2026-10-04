@@ -210,6 +210,21 @@ export const getSuccesses = (normalizedOutput, rootInstance, localization, ast) 
   return successes;
 };
 
+/** @type (normalizedOutput: API.NormalizedOutput) => boolean */
+export const isPassing = (normalizedOutput) => {
+  for (const instanceLocation in normalizedOutput) {
+    for (const keywordUri in normalizedOutput[instanceLocation]) {
+      for (const schemaLocation in normalizedOutput[instanceLocation][keywordUri]) {
+        if (normalizedOutput[instanceLocation][keywordUri][schemaLocation] !== true) {
+          return false;
+        }
+      }
+    }
+  }
+
+  return true;
+};
+
 /** @type (ast: AST, schemaLocation: string) => Node<unknown>[] | boolean | undefined */
 const getParentNode = (ast, schemaLocation) => {
   const parentLocation = schemaLocation.replace(/\/[^/]+$/, "");
