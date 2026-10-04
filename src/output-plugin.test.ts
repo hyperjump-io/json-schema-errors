@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, test } from "vitest";
 import { validate, registerSchema, unregisterSchema } from "@hyperjump/json-schema";
+import "./index.js";
 import { JsonSchemaErrorsOutputPlugin } from "./output-plugin.js";
 
 describe("JSON Schema Errors Output Format", () => {
@@ -532,11 +533,33 @@ describe("JSON Schema Errors Output Format", () => {
 
       expect(outputPlugin.output).to.eql({
         "#": {
-          "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/if/type`]: { valid: true }
+          "https://json-schema.org/keyword/if": {
+            [`${schemaUri}#/if`]: {
+              valid: true,
+              outputs: [
+                {
+                  "#": {
+                    "https://json-schema.org/keyword/type": {
+                      [`${schemaUri}#/if/type`]: { valid: true }
+                    }
+                  }
+                }
+              ]
+            }
           },
-          "https://json-schema.org/keyword/minLength": {
-            [`${schemaUri}#/then/minLength`]: { valid: false }
+          "https://json-schema.org/keyword/then": {
+            [`${schemaUri}#/then`]: {
+              valid: false,
+              outputs: [
+                {
+                  "#": {
+                    "https://json-schema.org/keyword/minLength": {
+                      [`${schemaUri}#/then/minLength`]: { valid: false }
+                    }
+                  }
+                }
+              ]
+            }
           }
         }
       });
@@ -552,11 +575,33 @@ describe("JSON Schema Errors Output Format", () => {
 
       expect(outputPlugin.output).to.eql({
         "#": {
-          "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/if/type`]: { valid: true }
+          "https://json-schema.org/keyword/if": {
+            [`${schemaUri}#/if`]: {
+              valid: true,
+              outputs: [
+                {
+                  "#": {
+                    "https://json-schema.org/keyword/type": {
+                      [`${schemaUri}#/if/type`]: { valid: true }
+                    }
+                  }
+                }
+              ]
+            }
           },
-          "https://json-schema.org/keyword/minLength": {
-            [`${schemaUri}#/then/minLength`]: { valid: true }
+          "https://json-schema.org/keyword/then": {
+            [`${schemaUri}#/then`]: {
+              valid: true,
+              outputs: [
+                {
+                  "#": {
+                    "https://json-schema.org/keyword/minLength": {
+                      [`${schemaUri}#/then/minLength`]: { valid: true }
+                    }
+                  }
+                }
+              ]
+            }
           }
         }
       });
@@ -576,11 +621,35 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/type`]: { valid: true },
-            [`${schemaUri}#/if/type`]: { valid: false }
+            [`${schemaUri}#/type`]: { valid: true }
           },
-          "https://json-schema.org/keyword/minimum": {
-            [`${schemaUri}#/else/minimum`]: { valid: false }
+          "https://json-schema.org/keyword/if": {
+            [`${schemaUri}#/if`]: {
+              valid: true,
+              outputs: [
+                {
+                  "#": {
+                    "https://json-schema.org/keyword/type": {
+                      [`${schemaUri}#/if/type`]: { valid: false }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "https://json-schema.org/keyword/else": {
+            [`${schemaUri}#/else`]: {
+              valid: false,
+              outputs: [
+                {
+                  "#": {
+                    "https://json-schema.org/keyword/minimum": {
+                      [`${schemaUri}#/else/minimum`]: { valid: false }
+                    }
+                  }
+                }
+              ]
+            }
           }
         }
       });
@@ -598,11 +667,35 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/type`]: { valid: true },
-            [`${schemaUri}#/if/type`]: { valid: false }
+            [`${schemaUri}#/type`]: { valid: true }
           },
-          "https://json-schema.org/keyword/minimum": {
-            [`${schemaUri}#/else/minimum`]: { valid: true }
+          "https://json-schema.org/keyword/if": {
+            [`${schemaUri}#/if`]: {
+              valid: true,
+              outputs: [
+                {
+                  "#": {
+                    "https://json-schema.org/keyword/type": {
+                      [`${schemaUri}#/if/type`]: { valid: false }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "https://json-schema.org/keyword/else": {
+            [`${schemaUri}#/else`]: {
+              valid: true,
+              outputs: [
+                {
+                  "#": {
+                    "https://json-schema.org/keyword/minimum": {
+                      [`${schemaUri}#/else/minimum`]: { valid: true }
+                    }
+                  }
+                }
+              ]
+            }
           }
         }
       });

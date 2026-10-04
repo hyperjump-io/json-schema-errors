@@ -31,6 +31,11 @@ export const jsonSchemaErrors = async (errorOutput, schemaUri, instance, options
 /** @type Record<string, API.NormalizationHandler> */
 const normalizationHandlers = {};
 
+/** @type (keywordUri: string) => boolean */
+export const isSimpleApplicator = (keywordUri) => {
+  return normalizationHandlers[toAbsoluteIri(keywordUri)]?.simpleApplicator ?? false;
+};
+
 /** @type API.setNormalizationHandler */
 export const setNormalizationHandler = (schemaUri, handler) => {
   normalizationHandlers[schemaUri] = handler;
@@ -130,10 +135,8 @@ export const evaluateSchema = (schemaLocation, instance, context) => {
 
       const validationKeyword = getKeyword(keywordUri);
 
-      const isKeywordValid = getValidity(keywordLocation, instanceLocation.replace(/^#\*/, "#"), context);
-      if (isKeywordValid === false) {
-        valid = false;
-      }
+      const keywordInstanceLocation = instanceLocation.replace(/^#\*/, "#");
+      let isKeywordValid = getValidity(keywordLocation, keywordInstanceLocation, context);
 
       /** @type API.EvaluationContext */
       const keywordContext = {
@@ -141,13 +144,24 @@ export const evaluateSchema = (schemaLocation, instance, context) => {
         errorIndex: context.errorIndex,
         plugins: context.plugins,
         // The output won't say what happened inside an applicator that passed
-        isValidityUnknown: context.isValidityUnknown || (!keyword.simpleApplicator && isKeywordValid === true)
+        isValidityUnknown: context.isValidityUnknown || (
+          !keyword.simpleApplicator && !keyword.validityFromSubschemas && isKeywordValid === true
+        )
       };
       for (const plugin of context.plugins) {
         plugin.beforeKeyword?.(node, instance, keywordContext, context, validationKeyword);
       }
 
       const keywordOutput = keyword.evaluate(keywordValue, instance, keywordContext);
+
+      const isReported = context.errorIndex[keywordLocation]?.[keywordInstanceLocation] !== undefined;
+      if (keyword.validityFromSubschemas && !isReported && keywordOutput?.some(isFailing)) {
+        isKeywordValid = false;
+      }
+
+      if (isKeywordValid === false) {
+        valid = false;
+      }
 
       if (keyword.simpleApplicator) {
         for (const suboutput of /** @type API.NormalizedOutput[] */ (keywordOutput)) {

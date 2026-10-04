@@ -66,6 +66,7 @@ import booleanSchemaErrorHandler from "./error-handlers/boolean-schema.js";
 import containsErrorHandler from "./error-handlers/contains.js";
 import dependenciesErrorHandler from "./error-handlers/draft-04/dependencies.js";
 import formatErrorHandler from "./error-handlers/format.js";
+import ifThenElseErrorHandler from "./error-handlers/ifThenElse.js";
 import maximumErrorHandler from "./error-handlers/maximum.js";
 import maxItemsErrorHandler from "./error-handlers/maxItems.js";
 import maxLengthErrorHandler from "./error-handlers/maxLength.js";
@@ -156,6 +157,7 @@ setErrorHandler("https://hyperjump.io/error-handler/boolean-schema", booleanSche
 setErrorHandler("https://hyperjump.io/error-handler/contains", containsErrorHandler);
 setErrorHandler("https://hyperjump.io/error-handler/dependencies", dependenciesErrorHandler);
 setErrorHandler("https://hyperjump.io/error-handler/format", formatErrorHandler);
+setErrorHandler("https://hyperjump.io/error-handler/ifThenElse", ifThenElseErrorHandler);
 setErrorHandler("https://hyperjump.io/error-handler/maximum", maximumErrorHandler);
 setErrorHandler("https://hyperjump.io/error-handler/maxItems", maxItemsErrorHandler);
 setErrorHandler("https://hyperjump.io/error-handler/maxLength", maxLengthErrorHandler);
