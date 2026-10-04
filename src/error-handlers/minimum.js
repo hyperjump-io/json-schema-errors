@@ -14,7 +14,7 @@ const minimumErrorHandler = {
     let schemaLocations = [];
 
     for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/minimum"]) {
-      if (normalizedErrors["https://json-schema.org/keyword/minimum"][schemaLocation]) {
+      if (normalizedErrors["https://json-schema.org/keyword/minimum"][schemaLocation].valid !== false) {
         continue;
       }
 
@@ -27,8 +27,7 @@ const minimumErrorHandler = {
     }
 
     for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/exclusiveMinimum"]) {
-      if (
-        normalizedErrors["https://json-schema.org/keyword/exclusiveMinimum"][schemaLocation]) {
+      if (normalizedErrors["https://json-schema.org/keyword/exclusiveMinimum"][schemaLocation].valid !== false) {
         continue;
       }
 
@@ -42,7 +41,7 @@ const minimumErrorHandler = {
     }
 
     for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/draft-04/minimum"]) {
-      if (normalizedErrors["https://json-schema.org/keyword/draft-04/minimum"][schemaLocation]) {
+      if (normalizedErrors["https://json-schema.org/keyword/draft-04/minimum"][schemaLocation].valid !== false) {
         continue;
       }
 

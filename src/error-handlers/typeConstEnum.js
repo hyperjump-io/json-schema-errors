@@ -15,7 +15,7 @@ const typeConstEnumErrorHandler = {
     const failedTypeLocations = [];
 
     for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/type"]) {
-      if (!normalizedErrors["https://json-schema.org/keyword/type"][schemaLocation]) {
+      if (normalizedErrors["https://json-schema.org/keyword/type"][schemaLocation].valid === false) {
         failedTypeLocations.push(schemaLocation);
 
         /** @type {string | string[]} */
@@ -46,7 +46,7 @@ const typeConstEnumErrorHandler = {
 
     for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/const"]) {
       constEnumLocations.push(schemaLocation);
-      if (!normalizedErrors["https://json-schema.org/keyword/const"][schemaLocation]) {
+      if (normalizedErrors["https://json-schema.org/keyword/const"][schemaLocation].valid === false) {
         failedConstLocations.push(schemaLocation);
       }
 
@@ -63,7 +63,7 @@ const typeConstEnumErrorHandler = {
 
     for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/enum"]) {
       constEnumLocations.push(schemaLocation);
-      if (!normalizedErrors["https://json-schema.org/keyword/enum"][schemaLocation]) {
+      if (normalizedErrors["https://json-schema.org/keyword/enum"][schemaLocation].valid === false) {
         failedEnumLocations.push(schemaLocation);
       }
 
@@ -117,10 +117,6 @@ const typeConstEnumErrorHandler = {
     const successes = [];
 
     for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/type"]) {
-      if (normalizedOutput["https://json-schema.org/keyword/type"][schemaLocation] !== true) {
-        continue;
-      }
-
       /** @type {string | string[]} */
       const value = /** @type {string | string[]} */ (getCompiledKeywordValue(ast, schemaLocation));
       const types = Array.isArray(value) ? value : [value];

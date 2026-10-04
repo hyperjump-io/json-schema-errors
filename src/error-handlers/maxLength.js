@@ -14,7 +14,7 @@ const maxLengthErrorHandler = {
     let mostConstrainingLocation = null;
 
     for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/maxLength"]) {
-      if (normalizedErrors["https://json-schema.org/keyword/maxLength"][schemaLocation]) {
+      if (normalizedErrors["https://json-schema.org/keyword/maxLength"][schemaLocation].valid !== false) {
         continue;
       }
 

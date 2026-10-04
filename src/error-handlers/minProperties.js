@@ -15,7 +15,7 @@ const minPropertiesErrorHandler = {
     let mostConstrainingLocation = null;
 
     for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/minProperties"]) {
-      if (normalizedErrors["https://json-schema.org/keyword/minProperties"][schemaLocation]) {
+      if (normalizedErrors["https://json-schema.org/keyword/minProperties"][schemaLocation].valid !== false) {
         continue;
       }
 

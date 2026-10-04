@@ -20,7 +20,7 @@ const containsErrorHandler = {
     for (const keywordUri of keywordUris) {
       for (const schemaLocation in normalizedErrors[keywordUri]) {
         const containsOutput = normalizedErrors[keywordUri][schemaLocation];
-        if (containsOutput === true) {
+        if (containsOutput.valid !== false) {
           continue;
         }
 
@@ -46,7 +46,7 @@ const containsErrorHandler = {
             // Too many items matched. Report on each matching item how it
             // satisfied the 'contains' schema so the user knows what needs to change.
             const items = [...Instance.iter(instance)];
-            const itemOutputs = Array.isArray(containsOutput) ? containsOutput : [];
+            const itemOutputs = containsOutput.outputs ?? [];
             const matches = items.flatMap((item, index) => {
               const itemOutput = itemOutputs[index];
               return itemOutput && isPassing(itemOutput) ? [{ item, itemOutput }] : [];

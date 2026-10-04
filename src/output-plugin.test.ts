@@ -24,10 +24,10 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/$defs/string/type`]: false
+            [`${schemaUri}#/$defs/string/type`]: { valid: false }
           },
           "https://json-schema.org/keyword/definitions": {
-            [`${schemaUri}#/$defs`]: true
+            [`${schemaUri}#/$defs`]: { valid: true }
           }
         }
       });
@@ -46,10 +46,10 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/$defs/string/type`]: true
+            [`${schemaUri}#/$defs/string/type`]: { valid: true }
           },
           "https://json-schema.org/keyword/definitions": {
-            [`${schemaUri}#/$defs`]: true
+            [`${schemaUri}#/$defs`]: { valid: true }
           }
         }
       });
@@ -65,7 +65,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#/foo": {
           "https://json-schema.org/validation": {
-            [`${schemaUri}#/additionalProperties`]: false
+            [`${schemaUri}#/additionalProperties`]: { valid: false }
           }
         }
       });
@@ -79,12 +79,12 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#/foo": {
           "https://json-schema.org/validation": {
-            [`${schemaUri}#/additionalProperties`]: false
+            [`${schemaUri}#/additionalProperties`]: { valid: false }
           }
         },
         "#/bar": {
           "https://json-schema.org/validation": {
-            [`${schemaUri}#/additionalProperties`]: false
+            [`${schemaUri}#/additionalProperties`]: { valid: false }
           }
         }
       });
@@ -100,7 +100,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#/foo": {
           "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/additionalProperties/type`]: false
+            [`${schemaUri}#/additionalProperties/type`]: { valid: false }
           }
         }
       });
@@ -129,10 +129,10 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/allOf/0/type`]: true
+            [`${schemaUri}#/allOf/0/type`]: { valid: true }
           },
           "https://json-schema.org/keyword/maximum": {
-            [`${schemaUri}#/allOf/1/maximum`]: false
+            [`${schemaUri}#/allOf/1/maximum`]: { valid: false }
           }
         }
       });
@@ -152,11 +152,11 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/type`]: true
+            [`${schemaUri}#/type`]: { valid: true }
           },
           "https://json-schema.org/keyword/maximum": {
-            [`${schemaUri}#/allOf/0/maximum`]: false,
-            [`${schemaUri}#/allOf/1/maximum`]: false
+            [`${schemaUri}#/allOf/0/maximum`]: { valid: false },
+            [`${schemaUri}#/allOf/1/maximum`]: { valid: false }
           }
         }
       });
@@ -175,10 +175,10 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/allOf/0/type`]: true
+            [`${schemaUri}#/allOf/0/type`]: { valid: true }
           },
           "https://json-schema.org/keyword/maximum": {
-            [`${schemaUri}#/allOf/1/maximum`]: true
+            [`${schemaUri}#/allOf/1/maximum`]: { valid: true }
           }
         }
       });
@@ -199,22 +199,25 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/anyOf": {
-            [`${schemaUri}#/anyOf`]: [
-              {
-                "#": {
-                  "https://json-schema.org/keyword/type": {
-                    [`${schemaUri}#/anyOf/0/type`]: false
+            [`${schemaUri}#/anyOf`]: {
+              valid: false,
+              outputs: [
+                {
+                  "#": {
+                    "https://json-schema.org/keyword/type": {
+                      [`${schemaUri}#/anyOf/0/type`]: { valid: false }
+                    }
+                  }
+                },
+                {
+                  "#": {
+                    "https://json-schema.org/keyword/type": {
+                      [`${schemaUri}#/anyOf/1/type`]: { valid: false }
+                    }
                   }
                 }
-              },
-              {
-                "#": {
-                  "https://json-schema.org/keyword/type": {
-                    [`${schemaUri}#/anyOf/1/type`]: false
-                  }
-                }
-              }
-            ]
+              ]
+            }
           }
         }
       });
@@ -233,7 +236,25 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/anyOf": {
-            [`${schemaUri}#/anyOf`]: true
+            [`${schemaUri}#/anyOf`]: {
+              valid: true,
+              outputs: [
+                {
+                  "#": {
+                    "https://json-schema.org/keyword/type": {
+                      [`${schemaUri}#/anyOf/0/type`]: { valid: true }
+                    }
+                  }
+                },
+                {
+                  "#": {
+                    "https://json-schema.org/keyword/type": {
+                      [`${schemaUri}#/anyOf/1/type`]: { valid: false }
+                    }
+                  }
+                }
+              ]
+            }
           }
         }
       });
@@ -254,22 +275,25 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/oneOf": {
-            [`${schemaUri}#/oneOf`]: [
-              {
-                "#": {
-                  "https://json-schema.org/keyword/type": {
-                    [`${schemaUri}#/oneOf/0/type`]: false
+            [`${schemaUri}#/oneOf`]: {
+              valid: false,
+              outputs: [
+                {
+                  "#": {
+                    "https://json-schema.org/keyword/type": {
+                      [`${schemaUri}#/oneOf/0/type`]: { valid: false }
+                    }
+                  }
+                },
+                {
+                  "#": {
+                    "https://json-schema.org/keyword/type": {
+                      [`${schemaUri}#/oneOf/1/type`]: { valid: false }
+                    }
                   }
                 }
-              },
-              {
-                "#": {
-                  "https://json-schema.org/keyword/type": {
-                    [`${schemaUri}#/oneOf/1/type`]: false
-                  }
-                }
-              }
-            ]
+              ]
+            }
           }
         }
       });
@@ -288,7 +312,25 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/oneOf": {
-            [`${schemaUri}#/oneOf`]: true
+            [`${schemaUri}#/oneOf`]: {
+              valid: true,
+              outputs: [
+                {
+                  "#": {
+                    "https://json-schema.org/keyword/type": {
+                      [`${schemaUri}#/oneOf/0/type`]: { valid: true }
+                    }
+                  }
+                },
+                {
+                  "#": {
+                    "https://json-schema.org/keyword/type": {
+                      [`${schemaUri}#/oneOf/1/type`]: { valid: false }
+                    }
+                  }
+                }
+              ]
+            }
           }
         }
       });
@@ -306,15 +348,18 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/not": {
-            [`${schemaUri}#/not`]: [
-              {
-                "#": {
-                  "https://json-schema.org/keyword/type": {
-                    [`${schemaUri}#/not/type`]: true
+            [`${schemaUri}#/not`]: {
+              valid: false,
+              outputs: [
+                {
+                  "#": {
+                    "https://json-schema.org/keyword/type": {
+                      [`${schemaUri}#/not/type`]: { valid: true }
+                    }
                   }
                 }
-              }
-            ]
+              ]
+            }
           }
         }
       });
@@ -330,7 +375,18 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/not": {
-            [`${schemaUri}#/not`]: true
+            [`${schemaUri}#/not`]: {
+              valid: true,
+              outputs: [
+                {
+                  "#": {
+                    "https://json-schema.org/keyword/type": {
+                      [`${schemaUri}#/not/type`]: { valid: false }
+                    }
+                  }
+                }
+              ]
+            }
           }
         }
       });
@@ -348,22 +404,25 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/contains": {
-            [`${schemaUri}#/contains`]: [
-              {
-                "#/0": {
-                  "https://json-schema.org/keyword/type": {
-                    [`${schemaUri}#/contains/type`]: false
+            [`${schemaUri}#/contains`]: {
+              valid: false,
+              outputs: [
+                {
+                  "#/0": {
+                    "https://json-schema.org/keyword/type": {
+                      [`${schemaUri}#/contains/type`]: { valid: false }
+                    }
+                  }
+                },
+                {
+                  "#/1": {
+                    "https://json-schema.org/keyword/type": {
+                      [`${schemaUri}#/contains/type`]: { valid: false }
+                    }
                   }
                 }
-              },
-              {
-                "#/1": {
-                  "https://json-schema.org/keyword/type": {
-                    [`${schemaUri}#/contains/type`]: false
-                  }
-                }
-              }
-            ]
+              ]
+            }
           }
         }
       });
@@ -379,7 +438,25 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/contains": {
-            [`${schemaUri}#/contains`]: true
+            [`${schemaUri}#/contains`]: {
+              valid: true,
+              outputs: [
+                {
+                  "#/0": {
+                    "https://json-schema.org/keyword/type": {
+                      [`${schemaUri}#/contains/type`]: { valid: false }
+                    }
+                  }
+                },
+                {
+                  "#/1": {
+                    "https://json-schema.org/keyword/type": {
+                      [`${schemaUri}#/contains/type`]: { valid: true }
+                    }
+                  }
+                }
+              ]
+            }
           }
         }
       });
@@ -399,7 +476,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/required": {
-            [`${schemaUri}#/dependentSchemas/foo/required`]: false
+            [`${schemaUri}#/dependentSchemas/foo/required`]: { valid: false }
           }
         }
       });
@@ -418,8 +495,8 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/required": {
-            [`${schemaUri}#/dependentSchemas/foo/required`]: false,
-            [`${schemaUri}#/dependentSchemas/bar/required`]: false
+            [`${schemaUri}#/dependentSchemas/foo/required`]: { valid: false },
+            [`${schemaUri}#/dependentSchemas/bar/required`]: { valid: false }
           }
         }
       });
@@ -437,7 +514,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/required": {
-            [`${schemaUri}#/dependentSchemas/foo/required`]: true
+            [`${schemaUri}#/dependentSchemas/foo/required`]: { valid: true }
           }
         }
       });
@@ -456,10 +533,10 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/if/type`]: true
+            [`${schemaUri}#/if/type`]: { valid: true }
           },
           "https://json-schema.org/keyword/minLength": {
-            [`${schemaUri}#/then/minLength`]: false
+            [`${schemaUri}#/then/minLength`]: { valid: false }
           }
         }
       });
@@ -476,10 +553,10 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/if/type`]: true
+            [`${schemaUri}#/if/type`]: { valid: true }
           },
           "https://json-schema.org/keyword/minLength": {
-            [`${schemaUri}#/then/minLength`]: true
+            [`${schemaUri}#/then/minLength`]: { valid: true }
           }
         }
       });
@@ -499,11 +576,11 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/type`]: true,
-            [`${schemaUri}#/if/type`]: false
+            [`${schemaUri}#/type`]: { valid: true },
+            [`${schemaUri}#/if/type`]: { valid: false }
           },
           "https://json-schema.org/keyword/minimum": {
-            [`${schemaUri}#/else/minimum`]: false
+            [`${schemaUri}#/else/minimum`]: { valid: false }
           }
         }
       });
@@ -521,11 +598,11 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/type`]: true,
-            [`${schemaUri}#/if/type`]: false
+            [`${schemaUri}#/type`]: { valid: true },
+            [`${schemaUri}#/if/type`]: { valid: false }
           },
           "https://json-schema.org/keyword/minimum": {
-            [`${schemaUri}#/else/minimum`]: true
+            [`${schemaUri}#/else/minimum`]: { valid: true }
           }
         }
       });
@@ -543,12 +620,12 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#/0": {
           "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/items/type`]: false
+            [`${schemaUri}#/items/type`]: { valid: false }
           }
         },
         "#/1": {
           "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/items/type`]: false
+            [`${schemaUri}#/items/type`]: { valid: false }
           }
         }
       });
@@ -564,7 +641,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#/0": {
           "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/items/type`]: true
+            [`${schemaUri}#/items/type`]: { valid: true }
           }
         }
       });
@@ -585,12 +662,12 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#/foo": {
           "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/patternProperties/%5Ef/type`]: false
+            [`${schemaUri}#/patternProperties/%5Ef/type`]: { valid: false }
           }
         },
         "#/bar": {
           "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/patternProperties/%5Eb/type`]: false
+            [`${schemaUri}#/patternProperties/%5Eb/type`]: { valid: false }
           }
         }
       });
@@ -609,12 +686,12 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#/foo": {
           "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/patternProperties/%5Ef/type`]: true
+            [`${schemaUri}#/patternProperties/%5Ef/type`]: { valid: true }
           }
         },
         "#/bar": {
           "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/patternProperties/%5Eb/type`]: true
+            [`${schemaUri}#/patternProperties/%5Eb/type`]: { valid: true }
           }
         }
       });
@@ -635,12 +712,12 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#/0": {
           "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/prefixItems/0/type`]: false
+            [`${schemaUri}#/prefixItems/0/type`]: { valid: false }
           }
         },
         "#/1": {
           "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/prefixItems/1/type`]: false
+            [`${schemaUri}#/prefixItems/1/type`]: { valid: false }
           }
         }
       });
@@ -659,12 +736,12 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#/0": {
           "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/prefixItems/0/type`]: true
+            [`${schemaUri}#/prefixItems/0/type`]: { valid: true }
           }
         },
         "#/1": {
           "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/prefixItems/1/type`]: true
+            [`${schemaUri}#/prefixItems/1/type`]: { valid: true }
           }
         }
       });
@@ -685,12 +762,12 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#/foo": {
           "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/properties/foo/type`]: false
+            [`${schemaUri}#/properties/foo/type`]: { valid: false }
           }
         },
         "#/bar": {
           "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/properties/bar/type`]: false
+            [`${schemaUri}#/properties/bar/type`]: { valid: false }
           }
         }
       });
@@ -709,12 +786,12 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#/foo": {
           "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/properties/foo/type`]: true
+            [`${schemaUri}#/properties/foo/type`]: { valid: true }
           }
         },
         "#/bar": {
           "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/properties/bar/type`]: true
+            [`${schemaUri}#/properties/bar/type`]: { valid: true }
           }
         }
       });
@@ -732,12 +809,12 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#*/banana": {
           "https://json-schema.org/keyword/pattern": {
-            [`${schemaUri}#/propertyNames/pattern`]: false
+            [`${schemaUri}#/propertyNames/pattern`]: { valid: false }
           }
         },
         "#*/pear": {
           "https://json-schema.org/keyword/pattern": {
-            [`${schemaUri}#/propertyNames/pattern`]: false
+            [`${schemaUri}#/propertyNames/pattern`]: { valid: false }
           }
         }
       });
@@ -753,7 +830,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#*/apple": {
           "https://json-schema.org/keyword/pattern": {
-            [`${schemaUri}#/propertyNames/pattern`]: true
+            [`${schemaUri}#/propertyNames/pattern`]: { valid: true }
           }
         }
       });
@@ -769,7 +846,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#/foo": {
           "https://json-schema.org/validation": {
-            [`${schemaUri}#/unevaluatedProperties`]: false
+            [`${schemaUri}#/unevaluatedProperties`]: { valid: false }
           }
         }
       });
@@ -789,12 +866,12 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#/bar": {
           "https://json-schema.org/validation": {
-            [`${schemaUri}#/properties/bar`]: false
+            [`${schemaUri}#/properties/bar`]: { valid: false }
           }
         },
         "#/baz": {
           "https://json-schema.org/validation": {
-            [`${schemaUri}#/unevaluatedProperties`]: false
+            [`${schemaUri}#/unevaluatedProperties`]: { valid: false }
           }
         }
       });
@@ -810,7 +887,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#/foo": {
           "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/unevaluatedProperties/type`]: false
+            [`${schemaUri}#/unevaluatedProperties/type`]: { valid: false }
           }
         }
       });
@@ -834,7 +911,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#/0": {
           "https://json-schema.org/validation": {
-            [`${schemaUri}#/unevaluatedItems`]: false
+            [`${schemaUri}#/unevaluatedItems`]: { valid: false }
           }
         }
       });
@@ -850,7 +927,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#/0": {
           "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/unevaluatedItems/type`]: false
+            [`${schemaUri}#/unevaluatedItems/type`]: { valid: false }
           }
         }
       });
@@ -867,12 +944,12 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#/1": {
           "https://json-schema.org/validation": {
-            [`${schemaUri}#/prefixItems/1`]: false
+            [`${schemaUri}#/prefixItems/1`]: { valid: false }
           }
         },
         "#/2": {
           "https://json-schema.org/validation": {
-            [`${schemaUri}#/unevaluatedItems`]: false
+            [`${schemaUri}#/unevaluatedItems`]: { valid: false }
           }
         }
       });
@@ -896,7 +973,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/const": {
-            [`${schemaUri}#/const`]: false
+            [`${schemaUri}#/const`]: { valid: false }
           }
         }
       });
@@ -910,7 +987,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/const": {
-            [`${schemaUri}#/const`]: true
+            [`${schemaUri}#/const`]: { valid: true }
           }
         }
       });
@@ -930,7 +1007,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/dependentRequired": {
-            [`${schemaUri}#/dependentRequired`]: false
+            [`${schemaUri}#/dependentRequired`]: { valid: false }
           }
         }
       });
@@ -949,7 +1026,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/dependentRequired": {
-            [`${schemaUri}#/dependentRequired`]: false
+            [`${schemaUri}#/dependentRequired`]: { valid: false }
           }
         }
       });
@@ -967,7 +1044,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/dependentRequired": {
-            [`${schemaUri}#/dependentRequired`]: true
+            [`${schemaUri}#/dependentRequired`]: { valid: true }
           }
         }
       });
@@ -983,7 +1060,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/enum": {
-            [`${schemaUri}#/enum`]: false
+            [`${schemaUri}#/enum`]: { valid: false }
           }
         }
       });
@@ -997,7 +1074,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/enum": {
-            [`${schemaUri}#/enum`]: true
+            [`${schemaUri}#/enum`]: { valid: true }
           }
         }
       });
@@ -1013,7 +1090,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/exclusiveMaximum": {
-            [`${schemaUri}#/exclusiveMaximum`]: false
+            [`${schemaUri}#/exclusiveMaximum`]: { valid: false }
           }
         }
       });
@@ -1027,7 +1104,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/exclusiveMaximum": {
-            [`${schemaUri}#/exclusiveMaximum`]: true
+            [`${schemaUri}#/exclusiveMaximum`]: { valid: true }
           }
         }
       });
@@ -1043,7 +1120,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/exclusiveMinimum": {
-            [`${schemaUri}#/exclusiveMinimum`]: false
+            [`${schemaUri}#/exclusiveMinimum`]: { valid: false }
           }
         }
       });
@@ -1057,7 +1134,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/exclusiveMinimum": {
-            [`${schemaUri}#/exclusiveMinimum`]: true
+            [`${schemaUri}#/exclusiveMinimum`]: { valid: true }
           }
         }
       });
@@ -1073,7 +1150,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/maxItems": {
-            [`${schemaUri}#/maxItems`]: false
+            [`${schemaUri}#/maxItems`]: { valid: false }
           }
         }
       });
@@ -1087,7 +1164,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/maxItems": {
-            [`${schemaUri}#/maxItems`]: true
+            [`${schemaUri}#/maxItems`]: { valid: true }
           }
         }
       });
@@ -1103,7 +1180,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/minItems": {
-            [`${schemaUri}#/minItems`]: false
+            [`${schemaUri}#/minItems`]: { valid: false }
           }
         }
       });
@@ -1117,7 +1194,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/minItems": {
-            [`${schemaUri}#/minItems`]: true
+            [`${schemaUri}#/minItems`]: { valid: true }
           }
         }
       });
@@ -1133,7 +1210,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/maxLength": {
-            [`${schemaUri}#/maxLength`]: false
+            [`${schemaUri}#/maxLength`]: { valid: false }
           }
         }
       });
@@ -1147,7 +1224,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/maxLength": {
-            [`${schemaUri}#/maxLength`]: true
+            [`${schemaUri}#/maxLength`]: { valid: true }
           }
         }
       });
@@ -1163,7 +1240,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/minLength": {
-            [`${schemaUri}#/minLength`]: false
+            [`${schemaUri}#/minLength`]: { valid: false }
           }
         }
       });
@@ -1177,7 +1254,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/minLength": {
-            [`${schemaUri}#/minLength`]: true
+            [`${schemaUri}#/minLength`]: { valid: true }
           }
         }
       });
@@ -1193,7 +1270,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/maxProperties": {
-            [`${schemaUri}#/maxProperties`]: false
+            [`${schemaUri}#/maxProperties`]: { valid: false }
           }
         }
       });
@@ -1207,7 +1284,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/maxProperties": {
-            [`${schemaUri}#/maxProperties`]: true
+            [`${schemaUri}#/maxProperties`]: { valid: true }
           }
         }
       });
@@ -1223,7 +1300,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/minProperties": {
-            [`${schemaUri}#/minProperties`]: false
+            [`${schemaUri}#/minProperties`]: { valid: false }
           }
         }
       });
@@ -1237,7 +1314,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/minProperties": {
-            [`${schemaUri}#/minProperties`]: true
+            [`${schemaUri}#/minProperties`]: { valid: true }
           }
         }
       });
@@ -1253,7 +1330,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/maximum": {
-            [`${schemaUri}#/maximum`]: false
+            [`${schemaUri}#/maximum`]: { valid: false }
           }
         }
       });
@@ -1267,7 +1344,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/maximum": {
-            [`${schemaUri}#/maximum`]: true
+            [`${schemaUri}#/maximum`]: { valid: true }
           }
         }
       });
@@ -1283,7 +1360,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/minimum": {
-            [`${schemaUri}#/minimum`]: false
+            [`${schemaUri}#/minimum`]: { valid: false }
           }
         }
       });
@@ -1297,7 +1374,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/minimum": {
-            [`${schemaUri}#/minimum`]: true
+            [`${schemaUri}#/minimum`]: { valid: true }
           }
         }
       });
@@ -1313,7 +1390,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/multipleOf": {
-            [`${schemaUri}#/multipleOf`]: false
+            [`${schemaUri}#/multipleOf`]: { valid: false }
           }
         }
       });
@@ -1327,7 +1404,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/multipleOf": {
-            [`${schemaUri}#/multipleOf`]: true
+            [`${schemaUri}#/multipleOf`]: { valid: true }
           }
         }
       });
@@ -1343,7 +1420,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/pattern": {
-            [`${schemaUri}#/pattern`]: false
+            [`${schemaUri}#/pattern`]: { valid: false }
           }
         }
       });
@@ -1357,7 +1434,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/pattern": {
-            [`${schemaUri}#/pattern`]: true
+            [`${schemaUri}#/pattern`]: { valid: true }
           }
         }
       });
@@ -1373,7 +1450,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/required": {
-            [`${schemaUri}#/required`]: false
+            [`${schemaUri}#/required`]: { valid: false }
           }
         }
       });
@@ -1387,7 +1464,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/required": {
-            [`${schemaUri}#/required`]: false
+            [`${schemaUri}#/required`]: { valid: false }
           }
         }
       });
@@ -1401,7 +1478,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/required": {
-            [`${schemaUri}#/required`]: true
+            [`${schemaUri}#/required`]: { valid: true }
           }
         }
       });
@@ -1417,7 +1494,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/type`]: false
+            [`${schemaUri}#/type`]: { valid: false }
           }
         }
       });
@@ -1431,7 +1508,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/type`]: false
+            [`${schemaUri}#/type`]: { valid: false }
           }
         }
       });
@@ -1445,7 +1522,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/type`]: true
+            [`${schemaUri}#/type`]: { valid: true }
           }
         }
       });
@@ -1461,7 +1538,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/uniqueItems": {
-            [`${schemaUri}#/uniqueItems`]: false
+            [`${schemaUri}#/uniqueItems`]: { valid: false }
           }
         }
       });
@@ -1475,7 +1552,7 @@ describe("JSON Schema Errors Output Format", () => {
       expect(outputPlugin.output).to.eql({
         "#": {
           "https://json-schema.org/keyword/uniqueItems": {
-            [`${schemaUri}#/uniqueItems`]: true
+            [`${schemaUri}#/uniqueItems`]: { valid: true }
           }
         }
       });
@@ -1496,12 +1573,12 @@ describe("JSON Schema Errors Output Format", () => {
     expect(outputPlugin.output).to.eql({
       "#": {
         "https://json-schema.org/keyword/required": {
-          [`${schemaUri}#/required`]: false
+          [`${schemaUri}#/required`]: { valid: false }
         }
       },
       "#/foo": {
         "https://json-schema.org/keyword/type": {
-          [`${schemaUri}#/properties/foo/type`]: false
+          [`${schemaUri}#/properties/foo/type`]: { valid: false }
         }
       }
     });
@@ -1523,7 +1600,7 @@ describe("JSON Schema Errors Output Format", () => {
     expect(outputPlugin.output).to.eql({
       "#/foo/bar": {
         "https://json-schema.org/keyword/type": {
-          [`${schemaUri}#/properties/foo/properties/bar/type`]: false
+          [`${schemaUri}#/properties/foo/properties/bar/type`]: { valid: false }
         }
       }
     });

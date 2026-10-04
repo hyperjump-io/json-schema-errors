@@ -12,7 +12,7 @@ const patternErrorHandler = {
     const errors = [];
 
     for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/pattern"]) {
-      if (normalizedErrors["https://json-schema.org/keyword/pattern"][schemaLocation]) {
+      if (normalizedErrors["https://json-schema.org/keyword/pattern"][schemaLocation].valid !== false) {
         continue;
       }
 
@@ -34,10 +34,6 @@ const patternErrorHandler = {
     const successes = [];
 
     for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/pattern"]) {
-      if (normalizedOutput["https://json-schema.org/keyword/pattern"][schemaLocation] !== true) {
-        continue;
-      }
-
       const compiledPattern = /** @type RegExp */ (getCompiledKeywordValue(ast, schemaLocation));
       const pattern = compiledPattern.source;
 

@@ -42,6 +42,7 @@ export type OutputUnit = {
   keywordLocation?: string;
   instanceLocation?: string;
   errors?: OutputUnit[];
+  annotations?: OutputUnit[];
 };
 
 export type Json = string | number | boolean | null | JsonObject | Json[];
@@ -101,8 +102,20 @@ export type EvaluationContext = {
   ast: AST;
   errorIndex: ErrorIndex;
   plugins: EvaluationPlugin[];
+
+  /**
+   * Validator output doesn't usually say anything about what happens inside an
+   * applicator that passed. For example, it won't say which `anyOf` alternative
+   * matched. When this is true, a keyword the output doesn't mention has an
+   * unknown result rather than a passing one.
+   */
+  isValidityUnknown?: boolean;
 };
 
+/**
+ * The validation results found in the validator's output. `true` means the
+ * keyword failed and `false` means the output says it passed.
+ */
 export type ErrorIndex = {
   [schemaLocation: string]: {
     [instanceLocation: string]: boolean;
@@ -110,13 +123,20 @@ export type ErrorIndex = {
 };
 
 /**
- * The normalized keyword result keyed by keyword URI and keyword location. If the
- * keyword is an applicator the values can be `false` or `NormalizedOutput[]`. If
- * the value is not an applicator, the value is just a boolean.
+ * The result of a keyword. `valid` is `undefined` if the result isn't known. For
+ * applicators, `outputs` has the normalized output of each subschema.
+ */
+export type KeywordOutput = {
+  valid?: boolean;
+  outputs?: NormalizedOutput[];
+};
+
+/**
+ * The normalized keyword result keyed by keyword URI and keyword location.
  */
 export type InstanceOutput = {
   [keywordUri: string]: {
-    [keywordLocation: string]: boolean | NormalizedOutput[];
+    [keywordLocation: string]: KeywordOutput;
   };
 };
 

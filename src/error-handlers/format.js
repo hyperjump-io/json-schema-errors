@@ -22,7 +22,7 @@ const formatErrorHandler = {
     ];
     for (const keywordUri of keywordUris) {
       for (const schemaLocation in normalizedErrors[keywordUri]) {
-        if (normalizedErrors[keywordUri][schemaLocation]) {
+        if (normalizedErrors[keywordUri][schemaLocation].valid !== false) {
           continue;
         }
 

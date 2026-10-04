@@ -18,7 +18,7 @@ const multipleOfErrorHandler = {
     let hasError = false;
 
     for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/multipleOf"]) {
-      if (!normalizedErrors["https://json-schema.org/keyword/multipleOf"][schemaLocation]) {
+      if (normalizedErrors["https://json-schema.org/keyword/multipleOf"][schemaLocation].valid === false) {
         hasError = true;
       }
 
