@@ -154,17 +154,18 @@ dependentRequired-negated-message = The value is an object that has property: {$
 }
 
 // Applicators
-anyOf-message = Expected the value to match at least one alternative
-oneOf-message = Expected the value to match exactly one alternative, {$matchCount ->
-  [0] but none
- *[other] but more than one
-} matched
+anyOf-message = Expected the value to satisfy at least one of the following options
+oneOf-message = Expected the value to satisfy exactly one of the following options
 oneOf-multiple-matches-message = Expected the value to satisfy only one of the following options
+oneOf-too-many-message = Expected the value to satisfy only one option, but it satisfies more than one
 not-message = Expected {$quantifier ->
   [one] the following
   [all] all of the following
  *[some] at least one of the following
 } to be true
+
+// Success messages that don't belong to a keyword
+any-value-message = Any value is allowed
 
 // Groups of success messages
 count-true-message = {$kind ->

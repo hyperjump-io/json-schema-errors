@@ -5,7 +5,8 @@
 /** @type NormalizationHandler */
 const descriptionNormalizationHandler = {
   evaluate() {
-  }
+  },
+  annotation: true
 };
 
 export default descriptionNormalizationHandler;

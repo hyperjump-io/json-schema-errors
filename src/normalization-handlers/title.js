@@ -5,7 +5,8 @@
 /** @type NormalizationHandler */
 const titleNormalizationHandler = {
   evaluate() {
-  }
+  },
+  annotation: true
 };
 
 export default titleNormalizationHandler;

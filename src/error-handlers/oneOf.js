@@ -1,6 +1,6 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
 import * as Pact from "@hyperjump/pact";
-import { allTrue, countTrue, getErrors, getSuccesses, isFailing, isPassing, someTrue } from "../json-schema-errors.js";
+import { allTrue, allowsAnyValue, countTrue, getCompiledKeywordValue, getErrors, getSuccesses, isFailing, isPassing, someTrue } from "../json-schema-errors.js";
 
 /**
  * @import { AST } from "@hyperjump/json-schema/experimental"
@@ -21,7 +21,10 @@ const oneOfErrorHandler = {
       }
       const oneOf = oneOfOutput.outputs ?? [];
 
-      const matches = oneOf.filter(isPassing);
+      const alternativeLocations = /** @type string[] */ (getCompiledKeywordValue(ast, schemaLocation));
+      const matches = alternativeLocations.flatMap((alternativeLocation, index) => {
+        return isPassing(oneOf[index]) ? [{ alternativeLocation, output: oneOf[index] }] : [];
+      });
       if (matches.length > 1) {
         errors.push(multipleMatchesError(matches, schemaLocation, instance, localization, ast));
         continue;
@@ -39,7 +42,6 @@ const oneOfErrorHandler = {
 
       const alternatives = [];
       const instanceLocation = Instance.uri(instance);
-      let matchCount = 0;
 
       for (const alternative of oneOf) {
         // Filter alternatives whose declared type doesn't match the instance type
@@ -64,24 +66,25 @@ const oneOfErrorHandler = {
         const alternativeErrors = getErrors(alternative, instance, localization, ast);
         if (alternativeErrors.length) {
           alternatives.push(alternativeErrors);
-        } else {
-          matchCount++;
         }
       }
 
-      if (matchCount === 0 && alternatives.length === 0) {
+      // If all alternatives were filtered out, default to returning all of them
+      if (alternatives.length === 0) {
         for (const alternative of oneOf) {
           const alternativeErrors = getErrors(alternative, instance, localization, ast);
-          alternatives.push(alternativeErrors);
+          if (alternativeErrors.length) {
+            alternatives.push(alternativeErrors);
+          }
         }
       }
 
-      if (alternatives.length === 1 && matchCount === 0) {
+      if (alternatives.length === 1) {
         errors.push(...alternatives[0]);
       } else {
         /** @type ErrorObject */
         const alternativeErrors = {
-          message: localization.getOneOfErrorMessage(matchCount),
+          message: localization.getOneOfErrorMessage(),
           instanceLocation: Instance.uri(instance),
           schemaLocations: [schemaLocation]
         };
@@ -145,15 +148,26 @@ const oneOfErrorHandler = {
  * More than one alternative passed. Describe how the instance satisfied each
  * matching alternative so the user knows what needs to change.
  *
- * @type (matches: NormalizedOutput[], schemaLocation: string, instance: JsonNode, localization: Localization, ast: AST) => ErrorObject
+ * @type (matches: { alternativeLocation: string, output: NormalizedOutput }[], schemaLocation: string, instance: JsonNode, localization: Localization, ast: AST) => ErrorObject
  */
 const multipleMatchesError = (matches, schemaLocation, instance, localization, ast) => {
-  const alternatives = matches.map((match) => getSuccesses(match, instance, localization, ast));
+  const alternatives = matches.map(({ alternativeLocation, output }) => {
+    const description = getSuccesses(output, instance, localization, ast);
+    if (description.length === 0 && allowsAnyValue(alternativeLocation, ast)) {
+      return [{
+        message: localization.getAnyValueMessage(),
+        instanceLocation: Instance.uri(instance),
+        schemaLocations: [alternativeLocation]
+      }];
+    } else {
+      return description;
+    }
+  });
 
   // If any match can't be described, the alternatives would be misleading
   if (alternatives.some((alternative) => alternative.length === 0)) {
     return {
-      message: localization.getOneOfErrorMessage(matches.length),
+      message: localization.getOneOfTooManyErrorMessage(),
       instanceLocation: Instance.uri(instance),
       schemaLocations: [schemaLocation]
     };

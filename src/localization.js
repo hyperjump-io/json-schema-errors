@@ -331,9 +331,12 @@ export class Localization {
     return this.#formatMessage("anyOf-message", {});
   }
 
-  /** @type (matchCount: number) => string */
-  getOneOfErrorMessage(matchCount) {
-    return this.#formatMessage("oneOf-message", { matchCount });
+  getOneOfErrorMessage() {
+    return this.#formatMessage("oneOf-message", {});
+  }
+
+  getOneOfTooManyErrorMessage() {
+    return this.#formatMessage("oneOf-too-many-message", {});
   }
 
   /** @type () => string */
@@ -344,6 +347,10 @@ export class Localization {
   /** @type (quantifier: "one" | "all" | "some") => string */
   getNotErrorMessage(quantifier) {
     return this.#formatMessage("not-message", { quantifier });
+  }
+
+  getAnyValueMessage() {
+    return this.#formatMessage("any-value-message", {});
   }
 
   /** @type (min: number, max: number) => string */

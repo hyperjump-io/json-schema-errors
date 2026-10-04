@@ -31,6 +31,16 @@ export const jsonSchemaErrors = async (errorOutput, schemaUri, instance, options
 /** @type Record<string, API.NormalizationHandler> */
 const normalizationHandlers = {};
 
+/** @type (schemaLocation: string, ast: AST) => boolean */
+export const allowsAnyValue = (schemaLocation, ast) => {
+  const schemaNode = ast[schemaLocation];
+  if (typeof schemaNode === "boolean") {
+    return schemaNode;
+  }
+
+  return schemaNode.every(([keywordUri]) => normalizationHandlers[toAbsoluteIri(keywordUri)]?.annotation);
+};
+
 /** @type (keywordUri: string) => boolean */
 export const isSimpleApplicator = (keywordUri) => {
   return normalizationHandlers[toAbsoluteIri(keywordUri)]?.simpleApplicator ?? false;

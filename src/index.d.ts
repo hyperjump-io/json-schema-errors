@@ -104,6 +104,12 @@ export type NormalizationHandler<KeywordValue = unknown, Context extends Evaluat
    * validator's output doesn't include the keyword.
    */
   validityFromSubschemas?: true;
+
+  /**
+   * Annotations, such as `title` and `description`, never affect validation. A
+   * schema that only has annotations allows any value.
+   */
+  annotation?: true;
 };
 
 export type EvaluationContext = {

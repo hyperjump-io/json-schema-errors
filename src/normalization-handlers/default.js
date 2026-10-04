@@ -5,7 +5,8 @@
 /** @type NormalizationHandler */
 const defaultNormalizationHandler = {
   evaluate() {
-  }
+  },
+  annotation: true
 };
 
 export default defaultNormalizationHandler;
