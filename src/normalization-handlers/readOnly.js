@@ -5,7 +5,8 @@
 /** @type NormalizationHandler */
 const readOnlyNormalizationHandler = {
   evaluate() {
-  }
+  },
+  annotation: true
 };
 
 export default readOnlyNormalizationHandler;

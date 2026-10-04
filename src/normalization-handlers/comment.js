@@ -5,7 +5,8 @@
 /** @type NormalizationHandler */
 const commentNormalizationHandler = {
   evaluate() {
-  }
+  },
+  annotation: true
 };
 
 export default commentNormalizationHandler;

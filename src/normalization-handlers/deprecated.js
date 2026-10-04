@@ -5,7 +5,8 @@
 /** @type NormalizationHandler */
 const deprecatedNormalizationHandler = {
   evaluate() {
-  }
+  },
+  annotation: true
 };
 
 export default deprecatedNormalizationHandler;

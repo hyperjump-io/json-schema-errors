@@ -5,7 +5,8 @@
 /** @type NormalizationHandler */
 const definitionsNormalizationHandler = {
   evaluate() {
-  }
+  },
+  annotation: true
 };
 
 export default definitionsNormalizationHandler;

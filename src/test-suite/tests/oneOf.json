@@ -15,9 +15,6 @@
       "errors": [
         {
           "messageId": "oneOf-message",
-          "messageParams": {
-            "matchCount": 0
-          },
           "alternatives": [
             [
               {
@@ -270,7 +267,7 @@
       ]
     },
     {
-      "description": "oneOf more than one match with a match that can't be described",
+      "description": "oneOf more than one match with a match that allows any value",
       "schema": {
         "oneOf": [
           { "type": "number" },
@@ -280,10 +277,87 @@
       "instance": 1,
       "errors": [
         {
-          "messageId": "oneOf-message",
-          "messageParams": {
-            "matchCount": 2
-          },
+          "messageId": "oneOf-multiple-matches-message",
+          "alternatives": [
+            [
+              {
+                "messageId": "type-success-message",
+                "messageParams": {
+                  "count": 1,
+                  "type": "number",
+                  "types": { "or": ["number"] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/0/type"]
+              }
+            ],
+            [
+              {
+                "messageId": "any-value-message",
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/1"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/oneOf"]
+        }
+      ]
+    },
+    {
+      "description": "oneOf more than one match with a match that only has annotations",
+      "schema": {
+        "oneOf": [
+          { "type": "number" },
+          { "title": "Anything" }
+        ]
+      },
+      "instance": 1,
+      "errors": [
+        {
+          "messageId": "oneOf-multiple-matches-message",
+          "alternatives": [
+            [
+              {
+                "messageId": "type-success-message",
+                "messageParams": {
+                  "count": 1,
+                  "type": "number",
+                  "types": { "or": ["number"] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/0/type"]
+              }
+            ],
+            [
+              {
+                "messageId": "any-value-message",
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/1"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/oneOf"]
+        }
+      ]
+    },
+    {
+      "description": "oneOf more than one match with a match that can't be described",
+      "schema": {
+        "oneOf": [
+          { "type": "number" },
+          {
+            "properties": {
+              "a": { "type": "string" }
+            }
+          }
+        ]
+      },
+      "instance": 1,
+      "errors": [
+        {
+          "messageId": "oneOf-too-many-message",
           "instanceLocation": "#",
           "schemaLocations": ["#/oneOf"]
         }
@@ -348,9 +422,6 @@
       "errors": [
         {
           "messageId": "oneOf-message",
-          "messageParams": {
-            "matchCount": 0
-          },
           "alternatives": [
             [
               {
@@ -396,9 +467,6 @@
       "errors": [
         {
           "messageId": "oneOf-message",
-          "messageParams": {
-            "matchCount": 0
-          },
           "alternatives": [
             [
               {
@@ -482,9 +550,6 @@
       "errors": [
         {
           "messageId": "oneOf-message",
-          "messageParams": {
-            "matchCount": 0
-          },
           "alternatives": [
             [
               {
@@ -568,9 +633,6 @@
       "errors": [
         {
           "messageId": "oneOf-message",
-          "messageParams": {
-            "matchCount": 0
-          },
           "alternatives": [
             [
               {
@@ -693,9 +755,6 @@
       "errors": [
         {
           "messageId": "oneOf-message",
-          "messageParams": {
-            "matchCount": 0
-          },
           "alternatives": [
             [
               {
@@ -755,9 +814,6 @@
       "errors": [
         {
           "messageId": "oneOf-message",
-          "messageParams": {
-            "matchCount": 0
-          },
           "alternatives": [
             [
               {
