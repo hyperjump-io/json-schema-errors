@@ -2,7 +2,7 @@ import * as Instance from "@hyperjump/json-schema/instance/experimental";
 import { getCompiledKeywordValue } from "../json-schema-errors.js";
 
 /**
- * @import { ErrorHandler } from "../index.d.ts"
+ * @import { ErrorHandler, ErrorObject } from "../index.d.ts"
  * @import { JsonNode } from "@hyperjump/json-schema/instance/experimental"
  */
 
@@ -75,10 +75,12 @@ const requiredErrorHandler = {
   },
 
   success: (normalizedOutput, instance, localization, ast) => {
-    /** @type {Set<string>} */
-    const allPresentRequired = new Set();
-    const allSchemaLocations = [];
+    /** @type ErrorObject[] */
+    const successes = [];
 
+    /** @type {Set<string>} */
+    const allRequired = new Set();
+    const requiredSchemaLocations = [];
     for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/required"]) {
       if (normalizedOutput["https://json-schema.org/keyword/required"][schemaLocation] !== true) {
         continue;
@@ -86,9 +88,17 @@ const requiredErrorHandler = {
 
       const required = /** @type string[] */ (getCompiledKeywordValue(ast, schemaLocation));
       if (required.length) {
-        allSchemaLocations.push(schemaLocation);
-        addAll(required, allPresentRequired);
+        requiredSchemaLocations.push(schemaLocation);
+        addAll(required, allRequired);
       }
+    }
+
+    if (allRequired.size > 0) {
+      successes.push({
+        message: localization.getRequiredSuccessMessage([...allRequired]),
+        instanceLocation: Instance.uri(instance),
+        schemaLocations: requiredSchemaLocations
+      });
     }
 
     for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/dependentRequired"]) {
@@ -97,19 +107,14 @@ const requiredErrorHandler = {
       }
 
       const dependencies = /** @type {[string, string[]][]} */ (getCompiledKeywordValue(ast, schemaLocation));
-
-      let hasApplicableDependencies = false;
       for (const [propertyName, requiredProperties] of dependencies) {
-        if (!Instance.has(propertyName, instance) || requiredProperties.length === 0) {
-          continue;
+        if (requiredProperties.length > 0) {
+          successes.push({
+            message: localization.getDependentRequiredSuccessMessage(propertyName, requiredProperties),
+            instanceLocation: Instance.uri(instance),
+            schemaLocations: [schemaLocation]
+          });
         }
-
-        hasApplicableDependencies = true;
-        addAll(requiredProperties, allPresentRequired);
-      }
-
-      if (hasApplicableDependencies) {
-        allSchemaLocations.push(schemaLocation);
       }
     }
 
@@ -119,31 +124,18 @@ const requiredErrorHandler = {
       }
 
       const dependencies = /** @type {[string, unknown][]} */ (getCompiledKeywordValue(ast, schemaLocation));
-
-      let hasArrayFormDependencies = false;
       for (const [propertyName, dependency] of dependencies) {
-        if (!Instance.has(propertyName, instance) || !Array.isArray(dependency) || dependency.length === 0) {
-          continue;
+        if (Array.isArray(dependency) && dependency.length > 0) {
+          successes.push({
+            message: localization.getDependentRequiredSuccessMessage(propertyName, /** @type {string[]} */ (dependency)),
+            instanceLocation: Instance.uri(instance),
+            schemaLocations: [schemaLocation]
+          });
         }
-
-        hasArrayFormDependencies = true;
-        addAll(/** @type {string[]} */ (dependency), allPresentRequired);
-      }
-
-      if (hasArrayFormDependencies) {
-        allSchemaLocations.push(schemaLocation);
       }
     }
 
-    if (allPresentRequired.size === 0) {
-      return [];
-    }
-
-    return [{
-      message: localization.getRequiredSuccessMessage([...allPresentRequired]),
-      instanceLocation: Instance.uri(instance),
-      schemaLocations: allSchemaLocations
-    }];
+    return successes;
   }
 };
 

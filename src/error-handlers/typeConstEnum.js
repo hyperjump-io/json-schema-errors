@@ -2,7 +2,7 @@ import * as Instance from "@hyperjump/json-schema/instance/experimental";
 import { getCompiledKeywordValue } from "../json-schema-errors.js";
 
 /**
- * @import { ErrorHandler, Json } from "../index.d.ts"
+ * @import { ErrorHandler, ErrorObject, Json } from "../index.d.ts"
  */
 
 const ALL_TYPES = new Set(["null", "boolean", "number", "string", "array", "object", "integer"]);
@@ -113,35 +113,26 @@ const typeConstEnumErrorHandler = {
   },
 
   success: (normalizedOutput, instance, localization, ast) => {
-    /** @type {string[]} */
-    const passedTypeLocations = [];
-    /** @type string */
-    let type = Instance.typeOf(instance);
+    /** @type ErrorObject[] */
+    const successes = [];
 
     for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/type"]) {
       if (normalizedOutput["https://json-schema.org/keyword/type"][schemaLocation] !== true) {
         continue;
       }
 
-      passedTypeLocations.push(schemaLocation);
-
       /** @type {string | string[]} */
       const value = /** @type {string | string[]} */ (getCompiledKeywordValue(ast, schemaLocation));
       const types = Array.isArray(value) ? value : [value];
-      if (type === "number" && types.includes("integer") && !types.includes("number")) {
-        type = "integer";
-      }
+
+      successes.push({
+        message: localization.getTypeSuccessMessage(types),
+        instanceLocation: Instance.uri(instance),
+        schemaLocations: [schemaLocation]
+      });
     }
 
-    if (passedTypeLocations.length === 0) {
-      return [];
-    }
-
-    return [{
-      message: localization.getTypeSuccessMessage(type),
-      instanceLocation: Instance.uri(instance),
-      schemaLocations: passedTypeLocations
-    }];
+    return successes;
   }
 };
 

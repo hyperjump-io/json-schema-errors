@@ -10,15 +10,32 @@ import { FluentBundle, FluentResource } from "@fluent/bundle";
 const localizationCache = new Map();
 
 export class Localization {
+  /** @type Localization | undefined */
+  #negated;
+
   /**
    * @param {string} locale
    * @param {FluentBundle} bundle
+   * @param {boolean} [isNegated]
    */
-  constructor(locale, bundle) {
+  constructor(locale, bundle, isNegated = false) {
     this.locale = locale;
     this.bundle = bundle;
+    this.isNegated = isNegated;
     this.disjunction = new Intl.ListFormat(this.locale, { type: "disjunction" });
     this.conjunction = new Intl.ListFormat(this.locale, { type: "conjunction" });
+  }
+
+  /**
+   * A view of this localization where success messages describe what would
+   * make the keyword fail instead of what it requires. It's used to explain
+   * failures of keywords like 'not' that fail when a subschema passes.
+   *
+   * @type () => Localization
+   */
+  negated() {
+    this.#negated ??= new Localization(this.locale, this.bundle, true);
+    return this.#negated;
   }
 
   /** @type (locale: string) => Localization */
@@ -57,9 +74,13 @@ export class Localization {
     });
   }
 
-  /** @type (type: string) => string */
-  getTypeSuccessMessage(type) {
-    return this.#formatMessage("type-success-message", { type });
+  /** @type (types: string[]) => string */
+  getTypeSuccessMessage(types) {
+    return this.#formatMessage(this.isNegated ? "type-negated-message" : "type-success-message", {
+      type: types[0],
+      types: this.disjunction.format(types),
+      count: types.length
+    });
   }
 
   /** @type (expected: Json[]) => string */
@@ -123,7 +144,7 @@ export class Localization {
 
   /** @type (pattern: string) => string */
   getPatternSuccessMessage(pattern) {
-    return this.#formatMessage("pattern-success-message", { pattern });
+    return this.#formatMessage(this.isNegated ? "pattern-negated-message" : "pattern-success-message", { pattern });
   }
 
   /** @type (maxItems: number) => string */
@@ -179,10 +200,34 @@ export class Localization {
 
   /** @type (required: string[]) => string */
   getRequiredSuccessMessage(required) {
-    return this.#formatMessage("required-success-message", {
-      required: this.conjunction.format(required),
-      count: required.length
-    });
+    if (this.isNegated) {
+      return this.#formatMessage("required-negated-message", {
+        required: this.disjunction.format(required),
+        count: required.length
+      });
+    } else {
+      return this.#formatMessage("required-success-message", {
+        required: this.conjunction.format(required),
+        count: required.length
+      });
+    }
+  }
+
+  /** @type (property: string, required: string[]) => string */
+  getDependentRequiredSuccessMessage(property, required) {
+    if (this.isNegated) {
+      return this.#formatMessage("dependentRequired-negated-message", {
+        property,
+        required: this.disjunction.format(required),
+        count: required.length
+      });
+    } else {
+      return this.#formatMessage("dependentRequired-success-message", {
+        property,
+        required: this.conjunction.format(required),
+        count: required.length
+      });
+    }
   }
 
   /** @type () => string */
