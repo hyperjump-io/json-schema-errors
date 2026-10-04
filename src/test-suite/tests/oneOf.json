@@ -919,7 +919,11 @@
           "alternatives": [
             [
               {
-                "messageId": "some-true-message",
+                "messageId": "count-true-message",
+                "messageParams": {
+                  "kind": "atLeast",
+                  "min": 1
+                },
                 "alternatives": [
                   [
                     {
@@ -981,6 +985,112 @@
                 },
                 "instanceLocation": "#",
                 "schemaLocations": ["#/oneOf/0/anyOf/0/type"]
+              }
+            ],
+            [
+              {
+                "messageId": "type-success-message",
+                "messageParams": {
+                  "count": 1,
+                  "type": "number",
+                  "types": { "or": ["number"] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/1/type"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/oneOf"]
+        }
+      ]
+    },
+    {
+      "description": "oneOf more than one match with a nested oneOf",
+      "schema": {
+        "oneOf": [
+          {
+            "oneOf": [
+              { "type": "integer" },
+              { "type": "string" }
+            ]
+          },
+          { "type": "number" }
+        ]
+      },
+      "instance": 1,
+      "errors": [
+        {
+          "messageId": "oneOf-multiple-matches-message",
+          "alternatives": [
+            [
+              {
+                "messageId": "count-true-message",
+                "messageParams": {
+                  "kind": "exactly",
+                  "min": 1
+                },
+                "alternatives": [
+                  [
+                    {
+                      "messageId": "type-success-message",
+                      "messageParams": {
+                        "count": 1,
+                        "type": "integer",
+                        "types": { "or": ["integer"] }
+                      },
+                      "instanceLocation": "#",
+                      "schemaLocations": ["#/oneOf/0/oneOf/0/type"]
+                    }
+                  ],
+                  [
+                    {
+                      "messageId": "type-success-message",
+                      "messageParams": {
+                        "count": 1,
+                        "type": "string",
+                        "types": { "or": ["string"] }
+                      },
+                      "instanceLocation": "#",
+                      "schemaLocations": ["#/oneOf/0/oneOf/1/type"]
+                    }
+                  ]
+                ],
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/0/oneOf"]
+              }
+            ],
+            [
+              {
+                "messageId": "type-success-message",
+                "messageParams": {
+                  "count": 1,
+                  "type": "number",
+                  "types": { "or": ["number"] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/1/type"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/oneOf"]
+        }
+      ],
+      "errorsWithFullResults": [
+        {
+          "messageId": "oneOf-multiple-matches-message",
+          "alternatives": [
+            [
+              {
+                "messageId": "type-success-message",
+                "messageParams": {
+                  "count": 1,
+                  "type": "integer",
+                  "types": { "or": ["integer"] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/0/oneOf/0/type"]
               }
             ],
             [

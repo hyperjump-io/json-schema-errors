@@ -99,6 +99,21 @@ not-message = Expected {$quantifier ->
 } to be true
 
 // Groups of success messages
-some-true-message = At least one of the following is true
+count-true-message = {$kind ->
+  [exactly] Exactly {$min ->
+    [one] one of the following is
+   *[other] {$min} of the following are
+  } true
+  [atMost] {$max ->
+    [0] None of the following are true
+    [one] No more than one of the following is true
+   *[other] No more than {$max} of the following are true
+  }
+  [between] Between {$min} and {$max} of the following are true
+ *[atLeast] At least {$min ->
+    [one] one of the following is
+   *[other] {$min} of the following are
+  } true
+}
 all-true-message = All of the following are true
 `;
