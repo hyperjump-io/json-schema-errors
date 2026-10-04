@@ -128,6 +128,24 @@ const typeConstEnumErrorHandler = {
       });
     }
 
+    for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/const"]) {
+      const constValueJson = /** @type string */ (getCompiledKeywordValue(ast, schemaLocation));
+      successes.push({
+        message: localization.getEnumSuccessMessage([JSON.parse(constValueJson)]),
+        instanceLocation: Instance.uri(instance),
+        schemaLocations: [schemaLocation]
+      });
+    }
+
+    for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/enum"]) {
+      const enumValuesJson = /** @type string[] */ (getCompiledKeywordValue(ast, schemaLocation));
+      successes.push({
+        message: localization.getEnumSuccessMessage(enumValuesJson.map((json) => JSON.parse(json))),
+        instanceLocation: Instance.uri(instance),
+        schemaLocations: [schemaLocation]
+      });
+    }
+
     return successes;
   }
 };

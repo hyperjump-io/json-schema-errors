@@ -1190,6 +1190,561 @@
           "schemaLocations": ["#/not"]
         }
       ]
+    },
+    {
+      "description": "not with maximum",
+      "schema": {
+        "not": { "maximum": 10 }
+      },
+      "instance": 5,
+      "errors": [
+        {
+          "messageId": "not-message",
+          "messageParams": {
+            "quantifier": "one"
+          },
+          "alternatives": [
+            [
+              {
+                "messageId": "maximum-negated-message",
+                "messageParams": {
+                  "maximum": 10
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/maximum"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/not"]
+        }
+      ]
+    },
+    {
+      "description": "not with exclusiveMaximum",
+      "compatibility": "6",
+      "schema": {
+        "not": { "exclusiveMaximum": 10 }
+      },
+      "instance": 5,
+      "errors": [
+        {
+          "messageId": "not-message",
+          "messageParams": {
+            "quantifier": "one"
+          },
+          "alternatives": [
+            [
+              {
+                "messageId": "exclusiveMaximum-negated-message",
+                "messageParams": {
+                  "exclusiveMaximum": 10
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/exclusiveMaximum"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/not"]
+        }
+      ]
+    },
+    {
+      "description": "not with draft-04 exclusiveMaximum",
+      "compatibility": "=4",
+      "schema": {
+        "not": {
+          "maximum": 10,
+          "exclusiveMaximum": true
+        }
+      },
+      "instance": 5,
+      "errors": [
+        {
+          "messageId": "not-message",
+          "messageParams": {
+            "quantifier": "one"
+          },
+          "alternatives": [
+            [
+              {
+                "messageId": "exclusiveMaximum-negated-message",
+                "messageParams": {
+                  "exclusiveMaximum": 10
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/maximum", "#/not/exclusiveMaximum"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/not"]
+        }
+      ]
+    },
+    {
+      "description": "not with minimum",
+      "schema": {
+        "not": { "minimum": 10 }
+      },
+      "instance": 15,
+      "errors": [
+        {
+          "messageId": "not-message",
+          "messageParams": {
+            "quantifier": "one"
+          },
+          "alternatives": [
+            [
+              {
+                "messageId": "minimum-negated-message",
+                "messageParams": {
+                  "minimum": 10
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/minimum"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/not"]
+        }
+      ]
+    },
+    {
+      "description": "not with exclusiveMinimum",
+      "compatibility": "6",
+      "schema": {
+        "not": { "exclusiveMinimum": 10 }
+      },
+      "instance": 15,
+      "errors": [
+        {
+          "messageId": "not-message",
+          "messageParams": {
+            "quantifier": "one"
+          },
+          "alternatives": [
+            [
+              {
+                "messageId": "exclusiveMinimum-negated-message",
+                "messageParams": {
+                  "exclusiveMinimum": 10
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/exclusiveMinimum"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/not"]
+        }
+      ]
+    },
+    {
+      "description": "not with draft-04 exclusiveMinimum",
+      "compatibility": "=4",
+      "schema": {
+        "not": {
+          "minimum": 10,
+          "exclusiveMinimum": true
+        }
+      },
+      "instance": 15,
+      "errors": [
+        {
+          "messageId": "not-message",
+          "messageParams": {
+            "quantifier": "one"
+          },
+          "alternatives": [
+            [
+              {
+                "messageId": "exclusiveMinimum-negated-message",
+                "messageParams": {
+                  "exclusiveMinimum": 10
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/minimum", "#/not/exclusiveMinimum"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/not"]
+        }
+      ]
+    },
+    {
+      "description": "not with multipleOf",
+      "schema": {
+        "not": { "multipleOf": 5 }
+      },
+      "instance": 10,
+      "errors": [
+        {
+          "messageId": "not-message",
+          "messageParams": {
+            "quantifier": "one"
+          },
+          "alternatives": [
+            [
+              {
+                "messageId": "multipleOf-negated-message",
+                "messageParams": {
+                  "multipleOf": 5
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/multipleOf"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/not"]
+        }
+      ]
+    },
+    {
+      "description": "not with maxLength",
+      "schema": {
+        "not": { "maxLength": 3 }
+      },
+      "instance": "foo",
+      "errors": [
+        {
+          "messageId": "not-message",
+          "messageParams": {
+            "quantifier": "one"
+          },
+          "alternatives": [
+            [
+              {
+                "messageId": "maxLength-negated-message",
+                "messageParams": {
+                  "maxLength": 3
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/maxLength"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/not"]
+        }
+      ]
+    },
+    {
+      "description": "not with minLength",
+      "schema": {
+        "not": { "minLength": 1 }
+      },
+      "instance": "foo",
+      "errors": [
+        {
+          "messageId": "not-message",
+          "messageParams": {
+            "quantifier": "one"
+          },
+          "alternatives": [
+            [
+              {
+                "messageId": "minLength-negated-message",
+                "messageParams": {
+                  "minLength": 1
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/minLength"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/not"]
+        }
+      ]
+    },
+    {
+      "description": "not with maxItems",
+      "schema": {
+        "not": { "maxItems": 2 }
+      },
+      "instance": [1],
+      "errors": [
+        {
+          "messageId": "not-message",
+          "messageParams": {
+            "quantifier": "one"
+          },
+          "alternatives": [
+            [
+              {
+                "messageId": "maxItems-negated-message",
+                "messageParams": {
+                  "maxItems": 2
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/maxItems"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/not"]
+        }
+      ]
+    },
+    {
+      "description": "not with minItems",
+      "schema": {
+        "not": { "minItems": 1 }
+      },
+      "instance": [1],
+      "errors": [
+        {
+          "messageId": "not-message",
+          "messageParams": {
+            "quantifier": "one"
+          },
+          "alternatives": [
+            [
+              {
+                "messageId": "minItems-negated-message",
+                "messageParams": {
+                  "minItems": 1
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/minItems"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/not"]
+        }
+      ]
+    },
+    {
+      "description": "not with uniqueItems",
+      "schema": {
+        "not": { "uniqueItems": true }
+      },
+      "instance": [1, 2],
+      "errors": [
+        {
+          "messageId": "not-message",
+          "messageParams": {
+            "quantifier": "one"
+          },
+          "alternatives": [
+            [
+              {
+                "messageId": "uniqueItems-negated-message",
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/uniqueItems"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/not"]
+        }
+      ]
+    },
+    {
+      "description": "not with uniqueItems false",
+      "schema": {
+        "not": { "uniqueItems": false }
+      },
+      "instance": [1, 1],
+      "errors": [
+        {
+          "messageId": "boolean-schema-message",
+          "instanceLocation": "#",
+          "schemaLocations": ["#/not"]
+        }
+      ]
+    },
+    {
+      "description": "not with maxProperties",
+      "schema": {
+        "not": { "maxProperties": 2 }
+      },
+      "instance": { "a": 1 },
+      "errors": [
+        {
+          "messageId": "not-message",
+          "messageParams": {
+            "quantifier": "one"
+          },
+          "alternatives": [
+            [
+              {
+                "messageId": "maxProperties-negated-message",
+                "messageParams": {
+                  "maxProperties": 2
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/maxProperties"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/not"]
+        }
+      ]
+    },
+    {
+      "description": "not with minProperties",
+      "schema": {
+        "not": { "minProperties": 1 }
+      },
+      "instance": { "a": 1 },
+      "errors": [
+        {
+          "messageId": "not-message",
+          "messageParams": {
+            "quantifier": "one"
+          },
+          "alternatives": [
+            [
+              {
+                "messageId": "minProperties-negated-message",
+                "messageParams": {
+                  "minProperties": 1
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/minProperties"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/not"]
+        }
+      ]
+    },
+    {
+      "description": "not with const",
+      "compatibility": "6",
+      "schema": {
+        "not": { "const": "foo" }
+      },
+      "instance": "foo",
+      "errors": [
+        {
+          "messageId": "not-message",
+          "messageParams": {
+            "quantifier": "one"
+          },
+          "alternatives": [
+            [
+              {
+                "messageId": "const-negated-message",
+                "messageParams": {
+                  "expected": "\"foo\""
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/const"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/not"]
+        }
+      ]
+    },
+    {
+      "description": "not with enum",
+      "schema": {
+        "not": { "enum": ["a", "b"] }
+      },
+      "instance": "a",
+      "errors": [
+        {
+          "messageId": "not-message",
+          "messageParams": {
+            "quantifier": "one"
+          },
+          "alternatives": [
+            [
+              {
+                "messageId": "enum-negated-message",
+                "messageParams": {
+                  "expected": { "or": ["\"a\"", "\"b\""] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/enum"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/not"]
+        }
+      ]
+    },
+    {
+      "description": "not with schema dependencies",
+      "compatibility": "<=7",
+      "schema": {
+        "not": {
+          "dependencies": {
+            "a": { "required": ["b"] }
+          }
+        }
+      },
+      "instance": { "a": 1, "b": 2 },
+      "errors": [
+        {
+          "messageId": "not-message",
+          "messageParams": {
+            "quantifier": "one"
+          },
+          "alternatives": [
+            [
+              {
+                "messageId": "required-negated-message",
+                "messageParams": {
+                  "count": 1,
+                  "required": { "or": ["b"] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/dependencies/a/required"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/not"]
+        }
+      ]
+    },
+    {
+      "description": "not with an unknown keyword",
+      "schema": {
+        "not": {
+          "type": "string",
+          "foo": 1
+        }
+      },
+      "instance": "bar",
+      "errors": [
+        {
+          "messageId": "not-message",
+          "messageParams": {
+            "quantifier": "one"
+          },
+          "alternatives": [
+            [
+              {
+                "messageId": "type-negated-message",
+                "messageParams": {
+                  "count": 1,
+                  "type": "string",
+                  "types": { "or": ["string"] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/type"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/not"]
+        }
+      ]
     }
   ]
 }

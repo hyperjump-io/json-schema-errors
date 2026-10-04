@@ -66,6 +66,16 @@ export class Localization {
     return this.bundle.formatPattern(message.value, args);
   }
 
+  /**
+   * Success messages describe what a keyword requires. In a negated view, they
+   * describe what would make the keyword fail.
+   *
+   * @type (keyword: string, args: Record<string, FluentVariable>) => string
+   */
+  #formatSuccessMessage(keyword, args) {
+    return this.#formatMessage(`${keyword}-${this.isNegated ? "negated" : "success"}-message`, args);
+  }
+
   getBooleanSchemaErrorMessage() {
     return this.#formatMessage("boolean-schema-message", {});
   }
@@ -79,7 +89,7 @@ export class Localization {
 
   /** @type (types: string[]) => string */
   getTypeSuccessMessage(types) {
-    return this.#formatMessage(this.isNegated ? "type-negated-message" : "type-success-message", {
+    return this.#formatSuccessMessage("type", {
       type: types[0],
       types: this.disjunction.format(types),
       count: types.length
@@ -147,7 +157,7 @@ export class Localization {
 
   /** @type (pattern: string) => string */
   getPatternSuccessMessage(pattern) {
-    return this.#formatMessage(this.isNegated ? "pattern-negated-message" : "pattern-success-message", { pattern });
+    return this.#formatSuccessMessage("pattern", { pattern });
   }
 
   /** @type (maxItems: number) => string */
@@ -229,6 +239,84 @@ export class Localization {
         property,
         required: this.conjunction.format(required),
         count: required.length
+      });
+    }
+  }
+
+  /** @type (maximum: number) => string */
+  getMaximumSuccessMessage(maximum) {
+    return this.#formatSuccessMessage("maximum", { maximum });
+  }
+
+  /** @type (exclusiveMaximum: number) => string */
+  getExclusiveMaximumSuccessMessage(exclusiveMaximum) {
+    return this.#formatSuccessMessage("exclusiveMaximum", { exclusiveMaximum });
+  }
+
+  /** @type (minimum: number) => string */
+  getMinimumSuccessMessage(minimum) {
+    return this.#formatSuccessMessage("minimum", { minimum });
+  }
+
+  /** @type (exclusiveMinimum: number) => string */
+  getExclusiveMinimumSuccessMessage(exclusiveMinimum) {
+    return this.#formatSuccessMessage("exclusiveMinimum", { exclusiveMinimum });
+  }
+
+  /** @type (multipleOf: number) => string */
+  getMultipleOfSuccessMessage(multipleOf) {
+    return this.#formatSuccessMessage("multipleOf", { multipleOf });
+  }
+
+  /** @type (maxLength: number) => string */
+  getMaxLengthSuccessMessage(maxLength) {
+    return this.#formatSuccessMessage("maxLength", { maxLength });
+  }
+
+  /** @type (minLength: number) => string */
+  getMinLengthSuccessMessage(minLength) {
+    return this.#formatSuccessMessage("minLength", { minLength });
+  }
+
+  /** @type (format: string) => string */
+  getFormatSuccessMessage(format) {
+    return this.#formatSuccessMessage("format", { format });
+  }
+
+  /** @type (maxItems: number) => string */
+  getMaxItemsSuccessMessage(maxItems) {
+    return this.#formatSuccessMessage("maxItems", { maxItems });
+  }
+
+  /** @type (minItems: number) => string */
+  getMinItemsSuccessMessage(minItems) {
+    return this.#formatSuccessMessage("minItems", { minItems });
+  }
+
+  /** @type (maxProperties: number) => string */
+  getMaxPropertiesSuccessMessage(maxProperties) {
+    return this.#formatSuccessMessage("maxProperties", { maxProperties });
+  }
+
+  /** @type (minProperties: number) => string */
+  getMinPropertiesSuccessMessage(minProperties) {
+    return this.#formatSuccessMessage("minProperties", { minProperties });
+  }
+
+  getUniqueItemsSuccessMessage() {
+    return this.#formatSuccessMessage("uniqueItems", {});
+  }
+
+  /** @type (expected: Json[]) => string */
+  getEnumSuccessMessage(expected) {
+    if (expected.length === 1) {
+      return this.#formatSuccessMessage("const", {
+        expected: JSON.stringify(expected[0], null, "  ")
+      });
+    } else {
+      const expectedJson = expected.map((value) => JSON.stringify(value));
+      return this.#formatSuccessMessage("enum", {
+        expected: this.disjunction.format(expectedJson)
       });
     }
   }

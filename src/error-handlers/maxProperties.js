@@ -33,6 +33,23 @@ const maxPropertiesErrorHandler = {
     }
 
     return errors;
+  },
+
+  success: (normalizedOutput, instance, localization, ast) => {
+    /** @type ErrorObject[] */
+    const successes = [];
+
+    for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/maxProperties"]) {
+      const maxProperties = /** @type number */ (getCompiledKeywordValue(ast, schemaLocation));
+
+      successes.push({
+        message: localization.getMaxPropertiesSuccessMessage(maxProperties),
+        instanceLocation: Instance.uri(instance),
+        schemaLocations: [schemaLocation]
+      });
+    }
+
+    return successes;
   }
 };
 

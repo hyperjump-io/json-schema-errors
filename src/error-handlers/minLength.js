@@ -34,6 +34,23 @@ const minLengthErrorHandler = {
     }
 
     return errors;
+  },
+
+  success: (normalizedOutput, instance, localization, ast) => {
+    /** @type ErrorObject[] */
+    const successes = [];
+
+    for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/minLength"]) {
+      const minLength = /** @type number */ (getCompiledKeywordValue(ast, schemaLocation));
+
+      successes.push({
+        message: localization.getMinLengthSuccessMessage(minLength),
+        instanceLocation: Instance.uri(instance),
+        schemaLocations: [schemaLocation]
+      });
+    }
+
+    return successes;
   }
 };
 

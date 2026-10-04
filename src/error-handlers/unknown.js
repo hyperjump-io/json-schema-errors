@@ -5,7 +5,14 @@ import { pointerSegments } from "@hyperjump/json-pointer";
  * @import { ErrorHandler, ErrorObject } from "../index.d.ts"
  */
 
-/** @type ErrorHandler */
+/**
+ * Unknown keywords are only reported if the validator's output says they failed.
+ * There's no `success` handler because we don't know what an unknown keyword
+ * requires, so it must never be included in a description of what passed or
+ * what would make it fail.
+ *
+ * @type ErrorHandler
+ */
 const unknownErrorHandler = {
   error: (normalizedErrors, instance, localization) => {
     /** @type ErrorObject[] */

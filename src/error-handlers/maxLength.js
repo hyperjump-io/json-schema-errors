@@ -34,6 +34,23 @@ const maxLengthErrorHandler = {
     }
 
     return errors;
+  },
+
+  success: (normalizedOutput, instance, localization, ast) => {
+    /** @type ErrorObject[] */
+    const successes = [];
+
+    for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/maxLength"]) {
+      const maxLength = /** @type number */ (getCompiledKeywordValue(ast, schemaLocation));
+
+      successes.push({
+        message: localization.getMaxLengthSuccessMessage(maxLength),
+        instanceLocation: Instance.uri(instance),
+        schemaLocations: [schemaLocation]
+      });
+    }
+
+    return successes;
   }
 };
 

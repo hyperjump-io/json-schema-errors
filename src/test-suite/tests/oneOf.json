@@ -1350,6 +1350,261 @@
           "schemaLocations": ["#/oneOf"]
         }
       ]
+    },
+    {
+      "description": "oneOf more than one match with number keywords",
+      "schema": {
+        "oneOf": [
+          { "minimum": 0 },
+          { "maximum": 10 },
+          { "multipleOf": 5 }
+        ]
+      },
+      "instance": 5,
+      "errors": [
+        {
+          "messageId": "oneOf-multiple-matches-message",
+          "alternatives": [
+            [
+              {
+                "messageId": "minimum-success-message",
+                "messageParams": {
+                  "minimum": 0
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/0/minimum"]
+              }
+            ],
+            [
+              {
+                "messageId": "maximum-success-message",
+                "messageParams": {
+                  "maximum": 10
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/1/maximum"]
+              }
+            ],
+            [
+              {
+                "messageId": "multipleOf-success-message",
+                "messageParams": {
+                  "multipleOf": 5
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/2/multipleOf"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/oneOf"]
+        }
+      ]
+    },
+    {
+      "description": "oneOf more than one match with exclusive number keywords",
+      "compatibility": "6",
+      "schema": {
+        "oneOf": [
+          { "exclusiveMinimum": 0 },
+          { "exclusiveMaximum": 10 }
+        ]
+      },
+      "instance": 5,
+      "errors": [
+        {
+          "messageId": "oneOf-multiple-matches-message",
+          "alternatives": [
+            [
+              {
+                "messageId": "exclusiveMinimum-success-message",
+                "messageParams": {
+                  "exclusiveMinimum": 0
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/0/exclusiveMinimum"]
+              }
+            ],
+            [
+              {
+                "messageId": "exclusiveMaximum-success-message",
+                "messageParams": {
+                  "exclusiveMaximum": 10
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/1/exclusiveMaximum"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/oneOf"]
+        }
+      ]
+    },
+    {
+      "description": "oneOf more than one match with string keywords",
+      "schema": {
+        "oneOf": [
+          { "minLength": 1 },
+          { "maxLength": 5 }
+        ]
+      },
+      "instance": "foo",
+      "errors": [
+        {
+          "messageId": "oneOf-multiple-matches-message",
+          "alternatives": [
+            [
+              {
+                "messageId": "minLength-success-message",
+                "messageParams": {
+                  "minLength": 1
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/0/minLength"]
+              }
+            ],
+            [
+              {
+                "messageId": "maxLength-success-message",
+                "messageParams": {
+                  "maxLength": 5
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/1/maxLength"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/oneOf"]
+        }
+      ]
+    },
+    {
+      "description": "oneOf more than one match with array keywords",
+      "schema": {
+        "oneOf": [
+          { "minItems": 1 },
+          { "maxItems": 5 },
+          { "uniqueItems": true }
+        ]
+      },
+      "instance": [1, 2],
+      "errors": [
+        {
+          "messageId": "oneOf-multiple-matches-message",
+          "alternatives": [
+            [
+              {
+                "messageId": "minItems-success-message",
+                "messageParams": {
+                  "minItems": 1
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/0/minItems"]
+              }
+            ],
+            [
+              {
+                "messageId": "maxItems-success-message",
+                "messageParams": {
+                  "maxItems": 5
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/1/maxItems"]
+              }
+            ],
+            [
+              {
+                "messageId": "uniqueItems-success-message",
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/2/uniqueItems"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/oneOf"]
+        }
+      ]
+    },
+    {
+      "description": "oneOf more than one match with object keywords",
+      "schema": {
+        "oneOf": [
+          { "minProperties": 1 },
+          { "maxProperties": 5 }
+        ]
+      },
+      "instance": { "a": 1 },
+      "errors": [
+        {
+          "messageId": "oneOf-multiple-matches-message",
+          "alternatives": [
+            [
+              {
+                "messageId": "minProperties-success-message",
+                "messageParams": {
+                  "minProperties": 1
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/0/minProperties"]
+              }
+            ],
+            [
+              {
+                "messageId": "maxProperties-success-message",
+                "messageParams": {
+                  "maxProperties": 5
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/1/maxProperties"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/oneOf"]
+        }
+      ]
+    },
+    {
+      "description": "oneOf more than one match with const and enum",
+      "compatibility": "6",
+      "schema": {
+        "oneOf": [
+          { "const": 1 },
+          { "enum": [1, 2] }
+        ]
+      },
+      "instance": 1,
+      "errors": [
+        {
+          "messageId": "oneOf-multiple-matches-message",
+          "alternatives": [
+            [
+              {
+                "messageId": "const-success-message",
+                "messageParams": {
+                  "expected": "1"
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/0/const"]
+              }
+            ],
+            [
+              {
+                "messageId": "enum-success-message",
+                "messageParams": {
+                  "expected": { "or": ["1", "2"] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/1/enum"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/oneOf"]
+        }
+      ]
     }
   ]
 }

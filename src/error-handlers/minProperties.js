@@ -36,6 +36,23 @@ const minPropertiesErrorHandler = {
     }
 
     return errors;
+  },
+
+  success: (normalizedOutput, instance, localization, ast) => {
+    /** @type ErrorObject[] */
+    const successes = [];
+
+    for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/minProperties"]) {
+      const minProperties = /** @type number */ (getCompiledKeywordValue(ast, schemaLocation));
+
+      successes.push({
+        message: localization.getMinPropertiesSuccessMessage(minProperties),
+        instanceLocation: Instance.uri(instance),
+        schemaLocations: [schemaLocation]
+      });
+    }
+
+    return successes;
   }
 };
 
