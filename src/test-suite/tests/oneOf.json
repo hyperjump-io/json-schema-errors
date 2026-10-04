@@ -56,25 +56,213 @@
       "instance": 1,
       "errors": [
         {
-          "messageId": "oneOf-message",
-          "messageParams": {
-            "matchCount": 2
-          },
+          "messageId": "oneOf-multiple-matches-message",
+          "alternatives": [
+            [
+              {
+                "messageId": "type-success-message",
+                "messageParams": {
+                  "type": "integer"
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/0/type"]
+              }
+            ],
+            [
+              {
+                "messageId": "type-success-message",
+                "messageParams": {
+                  "type": "number"
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/1/type"]
+              }
+            ]
+          ],
           "instanceLocation": "#",
           "schemaLocations": ["#/oneOf"]
         }
       ]
     },
     {
-      "description": "oneOf more than one match with an additional failing alternative",
+      "description": "oneOf more than one match excludes failing alternatives",
       "schema": {
         "oneOf": [
           { "type": "integer" },
           { "type": "number" },
-          { 
+          {
             "type": "number",
-            "minimum": 5 
+            "minimum": 5
           }
+        ]
+      },
+      "instance": 1,
+      "errors": [
+        {
+          "messageId": "oneOf-multiple-matches-message",
+          "alternatives": [
+            [
+              {
+                "messageId": "type-success-message",
+                "messageParams": {
+                  "type": "integer"
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/0/type"]
+              }
+            ],
+            [
+              {
+                "messageId": "type-success-message",
+                "messageParams": {
+                  "type": "number"
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/1/type"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/oneOf"]
+        }
+      ]
+    },
+    {
+      "description": "oneOf more than one match without declared properties",
+      "schema": {
+        "oneOf": [
+          { "required": ["a"] },
+          { "required": ["b"] },
+          { "required": ["c"] }
+        ]
+      },
+      "instance": { "a": 1, "b": 2 },
+      "errors": [
+        {
+          "messageId": "oneOf-multiple-matches-message",
+          "alternatives": [
+            [
+              {
+                "messageId": "required-success-message",
+                "messageParams": {
+                  "count": 1,
+                  "required": { "and": ["a"] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/0/required"]
+              }
+            ],
+            [
+              {
+                "messageId": "required-success-message",
+                "messageParams": {
+                  "count": 1,
+                  "required": { "and": ["b"] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/1/required"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/oneOf"]
+        }
+      ]
+    },
+    {
+      "description": "oneOf more than one match removes what all matches have in common",
+      "schema": {
+        "oneOf": [
+          { "type": "object", "required": ["a"] },
+          { "type": "object", "required": ["b"] }
+        ]
+      },
+      "instance": { "a": 1, "b": 2 },
+      "errors": [
+        {
+          "messageId": "oneOf-multiple-matches-message",
+          "alternatives": [
+            [
+              {
+                "messageId": "required-success-message",
+                "messageParams": {
+                  "count": 1,
+                  "required": { "and": ["a"] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/0/required"]
+              }
+            ],
+            [
+              {
+                "messageId": "required-success-message",
+                "messageParams": {
+                  "count": 1,
+                  "required": { "and": ["b"] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/1/required"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/oneOf"]
+        }
+      ]
+    },
+    {
+      "description": "oneOf more than one match keeps common messages if removing them leaves nothing",
+      "schema": {
+        "oneOf": [
+          { "type": "string" },
+          { "type": "string", "pattern": "^a" }
+        ]
+      },
+      "instance": "apple",
+      "errors": [
+        {
+          "messageId": "oneOf-multiple-matches-message",
+          "alternatives": [
+            [
+              {
+                "messageId": "type-success-message",
+                "messageParams": {
+                  "type": "string"
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/0/type"]
+              }
+            ],
+            [
+              {
+                "messageId": "type-success-message",
+                "messageParams": {
+                  "type": "string"
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/1/type"]
+              },
+              {
+                "messageId": "pattern-success-message",
+                "messageParams": {
+                  "pattern": "^a"
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/1/pattern"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/oneOf"]
+        }
+      ]
+    },
+    {
+      "description": "oneOf more than one match with a match that can't be described",
+      "schema": {
+        "oneOf": [
+          { "type": "number" },
+          {}
         ]
       },
       "instance": 1,
@@ -84,18 +272,6 @@
           "messageParams": {
             "matchCount": 2
           },
-          "alternatives": [
-            [
-              {
-                "messageId": "minimum-message",
-                "messageParams": {
-                  "minimum": 5
-                },
-                "instanceLocation": "#",
-                "schemaLocations": ["#/oneOf/2/minimum"]
-              }
-            ]
-          ],
           "instanceLocation": "#",
           "schemaLocations": ["#/oneOf"]
         }

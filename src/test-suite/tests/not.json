@@ -212,20 +212,20 @@
           "alternatives": [
             [
               {
-                "messageId": "pattern-success-message",
-                "messageParams": {
-                  "pattern": "^a"
-                },
-                "instanceLocation": "#",
-                "schemaLocations": ["#/not/pattern"]
-              },
-              {
                 "messageId": "type-success-message",
                 "messageParams": {
                   "type": "string"
                 },
                 "instanceLocation": "#",
                 "schemaLocations": ["#/not/type"]
+              },
+              {
+                "messageId": "pattern-success-message",
+                "messageParams": {
+                  "pattern": "^a"
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/pattern"]
               }
             ]
           ],

@@ -190,6 +190,11 @@ export class Localization {
     return this.#formatMessage("oneOf-message", { matchCount });
   }
 
+  /** @type () => string */
+  getOneOfMultipleMatchesErrorMessage() {
+    return this.#formatMessage("oneOf-multiple-matches-message", {});
+  }
+
   /** @type (count: number) => string */
   getNotErrorMessage(count) {
     return this.#formatMessage("not-message", { count });

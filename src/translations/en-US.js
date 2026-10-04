@@ -59,8 +59,9 @@ oneOf-message = Expected the value to match exactly one alternative, {$matchCoun
   [0] but none
  *[other] but more than one
 } matched
+oneOf-multiple-matches-message = Expected the value to satisfy only one of the following options
 not-message = Expected {$count ->
   [one] the following
  *[other] at least one of the following
-} to not be true
+} not to be true
 `;
