@@ -253,8 +253,17 @@ export class Localization {
     return this.#formatMessage("not-message", { quantifier });
   }
 
-  getSomeTrueMessage() {
-    return this.#formatMessage("some-true-message", {});
+  /** @type (min: number, max: number) => string */
+  getCountTrueMessage(min, max) {
+    if (min <= 0) {
+      return this.#formatMessage("count-true-message", { kind: "atMost", max });
+    } else if (min === max) {
+      return this.#formatMessage("count-true-message", { kind: "exactly", min });
+    } else if (max === Infinity) {
+      return this.#formatMessage("count-true-message", { kind: "atLeast", min });
+    } else {
+      return this.#formatMessage("count-true-message", { kind: "between", min, max });
+    }
   }
 
   getAllTrueMessage() {

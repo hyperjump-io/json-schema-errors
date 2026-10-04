@@ -85,14 +85,12 @@ const anyOfErrorHandler = {
     for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/anyOf"]) {
       const alternatives = normalizedOutput["https://json-schema.org/keyword/anyOf"][schemaLocation].outputs ?? [];
 
-      // Alternatives known to fail don't need to be described unless that's all there is
-      const notFailing = alternatives.filter((alternative) => !isFailing(alternative));
-      const candidates = notFailing.length > 0 ? notFailing : alternatives;
-
       if (localization.isNegated) {
         // 'anyOf' fails if all of its alternatives fail. An alternative fails if
-        // at least one of its keywords fails.
-        const alternativeOptions = candidates.map((alternative) => {
+        // at least one of its keywords fails. Changing the value to make one
+        // alternative fail could make another one pass, so all of them need to
+        // be described even if some of them fail now.
+        const alternativeOptions = alternatives.map((alternative) => {
           return getSuccesses(alternative, instance, localization, ast);
         });
 
@@ -111,9 +109,10 @@ const anyOfErrorHandler = {
         }
       } else {
         // If we know which alternatives matched, describe those. Otherwise, all we
-        // know is that at least one of them did.
-        const matching = candidates.filter(isPassing);
-        const descriptions = (matching.length > 0 ? matching : candidates).map((alternative) => {
+        // know is that at least one of the ones not known to fail did.
+        const matching = alternatives.filter(isPassing);
+        const notFailing = alternatives.filter((alternative) => !isFailing(alternative));
+        const descriptions = (matching.length > 0 ? matching : notFailing).map((alternative) => {
           return getSuccesses(alternative, instance, localization, ast);
         });
 

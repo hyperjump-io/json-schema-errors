@@ -302,23 +302,33 @@ const allTrueGroups = new WeakSet();
 
 /**
  * Success messages are a list of things that are all true, but some keywords
- * are described by a choice of options. Present the options as a group.
+ * are described by a choice of options. Present the options as a group that
+ * says how many of the options are true.
  *
- * @type (options: API.ErrorObject[][], instance: JsonNode, schemaLocation: string, localization: Localization) => API.ErrorObject[]
+ * @type (options: API.ErrorObject[][], range: { min?: number, max?: number }, instance: JsonNode, schemaLocation: string, localization: Localization) => API.ErrorObject[]
  */
-export const someTrue = (options, instance, schemaLocation, localization) => {
-  if (options.length === 0) {
+export const countTrue = (options, { min = 0, max = Infinity }, instance, schemaLocation, localization) => {
+  max = Math.min(max, options.length);
+
+  if (options.length === 0 || (min <= 0 && max === options.length)) {
+    // Nothing to say
     return [];
-  } else if (options.length === 1) {
-    return options[0];
+  } else if (min === options.length) {
+    // All of the options are true
+    return options.flat();
   }
 
   return [{
-    message: localization.getSomeTrueMessage(),
+    message: localization.getCountTrueMessage(min, max === options.length ? Infinity : max),
     alternatives: options,
     instanceLocation: Instance.uri(instance),
     schemaLocations: [schemaLocation]
   }];
+};
+
+/** @type (options: API.ErrorObject[][], instance: JsonNode, schemaLocation: string, localization: Localization) => API.ErrorObject[] */
+export const someTrue = (options, instance, schemaLocation, localization) => {
+  return countTrue(options, { min: 1 }, instance, schemaLocation, localization);
 };
 
 /**

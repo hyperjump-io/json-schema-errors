@@ -1,6 +1,6 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
 import * as Pact from "@hyperjump/pact";
-import { getErrors, getSuccesses, isPassing } from "../json-schema-errors.js";
+import { allTrue, countTrue, getErrors, getSuccesses, isFailing, isPassing, someTrue } from "../json-schema-errors.js";
 
 /**
  * @import { AST } from "@hyperjump/json-schema/experimental"
@@ -93,6 +93,51 @@ const oneOfErrorHandler = {
     }
 
     return errors;
+  },
+
+  success: (normalizedOutput, instance, localization, ast) => {
+    /** @type ErrorObject[] */
+    const successes = [];
+
+    for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/oneOf"]) {
+      const alternatives = normalizedOutput["https://json-schema.org/keyword/oneOf"][schemaLocation].outputs ?? [];
+
+      if (localization.isNegated) {
+        // 'oneOf' fails if no alternatives match or more than one matches. Changing
+        // the value could change which alternatives match, so all of them need to
+        // be described even if we know which one matches now.
+
+        // Make all alternatives fail
+        const alternativeOptions = alternatives.map((alternative) => getSuccesses(alternative, instance, localization, ast));
+        if (alternativeOptions.every((alternativeOption) => alternativeOption.length > 0)) {
+          const requirements = alternativeOptions.flatMap((alternativeOption) => {
+            return someTrue(alternativeOption.map((option) => [option]), instance, schemaLocation, localization);
+          });
+          successes.push(...allTrue(requirements, instance, schemaLocation, localization));
+        }
+
+        // Make at least two alternatives match
+        const descriptions = alternatives.map((alternative) => getSuccesses(alternative, instance, localization.negated(), ast));
+        if (descriptions.every((description) => description.length > 0)) {
+          const requirements = countTrue(descriptions, { min: 2 }, instance, schemaLocation, localization.negated());
+          successes.push(...allTrue(requirements, instance, schemaLocation, localization));
+        }
+      } else {
+        // 'oneOf' passed, so if one alternative is known to match, it's the only one
+        const matching = alternatives.filter(isPassing);
+        if (matching.length === 1) {
+          successes.push(...getSuccesses(matching[0], instance, localization, ast));
+        } else {
+          const notFailing = alternatives.filter((alternative) => !isFailing(alternative));
+          const descriptions = notFailing.map((alternative) => getSuccesses(alternative, instance, localization, ast));
+          if (descriptions.every((description) => description.length > 0)) {
+            successes.push(...countTrue(descriptions, { min: 1, max: 1 }, instance, schemaLocation, localization));
+          }
+        }
+      }
+    }
+
+    return successes;
   }
 };
 
