@@ -14,7 +14,7 @@ const minItemsErrorHandler = {
     let effectiveSchemaLocation = "";
 
     for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/minItems"]) {
-      if (normalizedErrors["https://json-schema.org/keyword/minItems"][schemaLocation]) {
+      if (normalizedErrors["https://json-schema.org/keyword/minItems"][schemaLocation].valid !== false) {
         continue;
       }
 

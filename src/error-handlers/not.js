@@ -13,16 +13,16 @@ const notErrorHandler = {
 
     for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/not"]) {
       const not = normalizedErrors["https://json-schema.org/keyword/not"][schemaLocation];
-      if (not === true) {
+      if (not.valid !== false) {
         continue;
       }
 
       // The 'not' schema passed. Describe what would make it fail so the user
       // knows what needs to change.
       const negatedLocalization = localization.negated();
-      const successes = Array.isArray(not)
-        ? not.flatMap((notOutput) => getSuccesses(notOutput, instance, negatedLocalization, ast))
-        : [];
+      const successes = (not.outputs ?? []).flatMap((notOutput) => {
+        return getSuccesses(notOutput, instance, negatedLocalization, ast);
+      });
 
       if (successes.length) {
         errors.push({

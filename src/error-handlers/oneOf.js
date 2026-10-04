@@ -15,10 +15,11 @@ const oneOfErrorHandler = {
     const errors = [];
 
     for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/oneOf"]) {
-      const oneOf = normalizedErrors["https://json-schema.org/keyword/oneOf"][schemaLocation];
-      if (typeof oneOf === "boolean") {
+      const oneOfOutput = normalizedErrors["https://json-schema.org/keyword/oneOf"][schemaLocation];
+      if (oneOfOutput.valid !== false) {
         continue;
       }
+      const oneOf = oneOfOutput.outputs ?? [];
 
       const matches = oneOf.filter(isPassing);
       if (matches.length > 1) {
@@ -43,7 +44,7 @@ const oneOfErrorHandler = {
       for (const alternative of oneOf) {
         // Filter alternatives whose declared type doesn't match the instance type
         const typeResults = alternative[instanceLocation]?.["https://json-schema.org/keyword/type"];
-        if (typeResults && !Object.values(typeResults).every((isValid) => isValid)) {
+        if (typeResults && !Object.values(typeResults).every(({ valid }) => valid)) {
           continue;
         }
 
@@ -150,7 +151,7 @@ const isPassingProperty = (propertyOutput) => {
 
   for (const keywordUri in propertyOutput) {
     for (const schemaLocation in propertyOutput[keywordUri]) {
-      if (propertyOutput[keywordUri][schemaLocation] !== true) {
+      if (propertyOutput[keywordUri][schemaLocation].valid !== true) {
         return false;
       }
     }

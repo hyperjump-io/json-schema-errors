@@ -14,7 +14,7 @@ const maxItemsErrorHandler = {
     let effectiveSchemaLocation = "";
 
     for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/maxItems"]) {
-      if (normalizedErrors["https://json-schema.org/keyword/maxItems"][schemaLocation]) {
+      if (normalizedErrors["https://json-schema.org/keyword/maxItems"][schemaLocation].valid !== false) {
         continue;
       }
 

@@ -40,8 +40,9 @@ export class JsonSchemaErrorsOutputPlugin {
     } else {
       schemaContext.output[Instance.uri(instance)] ??= {};
       schemaContext.output[Instance.uri(instance)][keywordUri] ??= {};
-      schemaContext.output[Instance.uri(instance)][keywordUri][schemaLocation] = valid
-        || (context.subSchemaOutput ?? valid);
+      schemaContext.output[Instance.uri(instance)][keywordUri][schemaLocation] = context.subSchemaOutput
+        ? { valid, outputs: context.subSchemaOutput }
+        : { valid };
     }
   }
 
@@ -50,7 +51,7 @@ export class JsonSchemaErrorsOutputPlugin {
     if (typeof context.ast[url] === "boolean" && !valid) {
       context.output[Instance.uri(instance)] ??= {};
       context.output[Instance.uri(instance)]["https://json-schema.org/validation"] ??= {};
-      context.output[Instance.uri(instance)]["https://json-schema.org/validation"][url] = valid;
+      context.output[Instance.uri(instance)]["https://json-schema.org/validation"][url] = { valid };
     }
 
     context.subSchemaOutput ??= [];

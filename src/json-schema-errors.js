@@ -42,30 +42,44 @@ const constructErrorIndex = async (outputUnit, schema, errorIndex = {}) => {
     return errorIndex;
   }
 
-  for (const errorOutputUnit of outputUnit.errors ?? []) {
-    if (errorOutputUnit.valid) {
-      continue;
-    }
+  await indexOutputUnits(outputUnit, schema, errorIndex);
+  return errorIndex;
+};
 
-    if (!("instanceLocation" in errorOutputUnit)) {
+/**
+ * Output formats vary a lot between validators. Use whatever results are
+ * available. Passing results are usually not included, but some formats include
+ * them and they help describe what happened inside applicators that passed.
+ *
+ * @type (outputUnit: API.OutputUnit, schema: Browser<SchemaDocument>, errorIndex: API.ErrorIndex) => Promise<void>
+ */
+const indexOutputUnits = async (outputUnit, schema, errorIndex) => {
+  for (const subOutputUnit of [...outputUnit.errors ?? [], ...outputUnit.annotations ?? []]) {
+    const isError = subOutputUnit.valid !== true;
+    const hasLocations = "instanceLocation" in subOutputUnit
+      && ("keywordLocation" in subOutputUnit || "absoluteKeywordLocation" in subOutputUnit);
+
+    if (isError && !("instanceLocation" in subOutputUnit)) {
       throw Error("Missing instanceLocation in output node");
     }
 
-    if (!("keywordLocation" in errorOutputUnit || "absoluteKeywordLocation" in errorOutputUnit)) {
+    if (isError && !hasLocations) {
       throw new Error("Missing absoluteKeywordLocation or keywordLocation");
     }
 
-    const absoluteKeywordLocation = errorOutputUnit.absoluteKeywordLocation
-      ?? await toAbsoluteKeywordLocation(schema, /** @type string */ (errorOutputUnit.keywordLocation));
-    const instanceLocation = /** @type string */ (errorOutputUnit.instanceLocation)
-      .replace(/^#?\*?/, "#");
+    if (hasLocations) {
+      const absoluteKeywordLocation = subOutputUnit.absoluteKeywordLocation
+        ?? await toAbsoluteKeywordLocation(schema, /** @type string */ (subOutputUnit.keywordLocation));
+      const instanceLocation = /** @type string */ (subOutputUnit.instanceLocation)
+        .replace(/^#?\*?/, "#");
 
-    errorIndex[absoluteKeywordLocation] ??= {};
-    errorIndex[absoluteKeywordLocation][instanceLocation] = true;
-    await constructErrorIndex(errorOutputUnit, schema, errorIndex);
+      errorIndex[absoluteKeywordLocation] ??= {};
+      // If results conflict, the error wins
+      errorIndex[absoluteKeywordLocation][instanceLocation] ||= isError;
+    }
+
+    await indexOutputUnits(subOutputUnit, schema, errorIndex);
   }
-
-  return errorIndex;
 };
 
 /** @type (schema: Browser, keywordLocation: string) => Promise<string> */
@@ -95,11 +109,12 @@ export const evaluateSchema = (schemaLocation, instance, context) => {
 
   const schemaNode = context.ast[schemaLocation];
   if (typeof schemaNode === "boolean") {
-    if (context.errorIndex[schemaLocation]?.[instanceLocation]) {
-      output[instanceLocation] ??= {};
+    const isSchemaValid = getValidity(schemaLocation, instanceLocation, context);
+    if (schemaNode === false && isSchemaValid !== true) {
+      valid = false;
       output[instanceLocation] = {
         "https://json-schema.org/validation": {
-          [schemaLocation]: schemaNode
+          [schemaLocation]: { valid: isSchemaValid }
         }
       };
     }
@@ -115,20 +130,24 @@ export const evaluateSchema = (schemaLocation, instance, context) => {
 
       const validationKeyword = getKeyword(keywordUri);
 
+      const isKeywordValid = getValidity(keywordLocation, instanceLocation.replace(/^#\*/, "#"), context);
+      if (isKeywordValid === false) {
+        valid = false;
+      }
+
+      /** @type API.EvaluationContext */
       const keywordContext = {
         ast: context.ast,
         errorIndex: context.errorIndex,
-        plugins: context.plugins
+        plugins: context.plugins,
+        // The output won't say what happened inside an applicator that passed
+        isValidityUnknown: context.isValidityUnknown || (!keyword.simpleApplicator && isKeywordValid === true)
       };
       for (const plugin of context.plugins) {
         plugin.beforeKeyword?.(node, instance, keywordContext, context, validationKeyword);
       }
 
       const keywordOutput = keyword.evaluate(keywordValue, instance, keywordContext);
-      const isKeywordValid = !context.errorIndex[keywordLocation]?.[instanceLocation.replace(/^#\*/, "#")];
-      if (!isKeywordValid) {
-        valid = false;
-      }
 
       if (keyword.simpleApplicator) {
         for (const suboutput of /** @type API.NormalizedOutput[] */ (keywordOutput)) {
@@ -137,11 +156,13 @@ export const evaluateSchema = (schemaLocation, instance, context) => {
       } else {
         output[instanceLocation] ??= {};
         output[instanceLocation][normalizedKeywordUri] ??= {};
-        output[instanceLocation][normalizedKeywordUri][keywordLocation] = isKeywordValid || (keywordOutput ?? false);
+        output[instanceLocation][normalizedKeywordUri][keywordLocation] = keywordOutput
+          ? { valid: isKeywordValid, outputs: keywordOutput }
+          : { valid: isKeywordValid };
       }
 
       for (const plugin of context.plugins) {
-        plugin.afterKeyword?.(node, instance, keywordContext, isKeywordValid, context, validationKeyword);
+        plugin.afterKeyword?.(node, instance, keywordContext, isKeywordValid !== false, context, validationKeyword);
       }
     }
   }
@@ -151,6 +172,21 @@ export const evaluateSchema = (schemaLocation, instance, context) => {
   }
 
   return output;
+};
+
+/**
+ * Validator output usually only includes errors, so a keyword it doesn't
+ * mention passed. That's not a safe assumption inside an applicator that passed.
+ *
+ * @type (schemaLocation: string, instanceLocation: string, context: API.EvaluationContext) => boolean | undefined
+ */
+const getValidity = (schemaLocation, instanceLocation, context) => {
+  const isError = context.errorIndex[schemaLocation]?.[instanceLocation];
+  if (isError === undefined) {
+    return context.isValidityUnknown ? undefined : true;
+  } else {
+    return !isError;
+  }
 };
 
 /** @type (a: API.NormalizedOutput, b: API.NormalizedOutput) => void */
@@ -215,7 +251,7 @@ export const isPassing = (normalizedOutput) => {
   for (const instanceLocation in normalizedOutput) {
     for (const keywordUri in normalizedOutput[instanceLocation]) {
       for (const schemaLocation in normalizedOutput[instanceLocation][keywordUri]) {
-        if (normalizedOutput[instanceLocation][keywordUri][schemaLocation] !== true) {
+        if (normalizedOutput[instanceLocation][keywordUri][schemaLocation].valid !== true) {
           return false;
         }
       }

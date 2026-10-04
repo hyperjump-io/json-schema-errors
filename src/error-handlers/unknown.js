@@ -12,7 +12,7 @@ const unknownErrorHandler = {
     const errors = [];
 
     for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/unknown"]) {
-      if (normalizedErrors["https://json-schema.org/keyword/unknown"][schemaLocation]) {
+      if (normalizedErrors["https://json-schema.org/keyword/unknown"][schemaLocation].valid !== false) {
         continue;
       }
 

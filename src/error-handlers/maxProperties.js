@@ -13,7 +13,7 @@ const maxPropertiesErrorHandler = {
     let lowestMaxProperties = Infinity;
     let mostConstrainingLocation = null;
     for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/maxProperties"]) {
-      if (normalizedErrors["https://json-schema.org/keyword/maxProperties"][schemaLocation]) {
+      if (normalizedErrors["https://json-schema.org/keyword/maxProperties"][schemaLocation].valid !== false) {
         continue;
       }
 

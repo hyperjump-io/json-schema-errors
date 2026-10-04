@@ -11,6 +11,10 @@ const booleanSchemaErrorHandler = {
     const errors = [];
 
     for (const schemaLocation in normalizedErrors["https://json-schema.org/validation"]) {
+      if (normalizedErrors["https://json-schema.org/validation"][schemaLocation].valid !== false) {
+        continue;
+      }
+
       errors.push({
         message: localization.getBooleanSchemaErrorMessage(),
         instanceLocation: Instance.uri(instance),

@@ -13,10 +13,11 @@ const anyOfErrorHandler = {
     const errors = [];
 
     for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/anyOf"]) {
-      const anyOf = normalizedErrors["https://json-schema.org/keyword/anyOf"][schemaLocation];
-      if (typeof anyOf === "boolean") {
+      const anyOfOutput = normalizedErrors["https://json-schema.org/keyword/anyOf"][schemaLocation];
+      if (anyOfOutput.valid !== false) {
         continue;
       }
+      const anyOf = anyOfOutput.outputs ?? [];
 
       const propertyLocations = Pact.pipe(
         Instance.values(instance),
@@ -35,7 +36,7 @@ const anyOfErrorHandler = {
       for (const alternative of anyOf) {
         // Filter alternatives whose declared type doesn't match the instance type
         const typeResults = alternative[instanceLocation]?.["https://json-schema.org/keyword/type"];
-        if (typeResults && !Object.values(typeResults).every((isValid) => isValid)) {
+        if (typeResults && !Object.values(typeResults).every(({ valid }) => valid)) {
           continue;
         }
 
@@ -86,7 +87,7 @@ const isPassingProperty = (propertyOutput) => {
 
   for (const keywordUri in propertyOutput) {
     for (const schemaLocation in propertyOutput[keywordUri]) {
-      if (propertyOutput[keywordUri][schemaLocation] !== true) {
+      if (propertyOutput[keywordUri][schemaLocation].valid !== true) {
         return false;
       }
     }

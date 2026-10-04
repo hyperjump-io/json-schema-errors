@@ -11,11 +11,11 @@ const dependenciesErrorHandler = {
     const errors = [];
 
     for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/draft-04/dependencies"]) {
-      if (typeof normalizedErrors["https://json-schema.org/keyword/draft-04/dependencies"][schemaLocation] === "boolean") {
+      if (normalizedErrors["https://json-schema.org/keyword/draft-04/dependencies"][schemaLocation].valid !== false) {
         continue;
       }
 
-      const dependentSchemaOutputs = normalizedErrors["https://json-schema.org/keyword/draft-04/dependencies"][schemaLocation];
+      const dependentSchemaOutputs = normalizedErrors["https://json-schema.org/keyword/draft-04/dependencies"][schemaLocation].outputs ?? [];
       for (const dependentSchemaOutput of dependentSchemaOutputs) {
         const dependentSchemaErrors = getErrors(dependentSchemaOutput, instance, localization, ast);
         errors.push(...dependentSchemaErrors);

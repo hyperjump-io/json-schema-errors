@@ -14,7 +14,7 @@ const requiredErrorHandler = {
     const allSchemaLocations = [];
 
     for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/required"]) {
-      if (normalizedErrors["https://json-schema.org/keyword/required"][schemaLocation]) {
+      if (normalizedErrors["https://json-schema.org/keyword/required"][schemaLocation].valid !== false) {
         continue;
       }
 
@@ -25,7 +25,7 @@ const requiredErrorHandler = {
     }
 
     for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/dependentRequired"]) {
-      if (normalizedErrors["https://json-schema.org/keyword/dependentRequired"][schemaLocation]) {
+      if (normalizedErrors["https://json-schema.org/keyword/dependentRequired"][schemaLocation].valid !== false) {
         continue;
       }
 
@@ -41,7 +41,7 @@ const requiredErrorHandler = {
     }
 
     for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/draft-04/dependencies"]) {
-      if (typeof normalizedErrors["https://json-schema.org/keyword/draft-04/dependencies"][schemaLocation] === "boolean") {
+      if (normalizedErrors["https://json-schema.org/keyword/draft-04/dependencies"][schemaLocation].valid !== false) {
         continue;
       }
 
@@ -82,10 +82,6 @@ const requiredErrorHandler = {
     const allRequired = new Set();
     const requiredSchemaLocations = [];
     for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/required"]) {
-      if (normalizedOutput["https://json-schema.org/keyword/required"][schemaLocation] !== true) {
-        continue;
-      }
-
       const required = /** @type string[] */ (getCompiledKeywordValue(ast, schemaLocation));
       if (required.length) {
         requiredSchemaLocations.push(schemaLocation);
@@ -102,10 +98,6 @@ const requiredErrorHandler = {
     }
 
     for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/dependentRequired"]) {
-      if (normalizedOutput["https://json-schema.org/keyword/dependentRequired"][schemaLocation] !== true) {
-        continue;
-      }
-
       const dependencies = /** @type {[string, string[]][]} */ (getCompiledKeywordValue(ast, schemaLocation));
       for (const [propertyName, requiredProperties] of dependencies) {
         if (requiredProperties.length > 0) {
@@ -119,10 +111,6 @@ const requiredErrorHandler = {
     }
 
     for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/draft-04/dependencies"]) {
-      if (normalizedOutput["https://json-schema.org/keyword/draft-04/dependencies"][schemaLocation] !== true) {
-        continue;
-      }
-
       const dependencies = /** @type {[string, unknown][]} */ (getCompiledKeywordValue(ast, schemaLocation));
       for (const [propertyName, dependency] of dependencies) {
         if (Array.isArray(dependency) && dependency.length > 0) {

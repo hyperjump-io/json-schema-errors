@@ -12,7 +12,7 @@ const uniqueItemsErrorHandler = {
     const errors = [];
 
     for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/uniqueItems"]) {
-      if (normalizedErrors["https://json-schema.org/keyword/uniqueItems"][schemaLocation]) {
+      if (normalizedErrors["https://json-schema.org/keyword/uniqueItems"][schemaLocation].valid !== false) {
         continue;
       }
 

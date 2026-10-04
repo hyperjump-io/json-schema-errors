@@ -14,7 +14,7 @@ const minLengthErrorHandler = {
     let mostConstrainingLocation = null;
 
     for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/minLength"]) {
-      if (normalizedErrors["https://json-schema.org/keyword/minLength"][schemaLocation]) {
+      if (normalizedErrors["https://json-schema.org/keyword/minLength"][schemaLocation].valid !== false) {
         continue;
       }
 

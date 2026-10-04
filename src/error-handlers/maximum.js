@@ -15,7 +15,7 @@ const maximumErrorHandler = {
     let schemaLocations = [];
 
     for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/maximum"]) {
-      if (normalizedErrors["https://json-schema.org/keyword/maximum"][schemaLocation]) {
+      if (normalizedErrors["https://json-schema.org/keyword/maximum"][schemaLocation].valid !== false) {
         continue;
       }
 
@@ -27,7 +27,7 @@ const maximumErrorHandler = {
     }
 
     for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/exclusiveMaximum"]) {
-      if (normalizedErrors["https://json-schema.org/keyword/exclusiveMaximum"][schemaLocation]) {
+      if (normalizedErrors["https://json-schema.org/keyword/exclusiveMaximum"][schemaLocation].valid !== false) {
         continue;
       }
 
@@ -40,7 +40,7 @@ const maximumErrorHandler = {
     }
 
     for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/draft-04/maximum"]) {
-      if (normalizedErrors["https://json-schema.org/keyword/draft-04/maximum"][schemaLocation]) {
+      if (normalizedErrors["https://json-schema.org/keyword/draft-04/maximum"][schemaLocation].valid !== false) {
         continue;
       }
 
