@@ -17,10 +17,11 @@ const notErrorHandler = {
         continue;
       }
 
-      // The 'not' schema passed. Describe how the instance passed so the user
+      // The 'not' schema passed. Describe what would make it fail so the user
       // knows what needs to change.
+      const negatedLocalization = localization.negated();
       const successes = Array.isArray(not)
-        ? not.flatMap((notOutput) => getSuccesses(notOutput, instance, localization, ast))
+        ? not.flatMap((notOutput) => getSuccesses(notOutput, instance, negatedLocalization, ast))
         : [];
 
       if (successes.length) {

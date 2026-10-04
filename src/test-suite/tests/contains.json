@@ -80,7 +80,9 @@
               {
                 "messageId": "type-success-message",
                 "messageParams": {
-                  "type": "string"
+                  "count": 1,
+                  "type": "string",
+                  "types": { "or": ["string"] }
                 },
                 "instanceLocation": "#/1",
                 "schemaLocations": ["#/contains/type"]
@@ -100,7 +102,9 @@
               {
                 "messageId": "type-success-message",
                 "messageParams": {
-                  "type": "string"
+                  "count": 1,
+                  "type": "string",
+                  "types": { "or": ["string"] }
                 },
                 "instanceLocation": "#/2",
                 "schemaLocations": ["#/contains/type"]
@@ -132,7 +136,9 @@
               {
                 "messageId": "type-success-message",
                 "messageParams": {
-                  "type": "number"
+                  "count": 1,
+                  "type": "number",
+                  "types": { "or": ["number"] }
                 },
                 "instanceLocation": "#/0",
                 "schemaLocations": ["#/contains/type"]
@@ -152,7 +158,9 @@
               {
                 "messageId": "type-success-message",
                 "messageParams": {
-                  "type": "number"
+                  "count": 1,
+                  "type": "number",
+                  "types": { "or": ["number"] }
                 },
                 "instanceLocation": "#/2",
                 "schemaLocations": ["#/contains/type"]
@@ -172,7 +180,9 @@
               {
                 "messageId": "type-success-message",
                 "messageParams": {
-                  "type": "number"
+                  "count": 1,
+                  "type": "number",
+                  "types": { "or": ["number"] }
                 },
                 "instanceLocation": "#/3",
                 "schemaLocations": ["#/contains/type"]
@@ -204,7 +214,9 @@
               {
                 "messageId": "type-success-message",
                 "messageParams": {
-                  "type": "number"
+                  "count": 1,
+                  "type": "number",
+                  "types": { "or": ["number"] }
                 },
                 "instanceLocation": "#/1",
                 "schemaLocations": ["#/contains/type"]
@@ -235,7 +247,9 @@
               {
                 "messageId": "type-success-message",
                 "messageParams": {
-                  "type": "string"
+                  "count": 1,
+                  "type": "string",
+                  "types": { "or": ["string"] }
                 },
                 "instanceLocation": "#/0",
                 "schemaLocations": ["#/contains/type"]
@@ -263,7 +277,9 @@
               {
                 "messageId": "type-success-message",
                 "messageParams": {
-                  "type": "string"
+                  "count": 1,
+                  "type": "string",
+                  "types": { "or": ["string"] }
                 },
                 "instanceLocation": "#/2",
                 "schemaLocations": ["#/contains/type"]

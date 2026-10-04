@@ -6,12 +6,26 @@ const-message = Expected exactly {$expected}
 enum-message = Expected one of {$expected}
 format-message = Expected a value matching the '{$format}' format
 unknown-message = Validation failed for '{$keyword}'
-type-success-message = The value is {$type ->
-  [null] null
-  [array] an array
-  [object] an object
-  [integer] an integer
- *[other] a {$type}
+type-success-message = The value is {$count ->
+  [one] {$type ->
+    [null] null
+    [array] an array
+    [object] an object
+    [integer] an integer
+   *[other] a {$type}
+  }
+ *[other] of type {$types}
+}
+type-negated-message = The value is not {$count ->
+  [one] {$type ->
+    [null] null
+    [array] an array
+    [object] an object
+    [integer] an integer
+   *[other] a {$type}
+  }
+ *[other] of type {$types}
+}
 }
 
 // Number keywords
@@ -25,7 +39,8 @@ multipleOf-message = Expected a number that is a multiple of {$multipleOf}
 maxLength-message = Expected a string with no more than {$maxLength} characters
 minLength-message = Expected a string with at least {$minLength} characters
 pattern-message = Expected a string matching the regular expression /{$pattern}/
-pattern-success-message = The string matches the regular expression /{$pattern}/
+pattern-success-message = The value is either not a string or matches the regular expression /{$pattern}/
+pattern-negated-message = The value is a string that doesn't match the regular expression /{$pattern}/
 
 // Array keywords
 maxItems-message = Expected an array with no more than {$maxItems} items
@@ -53,9 +68,21 @@ required-message = Missing required {$count ->
   [one] property: {$required}
  *[other] properties: {$required}
 }
-required-success-message = Has {$count ->
+required-success-message = The value is either not an object or has {$count ->
   [one] property: {$required}
  *[other] properties: {$required}
+}
+required-negated-message = The value is an object missing {$count ->
+  [one] property: {$required}
+ *[other] at least one of the properties: {$required}
+}
+dependentRequired-success-message = The value is either not an object or has {$count ->
+  [one] property: {$required}
+ *[other] properties: {$required}
+} when it has property: {$property}
+dependentRequired-negated-message = The value is an object that has property: {$property} but is missing {$count ->
+  [one] property: {$required}
+ *[other] at least one of the properties: {$required}
 }
 
 // Applicators
@@ -68,5 +95,5 @@ oneOf-multiple-matches-message = Expected the value to satisfy only one of the f
 not-message = Expected {$count ->
   [one] the following
  *[other] at least one of the following
-} not to be true
+} to be true
 `;

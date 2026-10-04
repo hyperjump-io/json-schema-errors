@@ -62,7 +62,9 @@
               {
                 "messageId": "type-success-message",
                 "messageParams": {
-                  "type": "integer"
+                  "count": 1,
+                  "type": "integer",
+                  "types": { "or": ["integer"] }
                 },
                 "instanceLocation": "#",
                 "schemaLocations": ["#/oneOf/0/type"]
@@ -72,7 +74,9 @@
               {
                 "messageId": "type-success-message",
                 "messageParams": {
-                  "type": "number"
+                  "count": 1,
+                  "type": "number",
+                  "types": { "or": ["number"] }
                 },
                 "instanceLocation": "#",
                 "schemaLocations": ["#/oneOf/1/type"]
@@ -105,7 +109,9 @@
               {
                 "messageId": "type-success-message",
                 "messageParams": {
-                  "type": "integer"
+                  "count": 1,
+                  "type": "integer",
+                  "types": { "or": ["integer"] }
                 },
                 "instanceLocation": "#",
                 "schemaLocations": ["#/oneOf/0/type"]
@@ -115,7 +121,9 @@
               {
                 "messageId": "type-success-message",
                 "messageParams": {
-                  "type": "number"
+                  "count": 1,
+                  "type": "number",
+                  "types": { "or": ["number"] }
                 },
                 "instanceLocation": "#",
                 "schemaLocations": ["#/oneOf/1/type"]
@@ -227,7 +235,9 @@
               {
                 "messageId": "type-success-message",
                 "messageParams": {
-                  "type": "string"
+                  "count": 1,
+                  "type": "string",
+                  "types": { "or": ["string"] }
                 },
                 "instanceLocation": "#",
                 "schemaLocations": ["#/oneOf/0/type"]
@@ -237,7 +247,9 @@
               {
                 "messageId": "type-success-message",
                 "messageParams": {
-                  "type": "string"
+                  "count": 1,
+                  "type": "string",
+                  "types": { "or": ["string"] }
                 },
                 "instanceLocation": "#",
                 "schemaLocations": ["#/oneOf/1/type"]
