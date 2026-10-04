@@ -370,13 +370,72 @@
       ]
     },
     {
-      "description": "contains with too many matches that can't be described",
+      "description": "contains with too many matches with format",
       "compatibility": "2019",
       "schema": {
         "contains": { "format": "email" },
         "maxContains": 1
       },
       "instance": ["a@example.com", "foo", "b@example.com"],
+      "errors": [
+        {
+          "messageId": "contains-too-many-message",
+          "messageParams": {
+            "maxContains": 1
+          },
+          "alternatives": [
+            [
+              {
+                "messageId": "format-success-message",
+                "messageParams": {
+                  "format": "email"
+                },
+                "instanceLocation": "#/0",
+                "schemaLocations": ["#/contains/format"]
+              }
+            ]
+          ],
+          "instanceLocation": "#/0",
+          "schemaLocations": ["#/contains", "#/maxContains"]
+        },
+        {
+          "messageId": "contains-too-many-message",
+          "messageParams": {
+            "maxContains": 1
+          },
+          "alternatives": [
+            [
+              {
+                "messageId": "format-success-message",
+                "messageParams": {
+                  "format": "email"
+                },
+                "instanceLocation": "#/2",
+                "schemaLocations": ["#/contains/format"]
+              }
+            ]
+          ],
+          "instanceLocation": "#/2",
+          "schemaLocations": ["#/contains", "#/maxContains"]
+        }
+      ]
+    },
+    {
+      "description": "contains with too many matches that can't be described",
+      "compatibility": "2019",
+      "schema": {
+        "contains": {
+          "properties": {
+            "a": { "type": "string" }
+          }
+        },
+        "maxContains": 1
+      },
+      "instance": [
+        { "a": "x" },
+        { "a": 1 },
+        {}
+      ],
       "errors": [
         {
           "messageId": "contains-exact-message",

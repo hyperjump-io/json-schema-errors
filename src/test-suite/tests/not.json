@@ -1745,6 +1745,35 @@
           "schemaLocations": ["#/not"]
         }
       ]
+    },
+    {
+      "description": "not with format",
+      "schema": {
+        "not": { "format": "email" }
+      },
+      "instance": "a@example.com",
+      "errors": [
+        {
+          "messageId": "not-message",
+          "messageParams": {
+            "quantifier": "one"
+          },
+          "alternatives": [
+            [
+              {
+                "messageId": "format-negated-message",
+                "messageParams": {
+                  "format": "email"
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/format"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/not"]
+        }
+      ]
     }
   ]
 }
