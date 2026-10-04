@@ -88,12 +88,10 @@ const runTests = (dialectUri, dialect) => {
           expect(errors).to.eql(buildErrors(testCase.errors, schemaUri));
           expectNestedLocations(errors);
 
-          if (testCase.errorsWithFullResults) {
-            const result = await validateWithErrors(schemaUri, instance);
-            const fullResultsErrors = result.valid ? [] : result.errors;
-            expect(fullResultsErrors).to.eql(buildErrors(testCase.errorsWithFullResults, schemaUri));
-            expectNestedLocations(fullResultsErrors);
-          }
+          const result = await validateWithErrors(schemaUri, instance);
+          const fullResultsErrors = result.valid ? [] : result.errors;
+          expect(fullResultsErrors).to.eql(buildErrors(testCase.errorsWithFullResults ?? testCase.errors, schemaUri));
+          expectNestedLocations(fullResultsErrors);
         });
       }
     }

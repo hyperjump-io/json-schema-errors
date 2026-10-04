@@ -51,7 +51,7 @@ the messages can be.
 `errors` are the expected errors when the output only includes errors.
 `errorsWithFullResults` are the expected errors when the results of every
 keyword are known, including those that passed. If `errorsWithFullResults`
-isn't present, it's not tested.
+isn't present, it's expected to be the same as `errors`.
 
 ## `messageId`/`messageParams`
 

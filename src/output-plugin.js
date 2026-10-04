@@ -1,4 +1,5 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
+import { isSimpleApplicator } from "./json-schema-errors.js";
 
 /**
  * @import { EvaluationPlugin, ValidationContext } from "@hyperjump/json-schema/experimental"
@@ -30,10 +31,13 @@ export class JsonSchemaErrorsOutputPlugin {
   }
 
   /** @type NonNullable<EvaluationPlugin<ErrorsContext>["afterKeyword"]> */
-  afterKeyword(keywordNode, instance, context, valid, schemaContext, keyword) {
+  afterKeyword(keywordNode, instance, context, valid, schemaContext) {
     const [keywordUri, schemaLocation] = keywordNode;
 
-    if (keyword.simpleApplicator) {
+    // Whether the result is merged with its parent depends on how this package
+    // models the keyword rather than the validator. For example, 'if' never
+    // fails, but its result isn't a requirement of its parent.
+    if (isSimpleApplicator(keywordUri)) {
       for (const subSchemaOutput of context.subSchemaOutput ?? []) {
         mergeOutput(schemaContext.output, subSchemaOutput);
       }

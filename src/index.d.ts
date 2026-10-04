@@ -96,6 +96,14 @@ export type NormalizationHandler<KeywordValue = unknown, Context extends Evaluat
    * their subschemas.
    */
   simpleApplicator?: true;
+
+  /**
+   * Some applicators, like `then` and `else`, only fail when their subschema
+   * fails. Validators often only report the subschema's errors and not the
+   * keyword itself, so this tells us to use the subschema's results when the
+   * validator's output doesn't include the keyword.
+   */
+  validityFromSubschemas?: true;
 };
 
 export type EvaluationContext = {

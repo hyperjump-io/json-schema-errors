@@ -1,13 +1,14 @@
+import { evaluateSchema } from "../json-schema-errors.js";
+
 /**
  * @import { NormalizationHandler } from "../index.d.ts"
  */
 
 /** @type NormalizationHandler<string> */
 const ifNormalizationHandler = {
-  evaluate() {
-    return [];
-  },
-  simpleApplicator: true
+  evaluate(ifLocation, instance, context) {
+    return [evaluateSchema(ifLocation, instance, context)];
+  }
 };
 
 export default ifNormalizationHandler;
