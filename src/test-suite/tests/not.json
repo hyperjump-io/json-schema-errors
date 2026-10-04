@@ -1692,10 +1692,18 @@
         {
           "messageId": "not-message",
           "messageParams": {
-            "quantifier": "one"
+            "quantifier": "all"
           },
           "alternatives": [
             [
+              {
+                "messageId": "hasProperty-success-message",
+                "messageParams": {
+                  "property": "a"
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/dependencies/a"]
+              },
               {
                 "messageId": "required-negated-message",
                 "messageParams": {
@@ -1767,6 +1775,178 @@
                 },
                 "instanceLocation": "#",
                 "schemaLocations": ["#/not/format"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/not"]
+        }
+      ]
+    },
+    {
+      "description": "not with schema dependencies when the property is absent",
+      "compatibility": "<=7",
+      "schema": {
+        "not": {
+          "dependencies": {
+            "a": { "required": ["b"] }
+          }
+        }
+      },
+      "instance": {},
+      "errors": [
+        {
+          "messageId": "not-message",
+          "messageParams": {
+            "quantifier": "all"
+          },
+          "alternatives": [
+            [
+              {
+                "messageId": "hasProperty-success-message",
+                "messageParams": {
+                  "property": "a"
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/dependencies/a"]
+              },
+              {
+                "messageId": "required-negated-message",
+                "messageParams": {
+                  "count": 1,
+                  "required": { "or": ["b"] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/dependencies/a/required"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/not"]
+        }
+      ]
+    },
+    {
+      "description": "not with dependentSchemas",
+      "compatibility": "2019",
+      "schema": {
+        "not": {
+          "dependentSchemas": {
+            "a": { "required": ["b"] }
+          }
+        }
+      },
+      "instance": { "a": 1, "b": 2 },
+      "errors": [
+        {
+          "messageId": "not-message",
+          "messageParams": {
+            "quantifier": "all"
+          },
+          "alternatives": [
+            [
+              {
+                "messageId": "hasProperty-success-message",
+                "messageParams": {
+                  "property": "a"
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/dependentSchemas/a"]
+              },
+              {
+                "messageId": "required-negated-message",
+                "messageParams": {
+                  "count": 1,
+                  "required": { "or": ["b"] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/dependentSchemas/a/required"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/not"]
+        }
+      ]
+    },
+    {
+      "description": "not with dependentSchemas when the property is absent",
+      "compatibility": "2019",
+      "schema": {
+        "not": {
+          "dependentSchemas": {
+            "a": { "required": ["b"] }
+          }
+        }
+      },
+      "instance": {},
+      "errors": [
+        {
+          "messageId": "not-message",
+          "messageParams": {
+            "quantifier": "all"
+          },
+          "alternatives": [
+            [
+              {
+                "messageId": "hasProperty-success-message",
+                "messageParams": {
+                  "property": "a"
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/dependentSchemas/a"]
+              },
+              {
+                "messageId": "required-negated-message",
+                "messageParams": {
+                  "count": 1,
+                  "required": { "or": ["b"] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/dependentSchemas/a/required"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/not"]
+        }
+      ]
+    },
+    {
+      "description": "not with dependentSchemas on a non-object",
+      "compatibility": "2019",
+      "schema": {
+        "not": {
+          "dependentSchemas": {
+            "a": { "required": ["b"] }
+          }
+        }
+      },
+      "instance": 42,
+      "errors": [
+        {
+          "messageId": "not-message",
+          "messageParams": {
+            "quantifier": "all"
+          },
+          "alternatives": [
+            [
+              {
+                "messageId": "hasProperty-success-message",
+                "messageParams": {
+                  "property": "a"
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/dependentSchemas/a"]
+              },
+              {
+                "messageId": "required-negated-message",
+                "messageParams": {
+                  "count": 1,
+                  "required": { "or": ["b"] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/dependentSchemas/a/required"]
               }
             ]
           ],

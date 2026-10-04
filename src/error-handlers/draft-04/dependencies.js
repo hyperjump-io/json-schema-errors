@@ -1,4 +1,5 @@
-import { getErrors, getSuccesses } from "../../json-schema-errors.js";
+import { getCompiledKeywordValue, getErrors } from "../../json-schema-errors.js";
+import { describeSchemaDependencies } from "../dependentSchemas.js";
 
 /**
  * @import { ErrorHandler, ErrorObject } from "../../index.d.ts"
@@ -29,12 +30,12 @@ const dependenciesErrorHandler = {
     /** @type ErrorObject[] */
     const successes = [];
 
-    // Only dependencies whose property is present are included. They all have to
-    // pass, so they're described like 'allOf'.
     for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/draft-04/dependencies"]) {
-      for (const dependentSchemaOutput of normalizedOutput["https://json-schema.org/keyword/draft-04/dependencies"][schemaLocation].outputs ?? []) {
-        successes.push(...getSuccesses(dependentSchemaOutput, instance, localization, ast));
-      }
+      // Array-form dependencies are handled with 'required'
+      const dependencies = /** @type [string, string | string[]][] */ (getCompiledKeywordValue(ast, schemaLocation));
+      const schemaDependencies = /** @type [string, string][] */ (dependencies.filter(([, dependency]) => typeof dependency === "string"));
+      const outputs = normalizedOutput["https://json-schema.org/keyword/draft-04/dependencies"][schemaLocation].outputs ?? [];
+      successes.push(...describeSchemaDependencies(schemaDependencies, outputs, instance, localization, ast));
     }
 
     return successes;

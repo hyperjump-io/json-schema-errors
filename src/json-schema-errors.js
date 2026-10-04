@@ -203,6 +203,32 @@ const getValidity = (schemaLocation, instanceLocation, context) => {
   }
 };
 
+/**
+ * Builds the normalized output for a subschema the validator didn't evaluate.
+ * Nothing is known about the results, but success messages only describe what
+ * keywords require, so it's enough to describe the subschema.
+ *
+ * @type (schemaLocation: string, instance: JsonNode, ast: AST) => API.NormalizedOutput
+ */
+export const evaluateRequirements = (schemaLocation, instance, ast) => {
+  return evaluateSchema(schemaLocation, instance, {
+    ast,
+    errorIndex: {},
+    plugins: [...ast.plugins],
+    isValidityUnknown: true
+  });
+};
+
+/** @type (outputs: API.NormalizedOutput[]) => API.NormalizedOutput */
+export const mergeOutputs = (outputs) => {
+  /** @type API.NormalizedOutput */
+  const merged = {};
+  for (const output of outputs) {
+    mergeOutput(merged, output);
+  }
+  return merged;
+};
+
 /** @type (a: API.NormalizedOutput, b: API.NormalizedOutput) => void */
 const mergeOutput = (a, b) => {
   for (const instanceLocation in b) {
