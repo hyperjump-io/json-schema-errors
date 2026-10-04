@@ -142,6 +142,8 @@ required-negated-message = The value is an object missing {$count ->
   [one] property: {$required}
  *[other] at least one of the properties: {$required}
 }
+hasProperty-success-message = The value is an object with property: {$property}
+hasProperty-negated-message = The value is either not an object or doesn't have property: {$property}
 dependentRequired-success-message = The value is either not an object or has {$count ->
   [one] property: {$required}
  *[other] properties: {$required}

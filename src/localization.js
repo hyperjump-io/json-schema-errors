@@ -226,6 +226,11 @@ export class Localization {
     }
   }
 
+  /** @type (property: string) => string */
+  getHasPropertySuccessMessage(property) {
+    return this.#formatSuccessMessage("hasProperty", { property });
+  }
+
   /** @type (property: string, required: string[]) => string */
   getDependentRequiredSuccessMessage(property, required) {
     if (this.isNegated) {

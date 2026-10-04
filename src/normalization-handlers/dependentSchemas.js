@@ -24,7 +24,7 @@ const dependentSchemaNormalizationHandler = {
 
     return outputs;
   },
-  simpleApplicator: true
+  validityFromSubschemas: true
 };
 
 export default dependentSchemaNormalizationHandler;

@@ -476,8 +476,19 @@ describe("JSON Schema Errors Output Format", () => {
 
       expect(outputPlugin.output).to.eql({
         "#": {
-          "https://json-schema.org/keyword/required": {
-            [`${schemaUri}#/dependentSchemas/foo/required`]: { valid: false }
+          "https://json-schema.org/keyword/dependentSchemas": {
+            [`${schemaUri}#/dependentSchemas`]: {
+              valid: false,
+              outputs: [
+                {
+                  "#": {
+                    "https://json-schema.org/keyword/required": {
+                      [`${schemaUri}#/dependentSchemas/foo/required`]: { valid: false }
+                    }
+                  }
+                }
+              ]
+            }
           }
         }
       });
@@ -495,9 +506,26 @@ describe("JSON Schema Errors Output Format", () => {
 
       expect(outputPlugin.output).to.eql({
         "#": {
-          "https://json-schema.org/keyword/required": {
-            [`${schemaUri}#/dependentSchemas/foo/required`]: { valid: false },
-            [`${schemaUri}#/dependentSchemas/bar/required`]: { valid: false }
+          "https://json-schema.org/keyword/dependentSchemas": {
+            [`${schemaUri}#/dependentSchemas`]: {
+              valid: false,
+              outputs: [
+                {
+                  "#": {
+                    "https://json-schema.org/keyword/required": {
+                      [`${schemaUri}#/dependentSchemas/foo/required`]: { valid: false }
+                    }
+                  }
+                },
+                {
+                  "#": {
+                    "https://json-schema.org/keyword/required": {
+                      [`${schemaUri}#/dependentSchemas/bar/required`]: { valid: false }
+                    }
+                  }
+                }
+              ]
+            }
           }
         }
       });
@@ -514,8 +542,19 @@ describe("JSON Schema Errors Output Format", () => {
 
       expect(outputPlugin.output).to.eql({
         "#": {
-          "https://json-schema.org/keyword/required": {
-            [`${schemaUri}#/dependentSchemas/foo/required`]: { valid: true }
+          "https://json-schema.org/keyword/dependentSchemas": {
+            [`${schemaUri}#/dependentSchemas`]: {
+              valid: true,
+              outputs: [
+                {
+                  "#": {
+                    "https://json-schema.org/keyword/required": {
+                      [`${schemaUri}#/dependentSchemas/foo/required`]: { valid: true }
+                    }
+                  }
+                }
+              ]
+            }
           }
         }
       });

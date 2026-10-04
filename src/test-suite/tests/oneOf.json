@@ -1605,6 +1605,99 @@
           "schemaLocations": ["#/oneOf"]
         }
       ]
+    },
+    {
+      "description": "oneOf more than one match with dependentSchemas when the property is absent",
+      "compatibility": "2019",
+      "schema": {
+        "oneOf": [
+          {
+            "dependentSchemas": {
+              "a": { "required": ["b"] }
+            }
+          },
+          { "type": "object" }
+        ]
+      },
+      "instance": {},
+      "errors": [
+        {
+          "messageId": "oneOf-multiple-matches-message",
+          "alternatives": [
+            [
+              {
+                "messageId": "hasProperty-negated-message",
+                "messageParams": {
+                  "property": "a"
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/0/dependentSchemas/a"]
+              }
+            ],
+            [
+              {
+                "messageId": "type-success-message",
+                "messageParams": {
+                  "count": 1,
+                  "type": "object",
+                  "types": { "or": ["object"] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/1/type"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/oneOf"]
+        }
+      ]
+    },
+    {
+      "description": "oneOf more than one match with dependentSchemas when the property is present",
+      "compatibility": "2019",
+      "schema": {
+        "oneOf": [
+          {
+            "dependentSchemas": {
+              "a": { "required": ["b"] }
+            }
+          },
+          { "type": "object" }
+        ]
+      },
+      "instance": { "a": 1, "b": 2 },
+      "errors": [
+        {
+          "messageId": "oneOf-multiple-matches-message",
+          "alternatives": [
+            [
+              {
+                "messageId": "required-success-message",
+                "messageParams": {
+                  "count": 1,
+                  "required": { "and": ["b"] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/0/dependentSchemas/a/required"]
+              }
+            ],
+            [
+              {
+                "messageId": "type-success-message",
+                "messageParams": {
+                  "count": 1,
+                  "type": "object",
+                  "types": { "or": ["object"] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/1/type"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/oneOf"]
+        }
+      ]
     }
   ]
 }
