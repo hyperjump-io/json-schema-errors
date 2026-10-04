@@ -1,4 +1,5 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
+import { getCompiledKeywordValue } from "../json-schema-errors.js";
 import jsonStringify from "json-stringify-deterministic";
 
 /**
@@ -39,6 +40,26 @@ const uniqueItemsErrorHandler = {
     }
 
     return errors;
+  },
+
+  success: (normalizedOutput, instance, localization, ast) => {
+    /** @type ErrorObject[] */
+    const successes = [];
+
+    for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/uniqueItems"]) {
+      // 'uniqueItems: false' allows anything, so there's nothing to say
+      if (getCompiledKeywordValue(ast, schemaLocation) !== true) {
+        continue;
+      }
+
+      successes.push({
+        message: localization.getUniqueItemsSuccessMessage(),
+        instanceLocation: Instance.uri(instance),
+        schemaLocations: [schemaLocation]
+      });
+    }
+
+    return successes;
   }
 };
 

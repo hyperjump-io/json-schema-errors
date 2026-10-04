@@ -35,6 +35,23 @@ const maxItemsErrorHandler = {
     }
 
     return errors;
+  },
+
+  success: (normalizedOutput, instance, localization, ast) => {
+    /** @type ErrorObject[] */
+    const successes = [];
+
+    for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/maxItems"]) {
+      const maxItems = /** @type number */ (getCompiledKeywordValue(ast, schemaLocation));
+
+      successes.push({
+        message: localization.getMaxItemsSuccessMessage(maxItems),
+        instanceLocation: Instance.uri(instance),
+        schemaLocations: [schemaLocation]
+      });
+    }
+
+    return successes;
   }
 };
 
