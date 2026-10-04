@@ -148,6 +148,9 @@ setNormalizationHandler("https://json-schema.org/keyword/uniqueItems", uniqueIte
 setNormalizationHandler("https://json-schema.org/keyword/unknown", unknownNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/writeOnly", writeOnlyNormalizationHandler);
 
+// Registration order determines message order. Type comes first because it's the
+// most fundamental thing to know about a value.
+setErrorHandler("https://hyperjump.io/error-handler/typeConstEnum", typeConstEnumErrorHandler);
 setErrorHandler("https://hyperjump.io/error-handler/anyOf", anyOfErrorHandler);
 setErrorHandler("https://hyperjump.io/error-handler/boolean-schema", booleanSchemaErrorHandler);
 setErrorHandler("https://hyperjump.io/error-handler/contains", containsErrorHandler);
@@ -166,7 +169,6 @@ setErrorHandler("https://hyperjump.io/error-handler/not", notErrorHandler);
 setErrorHandler("https://hyperjump.io/error-handler/oneOf", oneOfErrorHandler);
 setErrorHandler("https://hyperjump.io/error-handler/pattern", patternErrorHandler);
 setErrorHandler("https://hyperjump.io/error-handler/required", requiredErrorHandler);
-setErrorHandler("https://hyperjump.io/error-handler/typeConstEnum", typeConstEnumErrorHandler);
 setErrorHandler("https://hyperjump.io/error-handler/uniqueItems", uniqueItemsErrorHandler);
 setErrorHandler("https://hyperjump.io/error-handler/unknown", unknownErrorHandler);
 
