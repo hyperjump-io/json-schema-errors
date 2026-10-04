@@ -85,6 +85,7 @@ const runTests = (dialectUri, dialect) => {
           const errors = await jsonSchemaErrors(output, schemaUri, instance);
 
           expect(errors).to.eql(buildErrors(testCase.errors, schemaUri));
+          expectNestedLocations(errors);
         });
       }
     }
@@ -111,6 +112,26 @@ const buildErrors = (errors, schemaUri) => {
 
     return result;
   });
+};
+
+/**
+ * Consumers like the language server put each top-level error at its
+ * instanceLocation and present nested messages relative to their parent. That
+ * only works if nested messages are at or below their parent's location.
+ *
+ * @type (errors: ErrorObject[], parentLocation?: string) => void
+ */
+const expectNestedLocations = (errors, parentLocation) => {
+  for (const error of errors) {
+    if (parentLocation !== undefined) {
+      const location = error.instanceLocation.replace(/^#\*/, "#");
+      expect(location === parentLocation || location.startsWith(`${parentLocation}/`), `'${error.instanceLocation}' is not at or below '${parentLocation}'`).to.equal(true);
+    }
+
+    for (const alternative of error.alternatives ?? []) {
+      expectNestedLocations(alternative, error.instanceLocation);
+    }
+  }
 };
 
 /** @type (compatibility: string | undefined, versionUnderTest: number) => boolean */
