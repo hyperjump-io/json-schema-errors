@@ -12,7 +12,7 @@ import "@hyperjump/json-schema/draft-06";
 import "@hyperjump/json-schema/draft-04";
 import "@hyperjump/json-schema/formats";
 import { BASIC } from "@hyperjump/json-schema/experimental";
-import { jsonSchemaErrors } from "../src/index.js";
+import { jsonSchemaErrors, validate as validateWithErrors } from "../src/index.js";
 import { FluentBundle, FluentResource } from "@fluent/bundle";
 import { translations } from "./translations/index.js";
 
@@ -46,6 +46,7 @@ import { translations } from "./translations/index.js";
  *   schema: SchemaObject | boolean;
  *   instance: Json;
  *   errors: TestCaseError[];
+ *   errorsWithFullResults?: TestCaseError[];
  * }} TestCase
  *
  * @typedef {{
@@ -86,6 +87,13 @@ const runTests = (dialectUri, dialect) => {
 
           expect(errors).to.eql(buildErrors(testCase.errors, schemaUri));
           expectNestedLocations(errors);
+
+          if (testCase.errorsWithFullResults) {
+            const result = await validateWithErrors(schemaUri, instance);
+            const fullResultsErrors = result.valid ? [] : result.errors;
+            expect(fullResultsErrors).to.eql(buildErrors(testCase.errorsWithFullResults, schemaUri));
+            expectNestedLocations(fullResultsErrors);
+          }
         });
       }
     }

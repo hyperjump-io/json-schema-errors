@@ -17,11 +17,13 @@ export class Localization {
    * @param {string} locale
    * @param {FluentBundle} bundle
    * @param {boolean} [isNegated]
+   * @param {Localization} [negated]
    */
-  constructor(locale, bundle, isNegated = false) {
+  constructor(locale, bundle, isNegated = false, negated) {
     this.locale = locale;
     this.bundle = bundle;
     this.isNegated = isNegated;
+    this.#negated = negated;
     this.disjunction = new Intl.ListFormat(this.locale, { type: "disjunction" });
     this.conjunction = new Intl.ListFormat(this.locale, { type: "conjunction" });
   }
@@ -29,12 +31,13 @@ export class Localization {
   /**
    * A view of this localization where success messages describe what would
    * make the keyword fail instead of what it requires. It's used to explain
-   * failures of keywords like 'not' that fail when a subschema passes.
+   * failures of keywords like 'not' that fail when a subschema passes. Negating
+   * a negated view gives back the original.
    *
    * @type () => Localization
    */
   negated() {
-    this.#negated ??= new Localization(this.locale, this.bundle, true);
+    this.#negated ??= new Localization(this.locale, this.bundle, !this.isNegated, this);
     return this.#negated;
   }
 
@@ -245,9 +248,17 @@ export class Localization {
     return this.#formatMessage("oneOf-multiple-matches-message", {});
   }
 
-  /** @type (count: number) => string */
-  getNotErrorMessage(count) {
-    return this.#formatMessage("not-message", { count });
+  /** @type (quantifier: "one" | "all" | "some") => string */
+  getNotErrorMessage(quantifier) {
+    return this.#formatMessage("not-message", { quantifier });
+  }
+
+  getSomeTrueMessage() {
+    return this.#formatMessage("some-true-message", {});
+  }
+
+  getAllTrueMessage() {
+    return this.#formatMessage("all-true-message", {});
   }
 
   /** @type (keyword: string) => string */

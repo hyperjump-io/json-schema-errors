@@ -1,6 +1,6 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
 import * as Pact from "@hyperjump/pact";
-import { getErrors } from "../json-schema-errors.js";
+import { allTrue, getErrors, getSuccesses, isFailing, isPassing, someTrue } from "../json-schema-errors.js";
 
 /**
  * @import { ErrorHandler, ErrorObject, InstanceOutput } from "../index.d.ts"
@@ -76,6 +76,56 @@ const anyOfErrorHandler = {
     }
 
     return errors;
+  },
+
+  success: (normalizedOutput, instance, localization, ast) => {
+    /** @type ErrorObject[] */
+    const successes = [];
+
+    for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/anyOf"]) {
+      const alternatives = normalizedOutput["https://json-schema.org/keyword/anyOf"][schemaLocation].outputs ?? [];
+
+      // Alternatives known to fail don't need to be described unless that's all there is
+      const notFailing = alternatives.filter((alternative) => !isFailing(alternative));
+      const candidates = notFailing.length > 0 ? notFailing : alternatives;
+
+      if (localization.isNegated) {
+        // 'anyOf' fails if all of its alternatives fail. An alternative fails if
+        // at least one of its keywords fails.
+        const alternativeOptions = candidates.map((alternative) => {
+          return getSuccesses(alternative, instance, localization, ast);
+        });
+
+        // An alternative that can't be described means we can't say how to make it fail
+        if (alternativeOptions.some((options) => options.length === 0)) {
+          continue;
+        }
+
+        if (alternativeOptions.length === 1) {
+          successes.push(...alternativeOptions[0]);
+        } else {
+          const requirements = alternativeOptions.flatMap((options) => {
+            return someTrue(options.map((option) => [option]), instance, schemaLocation, localization);
+          });
+          successes.push(...allTrue(requirements, instance, schemaLocation, localization));
+        }
+      } else {
+        // If we know which alternatives matched, describe those. Otherwise, all we
+        // know is that at least one of them did.
+        const matching = candidates.filter(isPassing);
+        const descriptions = (matching.length > 0 ? matching : candidates).map((alternative) => {
+          return getSuccesses(alternative, instance, localization, ast);
+        });
+
+        if (descriptions.some((description) => description.length === 0)) {
+          continue;
+        }
+
+        successes.push(...someTrue(descriptions, instance, schemaLocation, localization));
+      }
+    }
+
+    return successes;
   }
 };
 
