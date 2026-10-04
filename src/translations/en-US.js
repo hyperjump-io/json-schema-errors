@@ -92,8 +92,13 @@ oneOf-message = Expected the value to match exactly one alternative, {$matchCoun
  *[other] but more than one
 } matched
 oneOf-multiple-matches-message = Expected the value to satisfy only one of the following options
-not-message = Expected {$count ->
+not-message = Expected {$quantifier ->
   [one] the following
- *[other] at least one of the following
+  [all] all of the following
+ *[some] at least one of the following
 } to be true
+
+// Groups of success messages
+some-true-message = At least one of the following is true
+all-true-message = All of the following are true
 `;

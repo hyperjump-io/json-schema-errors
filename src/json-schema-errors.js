@@ -261,6 +261,91 @@ export const isPassing = (normalizedOutput) => {
   return true;
 };
 
+/** @type (normalizedOutput: API.NormalizedOutput) => boolean */
+export const isFailing = (normalizedOutput) => {
+  for (const instanceLocation in normalizedOutput) {
+    for (const keywordUri in normalizedOutput[instanceLocation]) {
+      for (const schemaLocation in normalizedOutput[instanceLocation][keywordUri]) {
+        if (normalizedOutput[instanceLocation][keywordUri][schemaLocation].valid === false) {
+          return true;
+        }
+      }
+    }
+  }
+
+  return false;
+};
+
+/** @type (normalizedOutput: API.NormalizedOutput, predicate: (keywordOutput: API.KeywordOutput) => boolean) => API.NormalizedOutput */
+export const selectKeywords = (normalizedOutput, predicate) => {
+  /** @type API.NormalizedOutput */
+  const selected = {};
+
+  for (const instanceLocation in normalizedOutput) {
+    for (const keywordUri in normalizedOutput[instanceLocation]) {
+      for (const schemaLocation in normalizedOutput[instanceLocation][keywordUri]) {
+        const keywordOutput = normalizedOutput[instanceLocation][keywordUri][schemaLocation];
+        if (predicate(keywordOutput)) {
+          selected[instanceLocation] ??= {};
+          selected[instanceLocation][keywordUri] ??= {};
+          selected[instanceLocation][keywordUri][schemaLocation] = keywordOutput;
+        }
+      }
+    }
+  }
+
+  return selected;
+};
+
+/** @type WeakSet<API.ErrorObject> */
+const allTrueGroups = new WeakSet();
+
+/**
+ * Success messages are a list of things that are all true, but some keywords
+ * are described by a choice of options. Present the options as a group.
+ *
+ * @type (options: API.ErrorObject[][], instance: JsonNode, schemaLocation: string, localization: Localization) => API.ErrorObject[]
+ */
+export const someTrue = (options, instance, schemaLocation, localization) => {
+  if (options.length === 0) {
+    return [];
+  } else if (options.length === 1) {
+    return options[0];
+  }
+
+  return [{
+    message: localization.getSomeTrueMessage(),
+    alternatives: options,
+    instanceLocation: Instance.uri(instance),
+    schemaLocations: [schemaLocation]
+  }];
+};
+
+/**
+ * Negated success messages are a list of things where at least one is true, but
+ * some keywords need several things to be true. Present those as a group.
+ *
+ * @type (items: API.ErrorObject[], instance: JsonNode, schemaLocation: string, localization: Localization) => API.ErrorObject[]
+ */
+export const allTrue = (items, instance, schemaLocation, localization) => {
+  if (items.length <= 1) {
+    return items;
+  }
+
+  /** @type API.ErrorObject */
+  const group = {
+    message: localization.getAllTrueMessage(),
+    alternatives: [items],
+    instanceLocation: Instance.uri(instance),
+    schemaLocations: [schemaLocation]
+  };
+  allTrueGroups.add(group);
+  return [group];
+};
+
+/** @type (errorObject: API.ErrorObject) => boolean */
+export const isAllTrueGroup = (errorObject) => allTrueGroups.has(errorObject);
+
 /** @type (ast: AST, schemaLocation: string) => Node<unknown>[] | boolean | undefined */
 const getParentNode = (ast, schemaLocation) => {
   const parentLocation = schemaLocation.replace(/\/[^/]+$/, "");

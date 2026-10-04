@@ -31,6 +31,10 @@
         "errors": {
           "type": "array",
           "items": { "$ref": "#/$defs/error" }
+        },
+        "errorsWithFullResults": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/error" }
         }
       },
       "required": ["description", "schema", "instance", "errors"]

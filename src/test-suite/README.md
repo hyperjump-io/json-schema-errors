@@ -40,6 +40,19 @@ compatible only with 2020-12.
 
 **Example**: `"compatibility": "=2020"`
 
+## `errors`/`errorsWithFullResults`
+
+Validators differ in how much information their output includes. Most only
+report errors, so it isn't possible to know what happened inside an applicator
+that passed. For example, the output usually doesn't say which `anyOf`
+alternative matched. The more information that's available, the more specific
+the messages can be.
+
+`errors` are the expected errors when the output only includes errors.
+`errorsWithFullResults` are the expected errors when the results of every
+keyword are known, including those that passed. If `errorsWithFullResults`
+isn't present, it's not tested.
+
 ## `messageId`/`messageParams`
 
 The `messageId` and `messageParams` properties correspond to the identifiers and
