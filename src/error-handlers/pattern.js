@@ -27,6 +27,28 @@ const patternErrorHandler = {
     }
 
     return errors;
+  },
+
+  success: (normalizedOutput, instance, localization, ast) => {
+    /** @type ErrorObject[] */
+    const successes = [];
+
+    for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/pattern"]) {
+      if (normalizedOutput["https://json-schema.org/keyword/pattern"][schemaLocation] !== true) {
+        continue;
+      }
+
+      const compiledPattern = /** @type RegExp */ (getCompiledKeywordValue(ast, schemaLocation));
+      const pattern = compiledPattern.source;
+
+      successes.push({
+        message: localization.getPatternSuccessMessage(pattern),
+        instanceLocation: Instance.uri(instance),
+        schemaLocations: [schemaLocation]
+      });
+    }
+
+    return successes;
   }
 };
 

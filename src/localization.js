@@ -57,6 +57,11 @@ export class Localization {
     });
   }
 
+  /** @type (type: string) => string */
+  getTypeSuccessMessage(type) {
+    return this.#formatMessage("type-success-message", { type });
+  }
+
   /** @type (expected: Json[]) => string */
   getEnumErrorMessage(expected) {
     if (expected.length === 1) {
@@ -116,6 +121,11 @@ export class Localization {
     return this.#formatMessage("pattern-message", { pattern });
   }
 
+  /** @type (pattern: string) => string */
+  getPatternSuccessMessage(pattern) {
+    return this.#formatMessage("pattern-success-message", { pattern });
+  }
+
   /** @type (maxItems: number) => string */
   getMaxItemsErrorMessage(maxItems) {
     return this.#formatMessage("maxItems-message", { maxItems });
@@ -162,6 +172,14 @@ export class Localization {
     });
   }
 
+  /** @type (required: string[]) => string */
+  getRequiredSuccessMessage(required) {
+    return this.#formatMessage("required-success-message", {
+      required: this.conjunction.format(required),
+      count: required.length
+    });
+  }
+
   /** @type () => string */
   getAnyOfErrorMessage() {
     return this.#formatMessage("anyOf-message", {});
@@ -172,9 +190,9 @@ export class Localization {
     return this.#formatMessage("oneOf-message", { matchCount });
   }
 
-  /** @type () => string */
-  getNotErrorMessage() {
-    return this.#formatMessage("not-message", {});
+  /** @type (count: number) => string */
+  getNotErrorMessage(count) {
+    return this.#formatMessage("not-message", { count });
   }
 
   /** @type (keyword: string) => string */

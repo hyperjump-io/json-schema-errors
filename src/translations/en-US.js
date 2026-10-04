@@ -6,6 +6,13 @@ const-message = Expected exactly {$expected}
 enum-message = Expected one of {$expected}
 format-message = Expected a value matching the '{$format}' format
 unknown-message = Validation failed for '{$keyword}'
+type-success-message = The value is {$type ->
+  [null] null
+  [array] an array
+  [object] an object
+  [integer] an integer
+ *[other] a {$type}
+}
 
 // Number keywords
 exclusiveMaximum-message = Expected a number less than {$exclusiveMaximum}
@@ -18,6 +25,7 @@ multipleOf-message = Expected a number that is a multiple of {$multipleOf}
 maxLength-message = Expected a string with no more than {$maxLength} characters
 minLength-message = Expected a string with at least {$minLength} characters
 pattern-message = Expected a string matching the regular expression /{$pattern}/
+pattern-success-message = The string matches the regular expression /{$pattern}/
 
 // Array keywords
 maxItems-message = Expected an array with no more than {$maxItems} items
@@ -40,6 +48,10 @@ required-message = Missing required {$count ->
   [one] property: {$required}
  *[other] properties: {$required}
 }
+required-success-message = Has {$count ->
+  [one] property: {$required}
+ *[other] properties: {$required}
+}
 
 // Applicators
 anyOf-message = Expected the value to match at least one alternative
@@ -47,5 +59,8 @@ oneOf-message = Expected the value to match exactly one alternative, {$matchCoun
   [0] but none
  *[other] but more than one
 } matched
-not-message = Expected a value that doesn't match the 'not' schema
+not-message = Expected {$count ->
+  [one] the following
+ *[other] at least one of the following
+} to not be true
 `;
