@@ -815,6 +815,216 @@
           "schemaLocations": ["#/not"]
         }
       ]
+    },
+    {
+      "description": "not with a nested contains",
+      "compatibility": "6",
+      "schema": {
+        "not": {
+          "contains": { "type": "string" }
+        }
+      },
+      "instance": [1, "foo"],
+      "errors": [
+        {
+          "messageId": "not-message",
+          "messageParams": {
+            "quantifier": "one"
+          },
+          "alternatives": [
+            [
+              {
+                "messageId": "count-true-message",
+                "messageParams": {
+                  "kind": "atMost",
+                  "max": 0
+                },
+                "alternatives": [
+                  [
+                    {
+                      "messageId": "type-success-message",
+                      "messageParams": {
+                        "count": 1,
+                        "type": "string",
+                        "types": { "or": ["string"] }
+                      },
+                      "instanceLocation": "#/0",
+                      "schemaLocations": ["#/not/contains/type"]
+                    }
+                  ],
+                  [
+                    {
+                      "messageId": "type-success-message",
+                      "messageParams": {
+                        "count": 1,
+                        "type": "string",
+                        "types": { "or": ["string"] }
+                      },
+                      "instanceLocation": "#/1",
+                      "schemaLocations": ["#/not/contains/type"]
+                    }
+                  ]
+                ],
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/contains"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/not"]
+        }
+      ],
+      "errorsWithFullResults": [
+        {
+          "messageId": "not-message",
+          "messageParams": {
+            "quantifier": "one"
+          },
+          "alternatives": [
+            [
+              {
+                "messageId": "type-negated-message",
+                "messageParams": {
+                  "count": 1,
+                  "type": "string",
+                  "types": { "or": ["string"] }
+                },
+                "instanceLocation": "#/1",
+                "schemaLocations": ["#/not/contains/type"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/not"]
+        }
+      ]
+    },
+    {
+      "description": "not with a nested contains and maxContains",
+      "compatibility": "2019",
+      "schema": {
+        "not": {
+          "contains": { "type": "string" },
+          "maxContains": 1
+        }
+      },
+      "instance": ["foo", 1],
+      "errors": [
+        {
+          "messageId": "not-message",
+          "messageParams": {
+            "quantifier": "some"
+          },
+          "alternatives": [
+            [
+              {
+                "messageId": "count-true-message",
+                "messageParams": {
+                  "kind": "atMost",
+                  "max": 0
+                },
+                "alternatives": [
+                  [
+                    {
+                      "messageId": "type-success-message",
+                      "messageParams": {
+                        "count": 1,
+                        "type": "string",
+                        "types": { "or": ["string"] }
+                      },
+                      "instanceLocation": "#/0",
+                      "schemaLocations": ["#/not/contains/type"]
+                    }
+                  ],
+                  [
+                    {
+                      "messageId": "type-success-message",
+                      "messageParams": {
+                        "count": 1,
+                        "type": "string",
+                        "types": { "or": ["string"] }
+                      },
+                      "instanceLocation": "#/1",
+                      "schemaLocations": ["#/not/contains/type"]
+                    }
+                  ]
+                ],
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/contains"]
+              }
+            ],
+            [
+              {
+                "messageId": "all-true-message",
+                "alternatives": [
+                  [
+                    {
+                      "messageId": "type-success-message",
+                      "messageParams": {
+                        "count": 1,
+                        "type": "string",
+                        "types": { "or": ["string"] }
+                      },
+                      "instanceLocation": "#/0",
+                      "schemaLocations": ["#/not/contains/type"]
+                    },
+                    {
+                      "messageId": "type-success-message",
+                      "messageParams": {
+                        "count": 1,
+                        "type": "string",
+                        "types": { "or": ["string"] }
+                      },
+                      "instanceLocation": "#/1",
+                      "schemaLocations": ["#/not/contains/type"]
+                    }
+                  ]
+                ],
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/contains"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/not"]
+        }
+      ],
+      "errorsWithFullResults": [
+        {
+          "messageId": "not-message",
+          "messageParams": {
+            "quantifier": "some"
+          },
+          "alternatives": [
+            [
+              {
+                "messageId": "type-negated-message",
+                "messageParams": {
+                  "count": 1,
+                  "type": "string",
+                  "types": { "or": ["string"] }
+                },
+                "instanceLocation": "#/0",
+                "schemaLocations": ["#/not/contains/type"]
+              }
+            ],
+            [
+              {
+                "messageId": "type-success-message",
+                "messageParams": {
+                  "count": 1,
+                  "type": "string",
+                  "types": { "or": ["string"] }
+                },
+                "instanceLocation": "#/1",
+                "schemaLocations": ["#/not/contains/type"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/not"]
+        }
+      ]
     }
   ]
 }

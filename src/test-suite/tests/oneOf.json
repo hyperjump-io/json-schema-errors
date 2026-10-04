@@ -1110,6 +1110,110 @@
           "schemaLocations": ["#/oneOf"]
         }
       ]
+    },
+    {
+      "description": "oneOf more than one match with a nested contains",
+      "compatibility": "6",
+      "schema": {
+        "oneOf": [
+          {
+            "contains": { "type": "string" }
+          },
+          { "type": "array" }
+        ]
+      },
+      "instance": [1, "foo"],
+      "errors": [
+        {
+          "messageId": "oneOf-multiple-matches-message",
+          "alternatives": [
+            [
+              {
+                "messageId": "count-true-message",
+                "messageParams": {
+                  "kind": "atLeast",
+                  "min": 1
+                },
+                "alternatives": [
+                  [
+                    {
+                      "messageId": "type-success-message",
+                      "messageParams": {
+                        "count": 1,
+                        "type": "string",
+                        "types": { "or": ["string"] }
+                      },
+                      "instanceLocation": "#/0",
+                      "schemaLocations": ["#/oneOf/0/contains/type"]
+                    }
+                  ],
+                  [
+                    {
+                      "messageId": "type-success-message",
+                      "messageParams": {
+                        "count": 1,
+                        "type": "string",
+                        "types": { "or": ["string"] }
+                      },
+                      "instanceLocation": "#/1",
+                      "schemaLocations": ["#/oneOf/0/contains/type"]
+                    }
+                  ]
+                ],
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/0/contains"]
+              }
+            ],
+            [
+              {
+                "messageId": "type-success-message",
+                "messageParams": {
+                  "count": 1,
+                  "type": "array",
+                  "types": { "or": ["array"] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/1/type"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/oneOf"]
+        }
+      ],
+      "errorsWithFullResults": [
+        {
+          "messageId": "oneOf-multiple-matches-message",
+          "alternatives": [
+            [
+              {
+                "messageId": "type-success-message",
+                "messageParams": {
+                  "count": 1,
+                  "type": "string",
+                  "types": { "or": ["string"] }
+                },
+                "instanceLocation": "#/1",
+                "schemaLocations": ["#/oneOf/0/contains/type"]
+              }
+            ],
+            [
+              {
+                "messageId": "type-success-message",
+                "messageParams": {
+                  "count": 1,
+                  "type": "array",
+                  "types": { "or": ["array"] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/1/type"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/oneOf"]
+        }
+      ]
     }
   ]
 }
