@@ -39,6 +39,11 @@ contains-exact-message = Expected an array containing {$minContains ->
   [1] exactly one item matching
  *[other] exactly {$minContains} items matching
 } the 'contains' schema
+contains-too-many-message = Expected {$maxContains ->
+  [0] no items
+  [one] no more than one item
+ *[other] no more than {$maxContains} items
+} in the array to be like the following
 uniqueItems-message = Array items must be unique
 
 // Object keywords

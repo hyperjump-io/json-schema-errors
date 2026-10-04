@@ -1,6 +1,6 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
 import * as Pact from "@hyperjump/pact";
-import { getErrors, getSuccesses } from "../json-schema-errors.js";
+import { getErrors, getSuccesses, isPassing } from "../json-schema-errors.js";
 
 /**
  * @import { AST } from "@hyperjump/json-schema/experimental"
@@ -140,11 +140,6 @@ const removeCommonSuccesses = (alternatives) => {
   });
 
   return reduced.some((alternative) => alternative.length === 0) ? alternatives : reduced;
-};
-
-/** @type (alternative: NormalizedOutput) => boolean */
-const isPassing = (alternative) => {
-  return Object.values(alternative).every(isPassingProperty);
 };
 
 /** @type (alternative: InstanceOutput | undefined) => boolean */

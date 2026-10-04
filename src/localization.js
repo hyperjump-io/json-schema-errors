@@ -149,6 +149,11 @@ export class Localization {
     }
   }
 
+  /** @type (maxContains: number) => string */
+  getContainsTooManyErrorMessage(maxContains) {
+    return this.#formatMessage("contains-too-many-message", { maxContains });
+  }
+
   /** @type () => string */
   getUniqueItemsErrorMessage() {
     return this.#formatMessage("uniqueItems-message", {});
