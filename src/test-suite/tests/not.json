@@ -1110,40 +1110,6 @@
           "instanceLocation": "#",
           "schemaLocations": ["#/not"]
         }
-      ],
-      "errorsWithFullResults": [
-        {
-          "messageId": "not-message",
-          "messageParams": {
-            "quantifier": "all"
-          },
-          "alternatives": [
-            [
-              {
-                "messageId": "type-negated-message",
-                "messageParams": {
-                  "count": 1,
-                  "type": "number",
-                  "types": { "or": ["number"] }
-                },
-                "instanceLocation": "#",
-                "schemaLocations": ["#/not/if/type"]
-              },
-              {
-                "messageId": "type-negated-message",
-                "messageParams": {
-                  "count": 1,
-                  "type": "string",
-                  "types": { "or": ["string"] }
-                },
-                "instanceLocation": "#",
-                "schemaLocations": ["#/not/else/type"]
-              }
-            ]
-          ],
-          "instanceLocation": "#",
-          "schemaLocations": ["#/not"]
-        }
       ]
     },
     {

@@ -1,4 +1,4 @@
-import { allTrue, getErrors, getSuccesses, isFailing, isPassing, selectKeywords, someTrue } from "../json-schema-errors.js";
+import { allTrue, evaluateRequirements, getCompiledKeywordValue, getErrors, getSuccesses, isFailing, isPassing, selectKeywords, someTrue } from "../json-schema-errors.js";
 
 /**
  * @import { JsonNode } from "@hyperjump/json-schema/instance/experimental"
@@ -34,8 +34,8 @@ const ifThenElseErrorHandler = {
 
     for (const ifLocation in normalizedOutput["https://json-schema.org/keyword/if"]) {
       const ifOutput = normalizedOutput["https://json-schema.org/keyword/if"][ifLocation].outputs?.[0];
-      const thenOutput = getSiblingOutput(normalizedOutput, "https://json-schema.org/keyword/then", ifLocation);
-      const elseOutput = getSiblingOutput(normalizedOutput, "https://json-schema.org/keyword/else", ifLocation);
+      const thenOutput = getSiblingOutput(normalizedOutput, "https://json-schema.org/keyword/then", ifLocation, instance, ast);
+      const elseOutput = getSiblingOutput(normalizedOutput, "https://json-schema.org/keyword/else", ifLocation, instance, ast);
       if (!ifOutput || (!thenOutput && !elseOutput)) {
         continue;
       }
@@ -97,12 +97,20 @@ const ifThenElseErrorHandler = {
   }
 };
 
-/** @type (normalizedOutput: InstanceOutput, keywordUri: string, ifLocation: string) => NormalizedOutput | undefined */
-const getSiblingOutput = (normalizedOutput, keywordUri, ifLocation) => {
+/**
+ * Validators usually only evaluate the branch that applies. The other one can
+ * still be described from the schema because descriptions don't depend on
+ * results.
+ *
+ * @type (normalizedOutput: InstanceOutput, keywordUri: string, ifLocation: string, instance: JsonNode, ast: AST) => NormalizedOutput | undefined
+ */
+const getSiblingOutput = (normalizedOutput, keywordUri, ifLocation, instance, ast) => {
   const parentLocation = ifLocation.replace(/\/[^/]+$/, "");
   for (const schemaLocation in normalizedOutput[keywordUri]) {
     if (schemaLocation.replace(/\/[^/]+$/, "") === parentLocation) {
-      return normalizedOutput[keywordUri][schemaLocation].outputs?.[0];
+      const [, subschemaLocation] = /** @type [string, string] */ (getCompiledKeywordValue(ast, schemaLocation));
+      return normalizedOutput[keywordUri][schemaLocation].outputs?.[0]
+        ?? evaluateRequirements(subschemaLocation, instance, ast);
     }
   }
 };
