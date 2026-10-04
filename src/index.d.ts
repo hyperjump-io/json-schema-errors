@@ -155,9 +155,14 @@ export const removeErrorHandler: (errorHandlerUri: string) => void;
 /**
  * Used to transform normalized errors for one or more keywords into human readable
  * messages.
+ *
+ * `error` describes keywords that failed. `success` describes keywords that
+ * passed. Success messages are used to explain failures caused by a subschema
+ * passing, such as with `not`.
  */
 export type ErrorHandler = {
   error: (normalizedErrors: InstanceOutput, instance: JsonNode, localization: Localization, ast: AST) => ErrorObject[];
+  success?: (normalizedOutput: InstanceOutput, instance: JsonNode, localization: Localization, ast: AST) => ErrorObject[];
 };
 
 /**
@@ -165,6 +170,13 @@ export type ErrorHandler = {
  * build errors in applicator error handlers.
  */
 export const getErrors: (normalizedErrors: NormalizedOutput, instance: JsonNode, localization: Localization, ast: AST) => ErrorObject[];
+
+/**
+ * Converts the normalized output of a passing subschema to human readable
+ * messages describing how the instance satisfied the subschema. It's used to
+ * build errors in applicator error handlers that fail when a subschema passes.
+ */
+export const getSuccesses: (normalizedOutput: NormalizedOutput, instance: JsonNode, localization: Localization, ast: AST) => ErrorObject[];
 
 export type { Localization };
 

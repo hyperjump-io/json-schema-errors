@@ -194,6 +194,22 @@ export const getErrors = (normalizedErrors, rootInstance, localization, ast) => 
   return errors;
 };
 
+/** @type API.getSuccesses */
+export const getSuccesses = (normalizedOutput, rootInstance, localization, ast) => {
+  /** @type API.ErrorObject[] */
+  const successes = [];
+
+  for (const instanceLocation in normalizedOutput) {
+    const instance = /** @type JsonNode */ (Instance.get(instanceLocation, rootInstance));
+    for (const errorHandlerUri in errorHandlers) {
+      const successObjects = errorHandlers[errorHandlerUri].success?.(normalizedOutput[instanceLocation], instance, localization, ast) ?? [];
+      successes.push(...successObjects);
+    }
+  }
+
+  return successes;
+};
+
 /** @type (ast: AST, schemaLocation: string) => Node<unknown>[] | boolean | undefined */
 const getParentNode = (ast, schemaLocation) => {
   const parentLocation = schemaLocation.replace(/\/[^/]+$/, "");

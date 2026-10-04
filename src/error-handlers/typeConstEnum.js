@@ -110,6 +110,38 @@ const typeConstEnumErrorHandler = {
         schemaLocations: failedTypeLocations
       }];
     }
+  },
+
+  success: (normalizedOutput, instance, localization, ast) => {
+    /** @type {string[]} */
+    const passedTypeLocations = [];
+    /** @type string */
+    let type = Instance.typeOf(instance);
+
+    for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/type"]) {
+      if (normalizedOutput["https://json-schema.org/keyword/type"][schemaLocation] !== true) {
+        continue;
+      }
+
+      passedTypeLocations.push(schemaLocation);
+
+      /** @type {string | string[]} */
+      const value = /** @type {string | string[]} */ (getCompiledKeywordValue(ast, schemaLocation));
+      const types = Array.isArray(value) ? value : [value];
+      if (type === "number" && types.includes("integer") && !types.includes("number")) {
+        type = "integer";
+      }
+    }
+
+    if (passedTypeLocations.length === 0) {
+      return [];
+    }
+
+    return [{
+      message: localization.getTypeSuccessMessage(type),
+      instanceLocation: Instance.uri(instance),
+      schemaLocations: passedTypeLocations
+    }];
   }
 };
 
