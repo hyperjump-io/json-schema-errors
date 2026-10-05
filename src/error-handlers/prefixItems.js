@@ -15,7 +15,8 @@ import {
 
 /**
  * Errors and descriptions of the items that are present come from the item
- * subschemas. This describes the items that aren't present.
+ * subschemas. This describes the items that aren't present. Draft-04 style
+ * 'items' with an array of schemas works the same way.
  *
  * @type ErrorHandler
  */
@@ -32,15 +33,21 @@ const prefixItemsErrorHandler = {
       return successes;
     }
 
-    for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/prefixItems"]) {
-      const prefixItems = /** @type string[] */ (getCompiledKeywordValue(ast, schemaLocation));
+    const schemaLocations = [
+      ...Object.keys(normalizedOutput["https://json-schema.org/keyword/prefixItems"] ?? {}),
+      ...Object.keys(normalizedOutput["https://json-schema.org/keyword/draft-04/items"] ?? {})
+    ];
+    for (const schemaLocation of schemaLocations) {
+      const prefixItems = /** @type string | string[] */ (getCompiledKeywordValue(ast, schemaLocation));
+      if (typeof prefixItems === "string") {
+        // A single schema for all items applies to items that can't be named
+        continue;
+      }
       const length = Instance.typeOf(instance) === "array" ? Instance.length(instance) : 0;
 
-      // In a positive view, "An array with more than {index} items". In a negated
-      // view, "Either not an array or no more than {index} items".
       /** @type (localization: Localization, index: number) => ErrorObject */
       const hasItem = (localization, index) => ({
-        message: localization.negated().getMaxItemsSuccessMessage(index),
+        message: localization.getHasItemSuccessMessage(index),
         instanceLocation: Instance.uri(instance),
         schemaLocations: [schemaLocation]
       });

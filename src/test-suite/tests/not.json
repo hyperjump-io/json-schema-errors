@@ -2069,9 +2069,9 @@
           "alternatives": [
             [
               {
-                "messageId": "maxItems-negated-message",
+                "messageId": "hasItem-success-message",
                 "messageParams": {
-                  "maxItems": 0
+                  "index": 0
                 },
                 "instanceLocation": "#",
                 "schemaLocations": ["#/not/prefixItems"]
@@ -2110,6 +2110,50 @@
       "errors": [
         {
           "messageId": "boolean-schema-message",
+          "instanceLocation": "#",
+          "schemaLocations": ["#/not"]
+        }
+      ]
+    },
+    {
+      "description": "not with array-form items that aren't present",
+      "compatibility": "<=2019",
+      "schema": {
+        "not": {
+          "items": [
+            { "type": "string" }
+          ]
+        }
+      },
+      "instance": [],
+      "errors": [
+        {
+          "messageId": "not-message",
+          "messageParams": {
+            "quantifier": "all"
+          },
+          "alternatives": [
+            [
+              {
+                "messageId": "hasItem-success-message",
+                "messageParams": {
+                  "index": 0
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/items"]
+              },
+              {
+                "messageId": "type-negated-message",
+                "messageParams": {
+                  "count": 1,
+                  "type": "string",
+                  "types": { "or": ["string"] }
+                },
+                "instanceLocation": "#/0",
+                "schemaLocations": ["#/not/items/0/type"]
+              }
+            ]
+          ],
           "instanceLocation": "#",
           "schemaLocations": ["#/not"]
         }

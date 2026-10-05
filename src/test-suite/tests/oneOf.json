@@ -559,9 +559,9 @@
                 "alternatives": [
                   [
                     {
-                      "messageId": "maxItems-success-message",
+                      "messageId": "hasItem-negated-message",
                       "messageParams": {
-                        "maxItems": 0
+                        "index": 0
                       },
                       "instanceLocation": "#",
                       "schemaLocations": ["#/oneOf/1/prefixItems"]
@@ -630,9 +630,9 @@
                 "alternatives": [
                   [
                     {
-                      "messageId": "maxItems-success-message",
+                      "messageId": "hasItem-negated-message",
                       "messageParams": {
-                        "maxItems": 0
+                        "index": 0
                       },
                       "instanceLocation": "#",
                       "schemaLocations": ["#/oneOf/1/prefixItems"]
@@ -1973,6 +1973,77 @@
                 },
                 "instanceLocation": "#",
                 "schemaLocations": ["#/oneOf/1/type"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/oneOf"]
+        }
+      ]
+    },
+    {
+      "description": "oneOf more than one match with array-form items that aren't present",
+      "compatibility": "<=2019",
+      "schema": {
+        "oneOf": [
+          { "type": "array" },
+          {
+            "items": [
+              { "type": "string" }
+            ]
+          }
+        ]
+      },
+      "instance": [],
+      "errors": [
+        {
+          "messageId": "oneOf-multiple-matches-message",
+          "alternatives": [
+            [
+              {
+                "messageId": "type-success-message",
+                "messageParams": {
+                  "count": 1,
+                  "type": "array",
+                  "types": { "or": ["array"] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/0/type"]
+              }
+            ],
+            [
+              {
+                "messageId": "count-true-message",
+                "messageParams": {
+                  "kind": "atLeast",
+                  "min": 1
+                },
+                "alternatives": [
+                  [
+                    {
+                      "messageId": "hasItem-negated-message",
+                      "messageParams": {
+                        "index": 0
+                      },
+                      "instanceLocation": "#",
+                      "schemaLocations": ["#/oneOf/1/items"]
+                    }
+                  ],
+                  [
+                    {
+                      "messageId": "type-success-message",
+                      "messageParams": {
+                        "count": 1,
+                        "type": "string",
+                        "types": { "or": ["string"] }
+                      },
+                      "instanceLocation": "#/0",
+                      "schemaLocations": ["#/oneOf/1/items/0/type"]
+                    }
+                  ]
+                ],
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/1/items"]
               }
             ]
           ],
