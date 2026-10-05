@@ -60,7 +60,8 @@ validation. Importing this package adds a `JSE` output format to
 `@hyperjump/json-schema`. It uses the full results of evaluation rather than
 only what the standard output formats report. Use the `locale` option to choose
 the language of the messages. The default is `en-US`, which is currently the
-only locale available.
+only locale included. See [Messages and Translations](#messages-and-translations)
+to add a locale.
 
 ```TypeScript
 import { registerSchema, validate } from "@hyperjump/json-schema/draft-2020-12";
@@ -129,6 +130,32 @@ applies if formats are validated. The `JSE` output format works this out from
 const errors = await jsonSchemaErrors(output, schemaUri, instance, { isFormatAsserted: true });
 ```
 
+## Messages and Translations
+
+Messages are written in [Fluent](https://projectfluent.org/). Use
+`addTranslation` to add a locale or to change messages. A message with the
+same id as an existing message replaces it, and messages that aren't translated
+for a locale fall back to `en-US`. See
+[`src/translations/en-US.js`](src/translations/en-US.js) for the message ids
+and the variables each message gets.
+
+```TypeScript
+import { addTranslation } from "@hyperjump/json-schema-errors";
+
+// Change a message
+addTranslation("en-US", `
+required-message = Missing {$count ->
+  [one] the required property {$required}
+ *[other] the required properties {$required}
+}
+`);
+
+// Add a locale. Use the direction option for right-to-left languages.
+addTranslation("fr-FR", `
+type-message = Une valeur de type {$expectedTypes} est attendue
+`);
+```
+
 ## API
 
 https://json-schema-errors.hyperjump.io
@@ -148,6 +175,20 @@ Here's an example of adding support for a simple keyword called `startsWith`.
 `startsWith` takes a string and asserts that a string JSON instance starts with
 the value of `startsWith`. The keyword itself needs to be defined with
 `@hyperjump/json-schema`'s `addKeyword` and included in a dialect.
+
+Messages for a keyword use the ids `{keyword}-message` for errors and
+`{keyword}-success-message` and `{keyword}-negated-message` for describing what
+the keyword requires.
+
+```TypeScript
+import { addTranslation } from "@hyperjump/json-schema-errors";
+
+addTranslation("en-US", `
+startsWith-message = Expected a string that starts with '{$prefix}'
+startsWith-success-message = The value is either not a string or starts with '{$prefix}'
+startsWith-negated-message = The value is a string that doesn't start with '{$prefix}'
+`);
+```
 
 Every keyword needs a normalization handler. Keywords that aren't applicators
 don't have anything to evaluate.
@@ -173,10 +214,11 @@ the instance and picks out the ones it handles.
 keyword failed, `true` if it passed, and `undefined` if the result isn't known.
 
 `success` describes what keywords require. It's used to explain failures caused
-by a subschema passing, such as with `not`. When `context.localization.isNegated`
-is `true`, it describes what would make the keyword fail instead. A keyword without
-a `success` handler can't be described, so messages for keywords like `not` and
-`oneOf` will be less specific.
+by a subschema passing, such as with `not`. In a negated context, it describes
+what would make the keyword fail instead. `context.localization.formatRequirement`
+picks the success or negated message. A keyword without a `success` handler
+can't be described, so messages for keywords like `not` and `oneOf` will be less
+specific.
 
 ```TypeScript
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
@@ -194,9 +236,9 @@ setErrorHandler("https://example.com/error-handler/startsWith", {
         continue;
       }
 
-      const startsWith = getCompiledKeywordValue(context.ast, schemaLocation) as string;
+      const prefix = getCompiledKeywordValue(context.ast, schemaLocation) as string;
       errors.push({
-        message: `Expected a string that starts with '${startsWith}'`,
+        message: context.localization.format("startsWith-message", { prefix }),
         instanceLocation: Instance.uri(instance),
         schemaLocations: [schemaLocation]
       });
@@ -209,11 +251,9 @@ setErrorHandler("https://example.com/error-handler/startsWith", {
     const successes: ErrorObject[] = [];
 
     for (const schemaLocation in normalizedOutput[KEYWORD_URI]) {
-      const startsWith = getCompiledKeywordValue(context.ast, schemaLocation) as string;
+      const prefix = getCompiledKeywordValue(context.ast, schemaLocation) as string;
       successes.push({
-        message: context.localization.isNegated
-          ? `The value is a string that doesn't start with '${startsWith}'`
-          : `The value is either not a string or starts with '${startsWith}'`,
+        message: context.localization.formatRequirement("startsWith", { prefix }),
         instanceLocation: Instance.uri(instance),
         schemaLocations: [schemaLocation]
       });
