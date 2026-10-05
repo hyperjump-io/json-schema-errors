@@ -7,7 +7,7 @@ import { allTrue, getSuccesses, isAllTrueGroup, limitOptions, someTrue } from ".
 
 /** @type ErrorHandler */
 const notErrorHandler = {
-  error: (normalizedErrors, instance, localization, ast) => {
+  error: (normalizedErrors, instance, localization, context) => {
     /** @type ErrorObject[] */
     const errors = [];
 
@@ -21,7 +21,7 @@ const notErrorHandler = {
       // knows what needs to change. At least one of these needs to be true.
       const negatedLocalization = localization.negated();
       const options = (not.outputs ?? []).flatMap((notOutput) => {
-        return getSuccesses(notOutput, instance, negatedLocalization, ast);
+        return getSuccesses(notOutput, instance, negatedLocalization, context);
       });
 
       if (options.length === 0) {
@@ -51,7 +51,7 @@ const notErrorHandler = {
     return errors;
   },
 
-  success: (normalizedOutput, instance, localization, ast) => {
+  success: (normalizedOutput, instance, localization, context) => {
     /** @type ErrorObject[] */
     const successes = [];
 
@@ -61,13 +61,13 @@ const notErrorHandler = {
       for (const notOutput of not.outputs ?? []) {
         if (localization.isNegated) {
           // 'not' fails if its schema passes, which requires all of its keywords to pass
-          const requirements = getSuccesses(notOutput, instance, localization.negated(), ast);
+          const requirements = getSuccesses(notOutput, instance, localization.negated(), context);
           successes.push(...allTrue(requirements, instance, schemaLocation, localization));
         } else {
           // 'not' passes if at least one of its schema's keywords fails. All of them
           // are described, even if we know which ones fail, because these
           // descriptions tell the user what would need to change to make 'not' fail.
-          const options = getSuccesses(notOutput, instance, localization.negated(), ast);
+          const options = getSuccesses(notOutput, instance, localization.negated(), context);
           successes.push(...someTrue(options.map((option) => [option]), instance, schemaLocation, localization));
         }
       }

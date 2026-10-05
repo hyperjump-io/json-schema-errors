@@ -3,14 +3,13 @@ import * as Pact from "@hyperjump/pact";
 import { allTrue, allowsAnyValue, countTrue, getCompiledKeywordValue, getErrors, getSuccesses, isPassing, limitItems, limitOptions, someTrue } from "../json-schema-errors.js";
 
 /**
- * @import { AST } from "@hyperjump/json-schema/experimental"
  * @import { JsonNode } from "@hyperjump/json-schema/instance/experimental"
- * @import { ErrorHandler, ErrorObject, InstanceOutput, Localization, NormalizedOutput } from "../index.d.ts"
+ * @import { ErrorHandler, ErrorHandlerContext, ErrorObject, InstanceOutput, Localization, NormalizedOutput } from "../index.d.ts"
  */
 
 /** @type ErrorHandler */
 const oneOfErrorHandler = {
-  error: (normalizedErrors, instance, localization, ast) => {
+  error: (normalizedErrors, instance, localization, context) => {
     /** @type ErrorObject[] */
     const errors = [];
 
@@ -21,12 +20,12 @@ const oneOfErrorHandler = {
       }
       const oneOf = oneOfOutput.outputs ?? [];
 
-      const alternativeLocations = /** @type string[] */ (getCompiledKeywordValue(ast, schemaLocation));
+      const alternativeLocations = /** @type string[] */ (getCompiledKeywordValue(context.ast, schemaLocation));
       const matches = alternativeLocations.flatMap((alternativeLocation, index) => {
         return isPassing(oneOf[index]) ? [{ alternativeLocation, output: oneOf[index] }] : [];
       });
       if (matches.length > 1) {
-        errors.push(multipleMatchesError(matches, schemaLocation, instance, localization, ast));
+        errors.push(multipleMatchesError(matches, schemaLocation, instance, localization, context));
         continue;
       }
 
@@ -63,7 +62,7 @@ const oneOfErrorHandler = {
         }
 
         // The alternative passed all the filters
-        const alternativeErrors = getErrors(alternative, instance, localization, ast);
+        const alternativeErrors = getErrors(alternative, instance, localization, context);
         if (alternativeErrors.length) {
           alternatives.push(alternativeErrors);
         }
@@ -72,7 +71,7 @@ const oneOfErrorHandler = {
       // If all alternatives were filtered out, default to returning all of them
       if (alternatives.length === 0) {
         for (const alternative of oneOf) {
-          const alternativeErrors = getErrors(alternative, instance, localization, ast);
+          const alternativeErrors = getErrors(alternative, instance, localization, context);
           if (alternativeErrors.length) {
             alternatives.push(alternativeErrors);
           }
@@ -98,7 +97,7 @@ const oneOfErrorHandler = {
     return errors;
   },
 
-  success: (normalizedOutput, instance, localization, ast) => {
+  success: (normalizedOutput, instance, localization, context) => {
     /** @type ErrorObject[] */
     const successes = [];
 
@@ -111,7 +110,7 @@ const oneOfErrorHandler = {
         // be described even if we know which one matches now.
 
         // Make all alternatives fail
-        const alternativeOptions = alternatives.map((alternative) => getSuccesses(alternative, instance, localization, ast));
+        const alternativeOptions = alternatives.map((alternative) => getSuccesses(alternative, instance, localization, context));
         if (alternativeOptions.every((alternativeOption) => alternativeOption.length > 0)) {
           const requirements = alternativeOptions.flatMap((alternativeOption) => {
             return someTrue(alternativeOption.map((option) => [option]), instance, schemaLocation, localization);
@@ -120,7 +119,7 @@ const oneOfErrorHandler = {
         }
 
         // Make at least two alternatives match
-        const descriptions = alternatives.map((alternative) => getSuccesses(alternative, instance, localization.negated(), ast));
+        const descriptions = alternatives.map((alternative) => getSuccesses(alternative, instance, localization.negated(), context));
         if (descriptions.every((description) => description.length > 0)) {
           const requirements = countTrue(descriptions, { min: 2 }, instance, schemaLocation, localization.negated());
           successes.push(...allTrue(requirements, instance, schemaLocation, localization));
@@ -129,7 +128,7 @@ const oneOfErrorHandler = {
         // Passes if exactly one alternative passes. All of them are described, even
         // if we know which one matches, because these descriptions tell the user
         // what would need to change to make 'oneOf' fail.
-        const descriptions = alternatives.map((alternative) => getSuccesses(alternative, instance, localization, ast));
+        const descriptions = alternatives.map((alternative) => getSuccesses(alternative, instance, localization, context));
         if (descriptions.every((description) => description.length > 0)) {
           successes.push(...countTrue(descriptions, { min: 1, max: 1 }, instance, schemaLocation, localization));
         }
@@ -144,12 +143,12 @@ const oneOfErrorHandler = {
  * More than one alternative passed. Describe how the instance satisfied each
  * matching alternative so the user knows what needs to change.
  *
- * @type (matches: { alternativeLocation: string, output: NormalizedOutput }[], schemaLocation: string, instance: JsonNode, localization: Localization, ast: AST) => ErrorObject
+ * @type (matches: { alternativeLocation: string, output: NormalizedOutput }[], schemaLocation: string, instance: JsonNode, localization: Localization, context: ErrorHandlerContext) => ErrorObject
  */
-const multipleMatchesError = (matches, schemaLocation, instance, localization, ast) => {
+const multipleMatchesError = (matches, schemaLocation, instance, localization, context) => {
   const alternatives = matches.map(({ alternativeLocation, output }) => {
-    const description = getSuccesses(output, instance, localization, ast);
-    if (description.length === 0 && allowsAnyValue(alternativeLocation, ast)) {
+    const description = getSuccesses(output, instance, localization, context);
+    if (description.length === 0 && allowsAnyValue(alternativeLocation, context.ast)) {
       return [{
         message: localization.getAnyValueMessage(),
         instanceLocation: Instance.uri(instance),

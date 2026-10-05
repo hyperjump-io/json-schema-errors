@@ -8,7 +8,7 @@ import { allTrue, getErrors, getSuccesses, someTrue } from "../json-schema-error
 
 /** @type ErrorHandler */
 const anyOfErrorHandler = {
-  error: (normalizedErrors, instance, localization, ast) => {
+  error: (normalizedErrors, instance, localization, context) => {
     /** @type ErrorObject[] */
     const errors = [];
 
@@ -53,13 +53,13 @@ const anyOfErrorHandler = {
         }
 
         // The alternative passed all the filters
-        alternatives.push(getErrors(alternative, instance, localization, ast));
+        alternatives.push(getErrors(alternative, instance, localization, context));
       }
 
       // If all alternatives were filtered out, default to returning all of them
       if (alternatives.length === 0) {
         for (const alternative of anyOf) {
-          alternatives.push(getErrors(alternative, instance, localization, ast));
+          alternatives.push(getErrors(alternative, instance, localization, context));
         }
       }
 
@@ -78,7 +78,7 @@ const anyOfErrorHandler = {
     return errors;
   },
 
-  success: (normalizedOutput, instance, localization, ast) => {
+  success: (normalizedOutput, instance, localization, context) => {
     /** @type ErrorObject[] */
     const successes = [];
 
@@ -91,7 +91,7 @@ const anyOfErrorHandler = {
         // alternative fail could make another one pass, so all of them need to
         // be described even if some of them fail now.
         const alternativeOptions = alternatives.map((alternative) => {
-          return getSuccesses(alternative, instance, localization, ast);
+          return getSuccesses(alternative, instance, localization, context);
         });
 
         // An alternative that can't be described means we can't say how to make it fail
@@ -112,7 +112,7 @@ const anyOfErrorHandler = {
         // even if we know which ones match, because these descriptions tell the
         // user what would need to change to make 'anyOf' fail.
         const descriptions = alternatives.map((alternative) => {
-          return getSuccesses(alternative, instance, localization, ast);
+          return getSuccesses(alternative, instance, localization, context);
         });
 
         if (descriptions.some((description) => description.length === 0)) {

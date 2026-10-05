@@ -42,9 +42,9 @@ const uniqueItemsErrorHandler = {
     return errors;
   },
 
-  success: (normalizedOutput, instance, localization, ast) => {
+  success: (normalizedOutput, instance, localization, context) => {
     // 'uniqueItems: false' allows anything, so there's nothing to say
-    return describeKeyword(normalizedOutput, "https://json-schema.org/keyword/uniqueItems", instance, ast, (/** @type boolean */ uniqueItems) => {
+    return describeKeyword(normalizedOutput, "https://json-schema.org/keyword/uniqueItems", instance, context.ast, (/** @type boolean */ uniqueItems) => {
       return uniqueItems ? localization.getUniqueItemsSuccessMessage() : undefined;
     });
   }

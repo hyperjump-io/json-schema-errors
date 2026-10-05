@@ -13,7 +13,7 @@ const keywordUris = [
 
 /** @type ErrorHandler */
 const containsErrorHandler = {
-  error: (normalizedErrors, instance, localization, ast) => {
+  error: (normalizedErrors, instance, localization, context) => {
     /** @type ErrorObject[] */
     const errors = [];
 
@@ -27,20 +27,20 @@ const containsErrorHandler = {
         /** @type string[] */
         const schemaLocations = [schemaLocation];
 
-        const contains = /** @type ContainsAst */ (getCompiledKeywordValue(ast, schemaLocation));
+        const contains = /** @type ContainsAst */ (getCompiledKeywordValue(context.ast, schemaLocation));
 
         /** @type ContainsRange */
         const range = {};
         if (typeof contains !== "string") {
           if (contains.minContains !== 1) {
             range.minContains = contains.minContains;
-            const minContainsLocation = getSiblingKeywordLocation(ast, schemaLocation, "https://json-schema.org/keyword/minContains");
+            const minContainsLocation = getSiblingKeywordLocation(context.ast, schemaLocation, "https://json-schema.org/keyword/minContains");
             schemaLocations.push(minContainsLocation);
           }
 
           if (contains.maxContains !== Number.MAX_SAFE_INTEGER) {
             range.maxContains = contains.maxContains;
-            const maxContainsLocation = getSiblingKeywordLocation(ast, schemaLocation, "https://json-schema.org/keyword/maxContains");
+            const maxContainsLocation = getSiblingKeywordLocation(context.ast, schemaLocation, "https://json-schema.org/keyword/maxContains");
             schemaLocations.push(maxContainsLocation);
 
             // Too many items matched. Report on each matching item how it
@@ -53,7 +53,7 @@ const containsErrorHandler = {
             });
             if (matches.length > contains.maxContains) {
               const descriptions = matches.map(({ itemOutput }) => {
-                return getSuccesses(itemOutput, instance, localization, ast);
+                return getSuccesses(itemOutput, instance, localization, context);
               });
 
               // If any match can't be described, the errors would be misleading
@@ -84,7 +84,7 @@ const containsErrorHandler = {
         // Describe what an item would need to be like using an item that doesn't exist
         const containsLocation = typeof contains === "string" ? contains : contains.contains;
         const item = getPlaceholder(instance, String(Instance.length(instance)));
-        const description = describeEach(containsLocation, item, instance, localization, ast);
+        const description = describeEach(containsLocation, item, instance, localization, context);
 
         if (description.length > 0) {
           errors.push({
@@ -93,7 +93,7 @@ const containsErrorHandler = {
             instanceLocation: Instance.uri(instance),
             schemaLocations: schemaLocations
           });
-        } else if (allowsAnyValue(containsLocation, ast)) {
+        } else if (allowsAnyValue(containsLocation, context.ast)) {
           // Any item matches, so there aren't enough items
           errors.push({
             message: localization.getMinItemsErrorMessage(range.minContains ?? 1),
@@ -113,7 +113,7 @@ const containsErrorHandler = {
     return errors;
   },
 
-  success: (normalizedOutput, instance, localization, ast) => {
+  success: (normalizedOutput, instance, localization, context) => {
     /** @type ErrorObject[] */
     const successes = [];
 
@@ -121,7 +121,7 @@ const containsErrorHandler = {
       for (const schemaLocation in normalizedOutput[keywordUri]) {
         const itemOutputs = normalizedOutput[keywordUri][schemaLocation].outputs ?? [];
 
-        const contains = /** @type ContainsAst | string */ (getCompiledKeywordValue(ast, schemaLocation));
+        const contains = /** @type ContainsAst | string */ (getCompiledKeywordValue(context.ast, schemaLocation));
         const minContains = typeof contains === "string" ? 1 : contains.minContains;
         const maxContains = typeof contains === "string" || contains.maxContains === Number.MAX_SAFE_INTEGER
           ? Infinity
@@ -132,7 +132,7 @@ const containsErrorHandler = {
         const notMatching = itemOutputs.filter((itemOutput) => !isPassing(itemOutput));
 
         /** @type (itemOutput: NormalizedOutput, localization: Localization) => ErrorObject[] */
-        const describe = (itemOutput, localization) => getSuccesses(itemOutput, instance, localization, ast);
+        const describe = (itemOutput, localization) => getSuccesses(itemOutput, instance, localization, context);
 
         if (localization.isNegated) {
           // 'contains' fails if too few items match or too many items match

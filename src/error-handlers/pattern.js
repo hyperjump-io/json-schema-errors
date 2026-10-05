@@ -7,7 +7,7 @@ import { describeKeyword, getCompiledKeywordValue } from "../json-schema-errors.
 
 /** @type ErrorHandler */
 const patternErrorHandler = {
-  error: (normalizedErrors, instance, localization, ast) => {
+  error: (normalizedErrors, instance, localization, context) => {
     /** @type ErrorObject[] */
     const errors = [];
 
@@ -16,7 +16,7 @@ const patternErrorHandler = {
         continue;
       }
 
-      const compiledPattern = /** @type RegExp */ (getCompiledKeywordValue(ast, schemaLocation));
+      const compiledPattern = /** @type RegExp */ (getCompiledKeywordValue(context.ast, schemaLocation));
       const pattern = compiledPattern.source;
 
       errors.push({
@@ -29,8 +29,8 @@ const patternErrorHandler = {
     return errors;
   },
 
-  success: (normalizedOutput, instance, localization, ast) => {
-    return describeKeyword(normalizedOutput, "https://json-schema.org/keyword/pattern", instance, ast, (/** @type RegExp */ pattern) => {
+  success: (normalizedOutput, instance, localization, context) => {
+    return describeKeyword(normalizedOutput, "https://json-schema.org/keyword/pattern", instance, context.ast, (/** @type RegExp */ pattern) => {
       return localization.getPatternSuccessMessage(pattern.source);
     });
   }

@@ -24,7 +24,7 @@ export const jsonSchemaErrors = async (errorOutput, schemaUri, instance, options
     plugins: [...ast.plugins]
   });
   const localization = Localization.forLocale(options.locale ?? "en-US");
-  return getErrors(normalizedErrors, rootInstance, localization, ast);
+  return getErrors(normalizedErrors, rootInstance, localization, { ast });
 };
 
 /** @type Record<string, API.NormalizationHandler> */
@@ -276,11 +276,11 @@ export const evaluateRequirements = (schemaLocation, instance, ast) => {
  * stands in for any of those locations and then the description is moved to
  * the parent because it applies to all of them.
  *
- * @type (subschemaLocation: string, placeholder: JsonNode, parent: JsonNode, localization: Localization, ast: AST) => API.ErrorObject[]
+ * @type (subschemaLocation: string, placeholder: JsonNode, parent: JsonNode, localization: Localization, context: API.ErrorHandlerContext) => API.ErrorObject[]
  */
-export const describeEach = (subschemaLocation, placeholder, parent, localization, ast) => {
-  const output = evaluateRequirements(subschemaLocation, placeholder, ast);
-  return getSuccesses(output, parent, localization, ast)
+export const describeEach = (subschemaLocation, placeholder, parent, localization, context) => {
+  const output = evaluateRequirements(subschemaLocation, placeholder, context.ast);
+  return getSuccesses(output, parent, localization, context)
     .map((success) => relocate(success, Instance.uri(placeholder), Instance.uri(parent)));
 };
 
@@ -300,10 +300,10 @@ export const describeEach = (subschemaLocation, placeholder, parent, localizatio
  * the group of what each location requires, given how many things are in it, and `none` describes the scope
  * being empty, which is what the subschema requires if it's `false`.
  *
- * @type (scope: Scope, instance: JsonNode, schemaLocation: string, localization: Localization, ast: AST) => API.ErrorObject[]
+ * @type (scope: Scope, instance: JsonNode, schemaLocation: string, localization: Localization, context: API.ErrorHandlerContext) => API.ErrorObject[]
  */
-export const describeScope = ({ subschemaLocation, placeholder, each, none }, instance, schemaLocation, localization, ast) => {
-  if (ast[subschemaLocation] === false) {
+export const describeScope = ({ subschemaLocation, placeholder, each, none }, instance, schemaLocation, localization, context) => {
+  if (context.ast[subschemaLocation] === false) {
     return [{
       message: none(localization),
       instanceLocation: Instance.uri(instance),
@@ -311,7 +311,7 @@ export const describeScope = ({ subschemaLocation, placeholder, each, none }, in
     }];
   }
 
-  const description = describeEach(subschemaLocation, placeholder, instance, localization, ast);
+  const description = describeEach(subschemaLocation, placeholder, instance, localization, context);
   if (description.length === 0) {
     return [];
   }
@@ -428,14 +428,14 @@ export const removeErrorHandler = (errorHandlerUri) => {
 };
 
 /** @type API.getErrors */
-export const getErrors = (normalizedErrors, rootInstance, localization, ast) => {
+export const getErrors = (normalizedErrors, rootInstance, localization, context) => {
   /** @type API.ErrorObject[] */
   const errors = [];
 
   for (const instanceLocation in normalizedErrors) {
     const instance = /** @type JsonNode */ (Instance.get(instanceLocation, rootInstance));
     for (const errorHandlerUri in errorHandlers) {
-      const errorObjects = errorHandlers[errorHandlerUri].error?.(normalizedErrors[instanceLocation], instance, localization, ast) ?? [];
+      const errorObjects = errorHandlers[errorHandlerUri].error?.(normalizedErrors[instanceLocation], instance, localization, context) ?? [];
       errors.push(...errorObjects);
     }
   }
@@ -501,7 +501,7 @@ const withoutConditionalResults = (normalizedOutput) => {
 const resultKey = (instanceLocation, keywordUri, keywordLocation) => JSON.stringify([instanceLocation, keywordUri, keywordLocation]);
 
 /** @type API.getSuccesses */
-export const getSuccesses = (normalizedOutput, rootInstance, localization, ast) => {
+export const getSuccesses = (normalizedOutput, rootInstance, localization, context) => {
   // Descriptions of nested subschemas can get very large, so stop describing
   // past some depth and say that there's more
   if (descriptionDepth >= MAX_DESCRIPTION_DEPTH) {
@@ -527,7 +527,7 @@ export const getSuccesses = (normalizedOutput, rootInstance, localization, ast) 
       const instance = getInstance(instanceLocation, rootInstance)
         ?? toPlaceholder(instanceLocation, rootInstance);
       for (const errorHandlerUri in errorHandlers) {
-        const successObjects = errorHandlers[errorHandlerUri].success?.(describedOutput[instanceLocation], instance, localization, ast) ?? [];
+        const successObjects = errorHandlers[errorHandlerUri].success?.(describedOutput[instanceLocation], instance, localization, context) ?? [];
         successes.push(...successObjects);
       }
     }

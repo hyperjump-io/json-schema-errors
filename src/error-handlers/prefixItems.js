@@ -20,7 +20,7 @@ import {
  * @type ErrorHandler
  */
 const prefixItemsErrorHandler = {
-  success: (normalizedOutput, instance, localization, ast) => {
+  success: (normalizedOutput, instance, localization, context) => {
     /** @type ErrorObject[] */
     const successes = [];
 
@@ -35,7 +35,7 @@ const prefixItemsErrorHandler = {
       ...Object.keys(normalizedOutput["https://json-schema.org/keyword/draft-04/items"] ?? {})
     ];
     for (const schemaLocation of schemaLocations) {
-      const prefixItems = /** @type string | string[] */ (getCompiledKeywordValue(ast, schemaLocation));
+      const prefixItems = /** @type string | string[] */ (getCompiledKeywordValue(context.ast, schemaLocation));
       if (typeof prefixItems === "string") {
         // A single schema for all items applies to items that can't be named
         continue;
@@ -45,14 +45,14 @@ const prefixItemsErrorHandler = {
       for (let index = length; index < prefixItems.length; index++) {
         // The item's subschema only applies if there's an item at that index
         const item = getPlaceholder(instance, String(index));
-        const output = evaluateRequirements(prefixItems[index], item, ast);
+        const output = evaluateRequirements(prefixItems[index], item, context.ast);
         successes.push(...describeConditional({
           condition: (localization) => [{
             message: localization.getHasItemSuccessMessage(index),
             instanceLocation: Instance.uri(instance),
             schemaLocations: [schemaLocation]
           }],
-          then: (localization) => getSuccesses(output, instance, localization, ast)
+          then: (localization) => getSuccesses(output, instance, localization, context)
         }, instance, schemaLocation, localization));
       }
     }

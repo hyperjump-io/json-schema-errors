@@ -7,7 +7,7 @@ import { describeSchemaDependencies } from "../dependentSchemas.js";
 
 /** @type ErrorHandler */
 const dependenciesErrorHandler = {
-  error: (normalizedErrors, instance, localization, ast) => {
+  error: (normalizedErrors, instance, localization, context) => {
     /** @type ErrorObject[] */
     const errors = [];
 
@@ -18,7 +18,7 @@ const dependenciesErrorHandler = {
 
       const dependentSchemaOutputs = normalizedErrors["https://json-schema.org/keyword/draft-04/dependencies"][schemaLocation].outputs ?? [];
       for (const dependentSchemaOutput of dependentSchemaOutputs) {
-        const dependentSchemaErrors = getErrors(dependentSchemaOutput, instance, localization, ast);
+        const dependentSchemaErrors = getErrors(dependentSchemaOutput, instance, localization, context);
         errors.push(...dependentSchemaErrors);
       }
     }
@@ -26,16 +26,16 @@ const dependenciesErrorHandler = {
     return errors;
   },
 
-  success: (normalizedOutput, instance, localization, ast) => {
+  success: (normalizedOutput, instance, localization, context) => {
     /** @type ErrorObject[] */
     const successes = [];
 
     for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/draft-04/dependencies"]) {
       // Array-form dependencies are handled with 'required'
-      const dependencies = /** @type [string, string | string[]][] */ (getCompiledKeywordValue(ast, schemaLocation));
+      const dependencies = /** @type [string, string | string[]][] */ (getCompiledKeywordValue(context.ast, schemaLocation));
       const schemaDependencies = /** @type [string, string][] */ (dependencies.filter(([, dependency]) => typeof dependency === "string"));
       const outputs = normalizedOutput["https://json-schema.org/keyword/draft-04/dependencies"][schemaLocation].outputs ?? [];
-      successes.push(...describeSchemaDependencies(schemaDependencies, outputs, instance, localization, ast));
+      successes.push(...describeSchemaDependencies(schemaDependencies, outputs, instance, localization, context));
     }
 
     return successes;
