@@ -227,6 +227,15 @@ export type ErrorHandlerContext = {
 export const flattenOutput: (normalizedOutput: NormalizedOutput) => NormalizedOutput;
 
 /**
+ * Gets the compiled value of the keyword at the given schema location, as
+ * returned by the keyword's `compile` function in `@hyperjump/json-schema`.
+ *
+ * @param ast - The compiled schema, from the error handler's context
+ * @param schemaLocation - The keyword's schema location
+ */
+export const getCompiledKeywordValue: (ast: AST, schemaLocation: string) => unknown;
+
+/**
  * Converts the normalized error format to human readable errors. It's used to
  * build errors in applicator error handlers.
  */

@@ -188,6 +188,7 @@ setErrorHandler("https://hyperjump.io/error-handler/unknown", unknownErrorHandle
 export {
   evaluateSchema,
   flattenOutput,
+  getCompiledKeywordValue,
   getErrors,
   getSuccesses,
   jsonSchemaErrors,
