@@ -1,5 +1,5 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
-import { getCompiledKeywordValue } from "../json-schema-errors.js";
+import { describeKeyword, getCompiledKeywordValue } from "../json-schema-errors.js";
 
 /**
  * @import { ErrorHandler, ErrorObject } from "../index.d.ts"
@@ -39,20 +39,9 @@ const minPropertiesErrorHandler = {
   },
 
   success: (normalizedOutput, instance, localization, ast) => {
-    /** @type ErrorObject[] */
-    const successes = [];
-
-    for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/minProperties"]) {
-      const minProperties = /** @type number */ (getCompiledKeywordValue(ast, schemaLocation));
-
-      successes.push({
-        message: localization.getMinPropertiesSuccessMessage(minProperties),
-        instanceLocation: Instance.uri(instance),
-        schemaLocations: [schemaLocation]
-      });
-    }
-
-    return successes;
+    return describeKeyword(normalizedOutput, "https://json-schema.org/keyword/minProperties", instance, ast, (/** @type number */ minProperties) => {
+      return localization.getMinPropertiesSuccessMessage(minProperties);
+    });
   }
 };
 

@@ -20,8 +20,6 @@ import {
  * @type ErrorHandler
  */
 const prefixItemsErrorHandler = {
-  error: () => [],
-
   success: (normalizedOutput, instance, localization, ast) => {
     /** @type ErrorObject[] */
     const successes = [];

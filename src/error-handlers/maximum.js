@@ -1,5 +1,5 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
-import { getCompiledKeywordValue, getSiblingKeywordLocation } from "../json-schema-errors.js";
+import { describeKeyword, getCompiledKeywordValue, getSiblingKeywordLocation } from "../json-schema-errors.js";
 
 /**
  * @import { ErrorHandler, ErrorObject } from "../index.d.ts"
@@ -77,24 +77,15 @@ const maximumErrorHandler = {
     /** @type ErrorObject[] */
     const successes = [];
 
-    for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/maximum"]) {
-      const maximum = /** @type number */ (getCompiledKeywordValue(ast, schemaLocation));
-      successes.push({
-        message: localization.getMaximumSuccessMessage(maximum),
-        instanceLocation: Instance.uri(instance),
-        schemaLocations: [schemaLocation]
-      });
-    }
+    successes.push(...describeKeyword(normalizedOutput, "https://json-schema.org/keyword/maximum", instance, ast, (/** @type number */ maximum) => {
+      return localization.getMaximumSuccessMessage(maximum);
+    }));
 
-    for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/exclusiveMaximum"]) {
-      const exclusiveMaximum = /** @type number */ (getCompiledKeywordValue(ast, schemaLocation));
-      successes.push({
-        message: localization.getExclusiveMaximumSuccessMessage(exclusiveMaximum),
-        instanceLocation: Instance.uri(instance),
-        schemaLocations: [schemaLocation]
-      });
-    }
+    successes.push(...describeKeyword(normalizedOutput, "https://json-schema.org/keyword/exclusiveMaximum", instance, ast, (/** @type number */ exclusiveMaximum) => {
+      return localization.getExclusiveMaximumSuccessMessage(exclusiveMaximum);
+    }));
 
+    // Draft-04 has a boolean 'exclusiveMaximum' keyword that modifies 'maximum'
     for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/draft-04/maximum"]) {
       const [maximum, exclusive] = /** @type [number, boolean] */ (getCompiledKeywordValue(ast, schemaLocation));
       if (exclusive) {
