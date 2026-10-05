@@ -239,6 +239,20 @@ export const getPlaceholder = (parent, segment) => {
 /** @type (node: JsonNode) => boolean */
 export const isPlaceholder = (node) => /** @type string */ (Instance.typeOf(node)) === "undefined";
 
+/**
+ * Looking up a location that doesn't exist can fail rather than returning
+ * undefined, such as the name of a property that isn't present.
+ *
+ * @type (instanceLocation: string, rootInstance: JsonNode) => JsonNode | undefined
+ */
+const getInstance = (instanceLocation, rootInstance) => {
+  try {
+    return Instance.get(instanceLocation, rootInstance);
+  } catch {
+    return undefined;
+  }
+};
+
 /** @type (instanceLocation: string, rootInstance: JsonNode) => JsonNode */
 const toPlaceholder = (instanceLocation, rootInstance) => {
   const pointer = decodeURI(instanceLocation.slice(instanceLocation.indexOf("#") + 1));
@@ -259,6 +273,37 @@ export const evaluateRequirements = (schemaLocation, instance, ast) => {
     plugins: [...ast.plugins],
     isValidityUnknown: true
   });
+};
+
+/**
+ * Describes a subschema that applies to every location in some scope, such as
+ * every item in an array. The subschema is described at a placeholder that
+ * stands in for any of those locations and then the description is moved to
+ * the parent because it applies to all of them.
+ *
+ * @type (subschemaLocation: string, placeholder: JsonNode, parent: JsonNode, localization: Localization, ast: AST) => API.ErrorObject[]
+ */
+export const describeEach = (subschemaLocation, placeholder, parent, localization, ast) => {
+  const output = evaluateRequirements(subschemaLocation, placeholder, ast);
+  return getSuccesses(output, parent, localization, ast)
+    .map((success) => relocate(success, Instance.uri(placeholder), Instance.uri(parent)));
+};
+
+/** @type (errorObject: API.ErrorObject, from: string, to: string) => API.ErrorObject */
+const relocate = (errorObject, from, to) => {
+  /** @type API.ErrorObject */
+  const relocated = {
+    ...errorObject,
+    instanceLocation: errorObject.instanceLocation.startsWith(from)
+      ? to + errorObject.instanceLocation.slice(from.length)
+      : errorObject.instanceLocation
+  };
+  if (errorObject.alternatives) {
+    relocated.alternatives = errorObject.alternatives.map((alternative) => {
+      return alternative.map((success) => relocate(success, from, to));
+    });
+  }
+  return relocated;
 };
 
 /** @type (outputs: API.NormalizedOutput[]) => API.NormalizedOutput */
@@ -319,7 +364,7 @@ export const getSuccesses = (normalizedOutput, rootInstance, localization, ast) 
 
   for (const instanceLocation in normalizedOutput) {
     // Descriptions can be about values that don't exist yet
-    const instance = Instance.get(instanceLocation, rootInstance)
+    const instance = getInstance(instanceLocation, rootInstance)
       ?? toPlaceholder(instanceLocation, rootInstance);
     for (const errorHandlerUri in errorHandlers) {
       const successObjects = errorHandlers[errorHandlerUri].success?.(normalizedOutput[instanceLocation], instance, localization, ast) ?? [];

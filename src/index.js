@@ -66,6 +66,7 @@ import booleanSchemaErrorHandler from "./error-handlers/boolean-schema.js";
 import containsErrorHandler from "./error-handlers/contains.js";
 import dependenciesErrorHandler from "./error-handlers/draft-04/dependencies.js";
 import dependentSchemasErrorHandler from "./error-handlers/dependentSchemas.js";
+import eachPropertyErrorHandler from "./error-handlers/eachProperty.js";
 import formatErrorHandler from "./error-handlers/format.js";
 import ifThenElseErrorHandler from "./error-handlers/ifThenElse.js";
 import itemsErrorHandler from "./error-handlers/items.js";
@@ -161,6 +162,7 @@ setErrorHandler("https://hyperjump.io/error-handler/boolean-schema", booleanSche
 setErrorHandler("https://hyperjump.io/error-handler/contains", containsErrorHandler);
 setErrorHandler("https://hyperjump.io/error-handler/dependencies", dependenciesErrorHandler);
 setErrorHandler("https://hyperjump.io/error-handler/dependentSchemas", dependentSchemasErrorHandler);
+setErrorHandler("https://hyperjump.io/error-handler/eachProperty", eachPropertyErrorHandler);
 setErrorHandler("https://hyperjump.io/error-handler/format", formatErrorHandler);
 setErrorHandler("https://hyperjump.io/error-handler/ifThenElse", ifThenElseErrorHandler);
 setErrorHandler("https://hyperjump.io/error-handler/items", itemsErrorHandler);

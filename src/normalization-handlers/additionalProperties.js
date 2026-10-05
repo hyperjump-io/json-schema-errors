@@ -26,7 +26,8 @@ const additionalPropertiesNormalizationHandler = {
 
     return outputs;
   },
-  simpleApplicator: true
+  simpleApplicator: true,
+  recordResult: true
 };
 
 export default additionalPropertiesNormalizationHandler;

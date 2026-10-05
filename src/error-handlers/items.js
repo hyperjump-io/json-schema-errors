@@ -1,11 +1,5 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
-import {
-  evaluateRequirements,
-  getCompiledKeywordValue,
-  getPlaceholder,
-  getSuccesses,
-  isPlaceholder
-} from "../json-schema-errors.js";
+import { describeEach, getCompiledKeywordValue, getPlaceholder, isPlaceholder } from "../json-schema-errors.js";
 
 /**
  * @import { AST } from "@hyperjump/json-schema/experimental"
@@ -33,13 +27,20 @@ const itemsErrorHandler = {
     }
 
     for (const [schemaLocation, startIndex, itemsLocation] of getItemsKeywords(normalizedOutput, ast)) {
-      // Describe the subschema for an item that doesn't exist and then move the
-      // description to the array because it applies to any item.
+      // No items are allowed
+      if (ast[itemsLocation] === false) {
+        successes.push({
+          message: localization.getMaxItemsSuccessMessage(startIndex),
+          instanceLocation: Instance.uri(instance),
+          schemaLocations: [schemaLocation]
+        });
+        continue;
+      }
+
+      // An item that doesn't exist stands in for any item
       const length = Instance.typeOf(instance) === "array" ? Instance.length(instance) : 0;
       const item = getPlaceholder(instance, String(Math.max(startIndex, length)));
-      const output = evaluateRequirements(itemsLocation, item, ast);
-      const description = getSuccesses(output, instance, localization, ast)
-        .map((success) => relocate(success, Instance.uri(item), Instance.uri(instance)));
+      const description = describeEach(itemsLocation, item, instance, localization, ast);
       if (description.length === 0) {
         continue;
       }
@@ -85,23 +86,6 @@ const getItemsKeywords = (normalizedOutput, ast) => {
   }
 
   return keywords;
-};
-
-/** @type (errorObject: ErrorObject, from: string, to: string) => ErrorObject */
-const relocate = (errorObject, from, to) => {
-  /** @type ErrorObject */
-  const relocated = {
-    ...errorObject,
-    instanceLocation: errorObject.instanceLocation.startsWith(from)
-      ? to + errorObject.instanceLocation.slice(from.length)
-      : errorObject.instanceLocation
-  };
-  if (errorObject.alternatives) {
-    relocated.alternatives = errorObject.alternatives.map((alternative) => {
-      return alternative.map((success) => relocate(success, from, to));
-    });
-  }
-  return relocated;
 };
 
 export default itemsErrorHandler;

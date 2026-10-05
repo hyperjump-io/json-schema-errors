@@ -68,6 +68,11 @@ describe("JSON Schema Errors Output Format", () => {
           "https://json-schema.org/validation": {
             [`${schemaUri}#/additionalProperties`]: { valid: false }
           }
+        },
+        "#": {
+          "https://json-schema.org/keyword/additionalProperties": {
+            [`${schemaUri}#/additionalProperties`]: { valid: false }
+          }
         }
       });
     });
@@ -87,6 +92,11 @@ describe("JSON Schema Errors Output Format", () => {
           "https://json-schema.org/validation": {
             [`${schemaUri}#/additionalProperties`]: { valid: false }
           }
+        },
+        "#": {
+          "https://json-schema.org/keyword/additionalProperties": {
+            [`${schemaUri}#/additionalProperties`]: { valid: false }
+          }
         }
       });
     });
@@ -103,6 +113,11 @@ describe("JSON Schema Errors Output Format", () => {
           "https://json-schema.org/keyword/type": {
             [`${schemaUri}#/additionalProperties/type`]: { valid: false }
           }
+        },
+        "#": {
+          "https://json-schema.org/keyword/additionalProperties": {
+            [`${schemaUri}#/additionalProperties`]: { valid: false }
+          }
         }
       });
     });
@@ -112,7 +127,13 @@ describe("JSON Schema Errors Output Format", () => {
       const outputPlugin = new JsonSchemaErrorsOutputPlugin();
       await validate(schemaUri, {}, { plugins: [outputPlugin] });
 
-      expect(outputPlugin.output).to.eql({});
+      expect(outputPlugin.output).to.eql({
+        "#": {
+          "https://json-schema.org/keyword/additionalProperties": {
+            [`${schemaUri}#/additionalProperties`]: { valid: true }
+          }
+        }
+      });
     });
   });
 
@@ -811,6 +832,11 @@ describe("JSON Schema Errors Output Format", () => {
           "https://json-schema.org/keyword/type": {
             [`${schemaUri}#/patternProperties/%5Eb/type`]: { valid: false }
           }
+        },
+        "#": {
+          "https://json-schema.org/keyword/patternProperties": {
+            [`${schemaUri}#/patternProperties`]: { valid: false }
+          }
         }
       });
     });
@@ -834,6 +860,11 @@ describe("JSON Schema Errors Output Format", () => {
         "#/bar": {
           "https://json-schema.org/keyword/type": {
             [`${schemaUri}#/patternProperties/%5Eb/type`]: { valid: true }
+          }
+        },
+        "#": {
+          "https://json-schema.org/keyword/patternProperties": {
+            [`${schemaUri}#/patternProperties`]: { valid: true }
           }
         }
       });
@@ -978,6 +1009,11 @@ describe("JSON Schema Errors Output Format", () => {
           "https://json-schema.org/keyword/pattern": {
             [`${schemaUri}#/propertyNames/pattern`]: { valid: false }
           }
+        },
+        "#": {
+          "https://json-schema.org/keyword/propertyNames": {
+            [`${schemaUri}#/propertyNames`]: { valid: false }
+          }
         }
       });
     });
@@ -993,6 +1029,11 @@ describe("JSON Schema Errors Output Format", () => {
         "#*/apple": {
           "https://json-schema.org/keyword/pattern": {
             [`${schemaUri}#/propertyNames/pattern`]: { valid: true }
+          }
+        },
+        "#": {
+          "https://json-schema.org/keyword/propertyNames": {
+            [`${schemaUri}#/propertyNames`]: { valid: true }
           }
         }
       });
