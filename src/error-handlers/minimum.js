@@ -1,5 +1,5 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
-import { getCompiledKeywordValue, getSiblingKeywordLocation } from "../json-schema-errors.js";
+import { describeKeyword, getCompiledKeywordValue, getSiblingKeywordLocation } from "../json-schema-errors.js";
 
 /**
  * @import { ErrorHandler, ErrorObject } from "../index.d.ts"
@@ -78,24 +78,15 @@ const minimumErrorHandler = {
     /** @type ErrorObject[] */
     const successes = [];
 
-    for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/minimum"]) {
-      const minimum = /** @type number */ (getCompiledKeywordValue(ast, schemaLocation));
-      successes.push({
-        message: localization.getMinimumSuccessMessage(minimum),
-        instanceLocation: Instance.uri(instance),
-        schemaLocations: [schemaLocation]
-      });
-    }
+    successes.push(...describeKeyword(normalizedOutput, "https://json-schema.org/keyword/minimum", instance, ast, (/** @type number */ minimum) => {
+      return localization.getMinimumSuccessMessage(minimum);
+    }));
 
-    for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/exclusiveMinimum"]) {
-      const exclusiveMinimum = /** @type number */ (getCompiledKeywordValue(ast, schemaLocation));
-      successes.push({
-        message: localization.getExclusiveMinimumSuccessMessage(exclusiveMinimum),
-        instanceLocation: Instance.uri(instance),
-        schemaLocations: [schemaLocation]
-      });
-    }
+    successes.push(...describeKeyword(normalizedOutput, "https://json-schema.org/keyword/exclusiveMinimum", instance, ast, (/** @type number */ exclusiveMinimum) => {
+      return localization.getExclusiveMinimumSuccessMessage(exclusiveMinimum);
+    }));
 
+    // Draft-04 has a boolean 'exclusiveMinimum' keyword that modifies 'minimum'
     for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/draft-04/minimum"]) {
       const [minimum, exclusive] = /** @type [number, boolean] */ (getCompiledKeywordValue(ast, schemaLocation));
       if (exclusive) {

@@ -23,8 +23,6 @@ import {
  * @type ErrorHandler
  */
 const eachPropertyErrorHandler = {
-  error: () => [],
-
   success: (normalizedOutput, instance, localization, ast) => {
     /** @type ErrorObject[] */
     const successes = [];

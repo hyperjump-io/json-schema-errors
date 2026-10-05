@@ -1,5 +1,5 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
-import { getCompiledKeywordValue } from "../json-schema-errors.js";
+import { describeKeyword, getCompiledKeywordValue } from "../json-schema-errors.js";
 
 /**
  * @import { ErrorHandler, ErrorObject } from "../index.d.ts"
@@ -38,20 +38,9 @@ const maxItemsErrorHandler = {
   },
 
   success: (normalizedOutput, instance, localization, ast) => {
-    /** @type ErrorObject[] */
-    const successes = [];
-
-    for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/maxItems"]) {
-      const maxItems = /** @type number */ (getCompiledKeywordValue(ast, schemaLocation));
-
-      successes.push({
-        message: localization.getMaxItemsSuccessMessage(maxItems),
-        instanceLocation: Instance.uri(instance),
-        schemaLocations: [schemaLocation]
-      });
-    }
-
-    return successes;
+    return describeKeyword(normalizedOutput, "https://json-schema.org/keyword/maxItems", instance, ast, (/** @type number */ maxItems) => {
+      return localization.getMaxItemsSuccessMessage(maxItems);
+    });
   }
 };
 

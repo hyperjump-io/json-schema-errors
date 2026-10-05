@@ -461,8 +461,8 @@ export const getErrors = (normalizedErrors, rootInstance, localization, ast) => 
   for (const instanceLocation in normalizedErrors) {
     const instance = /** @type JsonNode */ (Instance.get(instanceLocation, rootInstance));
     for (const errorHandlerUri in errorHandlers) {
-      const errorObject = errorHandlers[errorHandlerUri].error(normalizedErrors[instanceLocation], instance, localization, ast);
-      errors.push(...errorObject);
+      const errorObjects = errorHandlers[errorHandlerUri].error?.(normalizedErrors[instanceLocation], instance, localization, ast) ?? [];
+      errors.push(...errorObjects);
     }
   }
 
@@ -575,6 +575,31 @@ export const allTrue = (items, instance, schemaLocation, localization) => {
 
 /** @type (errorObject: API.ErrorObject) => boolean */
 export const isAllTrueGroup = (errorObject) => allTrueGroups.has(errorObject);
+
+/**
+ * Describes each occurrence of a keyword at this location with a single message
+ * based on the keyword's value. Return `undefined` if the keyword doesn't
+ * require anything.
+ *
+ * @type <Value>(normalizedOutput: API.InstanceOutput, keywordUri: string, instance: JsonNode, ast: AST, toMessage: (value: Value) => string | undefined) => API.ErrorObject[]
+ */
+export const describeKeyword = (normalizedOutput, keywordUri, instance, ast, toMessage) => {
+  /** @type API.ErrorObject[] */
+  const successes = [];
+
+  for (const schemaLocation in normalizedOutput[keywordUri]) {
+    const message = toMessage(/** @type any */ (getCompiledKeywordValue(ast, schemaLocation)));
+    if (message !== undefined) {
+      successes.push({
+        message,
+        instanceLocation: Instance.uri(instance),
+        schemaLocations: [schemaLocation]
+      });
+    }
+  }
+
+  return successes;
+};
 
 /** @type (ast: AST, schemaLocation: string) => Node<unknown>[] | boolean | undefined */
 const getParentNode = (ast, schemaLocation) => {

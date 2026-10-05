@@ -198,12 +198,12 @@ export const removeErrorHandler: (errorHandlerUri: string) => void;
  * Used to transform normalized errors for one or more keywords into human readable
  * messages.
  *
- * `error` describes keywords that failed. `success` describes keywords that
- * passed. Success messages are used to explain failures caused by a subschema
- * passing, such as with `not`.
+ * `error` describes keywords that failed. `success` describes what keywords
+ * require. Success messages are used to explain failures caused by a subschema
+ * passing, such as with `not`. A handler can have either or both.
  */
 export type ErrorHandler = {
-  error: (normalizedErrors: InstanceOutput, instance: JsonNode, localization: Localization, ast: AST) => ErrorObject[];
+  error?: (normalizedErrors: InstanceOutput, instance: JsonNode, localization: Localization, ast: AST) => ErrorObject[];
   success?: (normalizedOutput: InstanceOutput, instance: JsonNode, localization: Localization, ast: AST) => ErrorObject[];
 };
 

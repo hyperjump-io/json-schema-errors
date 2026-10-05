@@ -14,8 +14,6 @@ import { describeScope, getCompiledKeywordValue, getPlaceholder, isPlaceholder }
  * @type ErrorHandler
  */
 const itemsErrorHandler = {
-  error: () => [],
-
   success: (normalizedOutput, instance, localization, ast) => {
     /** @type ErrorObject[] */
     const successes = [];

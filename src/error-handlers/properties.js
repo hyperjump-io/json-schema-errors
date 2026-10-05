@@ -19,8 +19,6 @@ import {
  * @type ErrorHandler
  */
 const propertiesErrorHandler = {
-  error: () => [],
-
   success: (normalizedOutput, instance, localization, ast) => {
     /** @type ErrorObject[] */
     const successes = [];

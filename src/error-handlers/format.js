@@ -1,5 +1,5 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
-import { getCompiledKeywordValue } from "../json-schema-errors.js";
+import { describeKeyword, getCompiledKeywordValue } from "../json-schema-errors.js";
 
 /**
  * @import { ErrorHandler, ErrorObject } from "../index.d.ts"
@@ -41,26 +41,15 @@ const formatErrorHandler = {
   },
 
   success: (normalizedOutput, instance, localization, ast) => {
-    /** @type ErrorObject[] */
-    const successes = [];
-
     // Whether 'format' is an assertion depends on how the validator is
     // configured, which we don't know, so the messages say that it only applies
     // if formats are validated. That includes 'format-assertion' because some
     // validators can be configured not to validate it either.
-    for (const keywordUri of keywordUris) {
-      for (const schemaLocation in normalizedOutput[keywordUri]) {
-        const format = /** @type string */ (getCompiledKeywordValue(ast, schemaLocation));
-
-        successes.push({
-          message: localization.getFormatSuccessMessage(format),
-          instanceLocation: Instance.uri(instance),
-          schemaLocations: [schemaLocation]
-        });
-      }
-    }
-
-    return successes;
+    return keywordUris.flatMap((keywordUri) => {
+      return describeKeyword(normalizedOutput, keywordUri, instance, ast, (/** @type string */ format) => {
+        return localization.getFormatSuccessMessage(format);
+      });
+    });
   }
 };
 
