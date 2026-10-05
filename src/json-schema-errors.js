@@ -1,10 +1,9 @@
-import { compile, getKeyword, getSchema, Validation } from "@hyperjump/json-schema/experimental";
+import { compile, getKeyword, getSchema } from "@hyperjump/json-schema/experimental";
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
 import * as Schema from "@hyperjump/browser";
 import * as JsonPointer from "@hyperjump/json-pointer";
 import { toAbsoluteIri } from "@hyperjump/uri";
 import { Localization } from "./localization.js";
-import { JsonSchemaErrorsOutputPlugin } from "./output-plugin.js";
 
 /**
  * @import * as API from "./index.d.ts"
@@ -39,11 +38,6 @@ export const allowsAnyValue = (schemaLocation, ast) => {
   }
 
   return schemaNode.every(([keywordUri]) => normalizationHandlers[toAbsoluteIri(keywordUri)]?.annotation);
-};
-
-/** @type (keywordUri: string) => boolean */
-export const isSimpleApplicator = (keywordUri) => {
-  return normalizationHandlers[toAbsoluteIri(keywordUri)]?.simpleApplicator ?? false;
 };
 
 /** @type API.setNormalizationHandler */
@@ -155,7 +149,7 @@ export const evaluateSchema = (schemaLocation, instance, context) => {
         plugins: context.plugins,
         // The output won't say what happened inside an applicator that passed
         isValidityUnknown: context.isValidityUnknown || (
-          !keyword.simpleApplicator && !keyword.validityFromSubschemas && isKeywordValid === true
+          !validationKeyword.simpleApplicator && isKeywordValid === true
         )
       };
       for (const plugin of context.plugins) {
@@ -165,8 +159,7 @@ export const evaluateSchema = (schemaLocation, instance, context) => {
       const keywordOutput = keyword.evaluate(keywordValue, instance, keywordContext);
 
       const isReported = context.errorIndex[keywordLocation]?.[keywordInstanceLocation] !== undefined;
-      const isValidityFromSubschemas = keyword.validityFromSubschemas || keyword.simpleApplicator;
-      if (isValidityFromSubschemas && !isReported && keywordOutput?.some(isFailing)) {
+      if (validationKeyword.simpleApplicator && !isReported && keywordOutput?.some(isFailing)) {
         isKeywordValid = false;
       }
 
@@ -174,15 +167,15 @@ export const evaluateSchema = (schemaLocation, instance, context) => {
         valid = false;
       }
 
-      if (keyword.simpleApplicator) {
-        for (const suboutput of /** @type API.NormalizedOutput[] */ (keywordOutput)) {
+      if (validationKeyword.simpleApplicator) {
+        for (const suboutput of keywordOutput ?? []) {
           mergeOutput(output, suboutput);
         }
       }
 
       output[instanceLocation] ??= {};
       output[instanceLocation][normalizedKeywordUri] ??= {};
-      output[instanceLocation][normalizedKeywordUri][keywordLocation] = !keyword.simpleApplicator && keywordOutput
+      output[instanceLocation][normalizedKeywordUri][keywordLocation] = keywordOutput
         ? { valid: isKeywordValid, outputs: keywordOutput }
         : { valid: isKeywordValid };
 
@@ -409,16 +402,6 @@ const relocate = (errorObject, from, to) => {
   return relocated;
 };
 
-/** @type (outputs: API.NormalizedOutput[]) => API.NormalizedOutput */
-export const mergeOutputs = (outputs) => {
-  /** @type API.NormalizedOutput */
-  const merged = {};
-  for (const output of outputs) {
-    mergeOutput(merged, output);
-  }
-  return merged;
-};
-
 /** @type (a: API.NormalizedOutput, b: API.NormalizedOutput) => void */
 const mergeOutput = (a, b) => {
   for (const instanceLocation in b) {
@@ -460,6 +443,63 @@ export const getErrors = (normalizedErrors, rootInstance, localization, ast) => 
   return errors;
 };
 
+/**
+ * The results of a conditional keyword's subschemas are merged into the results
+ * of its parent schema like any simple applicator, but they only apply when the
+ * condition holds. The conditional keyword's handler describes them along with
+ * the condition, so they aren't described again as requirements of the parent.
+ *
+ * @type (normalizedOutput: API.NormalizedOutput) => API.NormalizedOutput
+ */
+const withoutConditionalResults = (normalizedOutput) => {
+  /** @type Set<string> */
+  const conditionalResults = new Set();
+  for (const instanceLocation in normalizedOutput) {
+    for (const keywordUri in normalizedOutput[instanceLocation]) {
+      if (!normalizationHandlers[toAbsoluteIri(keywordUri)]?.conditional) {
+        continue;
+      }
+
+      for (const keywordLocation in normalizedOutput[instanceLocation][keywordUri]) {
+        for (const output of normalizedOutput[instanceLocation][keywordUri][keywordLocation].outputs ?? []) {
+          for (const subInstanceLocation in output) {
+            for (const subKeywordUri in output[subInstanceLocation]) {
+              for (const subKeywordLocation in output[subInstanceLocation][subKeywordUri]) {
+                conditionalResults.add(resultKey(subInstanceLocation, subKeywordUri, subKeywordLocation));
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  if (conditionalResults.size === 0) {
+    return normalizedOutput;
+  }
+
+  /** @type API.NormalizedOutput */
+  const result = {};
+  for (const instanceLocation in normalizedOutput) {
+    for (const keywordUri in normalizedOutput[instanceLocation]) {
+      for (const keywordLocation in normalizedOutput[instanceLocation][keywordUri]) {
+        if (conditionalResults.has(resultKey(instanceLocation, keywordUri, keywordLocation))) {
+          continue;
+        }
+
+        result[instanceLocation] ??= {};
+        result[instanceLocation][keywordUri] ??= {};
+        result[instanceLocation][keywordUri][keywordLocation] = normalizedOutput[instanceLocation][keywordUri][keywordLocation];
+      }
+    }
+  }
+
+  return result;
+};
+
+/** @type (instanceLocation: string, keywordUri: string, keywordLocation: string) => string */
+const resultKey = (instanceLocation, keywordUri, keywordLocation) => JSON.stringify([instanceLocation, keywordUri, keywordLocation]);
+
 /** @type API.getSuccesses */
 export const getSuccesses = (normalizedOutput, rootInstance, localization, ast) => {
   // Descriptions of nested subschemas can get very large, so stop describing
@@ -478,14 +518,16 @@ export const getSuccesses = (normalizedOutput, rootInstance, localization, ast) 
   /** @type API.ErrorObject[] */
   const successes = [];
 
+  const describedOutput = withoutConditionalResults(normalizedOutput);
+
   descriptionDepth++;
   try {
-    for (const instanceLocation in normalizedOutput) {
+    for (const instanceLocation in describedOutput) {
       // Descriptions can be about values that don't exist yet
       const instance = getInstance(instanceLocation, rootInstance)
         ?? toPlaceholder(instanceLocation, rootInstance);
       for (const errorHandlerUri in errorHandlers) {
-        const successObjects = errorHandlers[errorHandlerUri].success?.(normalizedOutput[instanceLocation], instance, localization, ast) ?? [];
+        const successObjects = errorHandlers[errorHandlerUri].success?.(describedOutput[instanceLocation], instance, localization, ast) ?? [];
         successes.push(...successObjects);
       }
     }
@@ -731,54 +773,4 @@ export const getSiblingKeywordLocation = (ast, schemaLocation, siblingKeywordUri
   }
 
   return node[1];
-};
-
-/**
- * @overload
- * @param {string} schemaUri
- * @returns {Promise<API.EvaluateInstance>}
- *
- * @overload
- * @param {string} schemaUri
- * @param {API.Json} instance
- * @param {API.JsonSchemaErrorsOptions} [options]
- * @returns {Promise<API.ValidationResult>}
- *
- * @param {string} schemaUri
- * @param {API.Json} instance
- * @param {API.JsonSchemaErrorsOptions} [options]
- */
-export const validate = async (schemaUri, instance, options) => {
-  const schema = await getSchema(schemaUri);
-  const compiledSchema = await compile(schema);
-
-  if (instance === undefined) {
-    /** @type API.EvaluateInstance */
-    return (instance, options) => {
-      return evaluateCompiledSchema(compiledSchema, instance, options);
-    };
-  } else {
-    return evaluateCompiledSchema(compiledSchema, instance, options);
-  }
-};
-
-/** @type API.evaluateCompiledSchema */
-export const evaluateCompiledSchema = (compiledSchema, instance, options = {}) => {
-  const localization = Localization.forLocale(options.locale ?? "en-US");
-  const jsonNode = Instance.fromJs(instance);
-  const outputPlugin = new JsonSchemaErrorsOutputPlugin();
-  const context = {
-    ast: compiledSchema.ast,
-    plugins: [...compiledSchema.ast.plugins, outputPlugin, ...options.plugins ?? []]
-  };
-  const valid = Validation.interpret(compiledSchema.schemaUri, jsonNode, context);
-
-  if (valid) {
-    return { valid };
-  } else {
-    return {
-      valid,
-      errors: getErrors(outputPlugin.output, jsonNode, localization, compiledSchema.ast)
-    };
-  }
 };

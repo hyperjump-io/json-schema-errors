@@ -191,7 +191,6 @@ export {
   jsonSchemaErrors,
   removeErrorHandler,
   setErrorHandler,
-  setNormalizationHandler,
-  validate,
-  evaluateCompiledSchema
+  setNormalizationHandler
 } from "./json-schema-errors.js";
+export { JSE } from "./output-format.js";

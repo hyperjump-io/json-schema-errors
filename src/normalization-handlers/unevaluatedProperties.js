@@ -20,8 +20,7 @@ const unevaluatedPropertiesNormalizationHandler = {
     }
 
     return outputs;
-  },
-  simpleApplicator: true
+  }
 };
 
 export default unevaluatedPropertiesNormalizationHandler;

@@ -19,8 +19,7 @@ const dynamicRefNormalizationHandler = {
     } else {
       return [evaluateSchema(ref, instance, context)];
     }
-  },
-  simpleApplicator: true
+  }
 };
 
 export default dynamicRefNormalizationHandler;

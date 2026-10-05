@@ -20,8 +20,7 @@ const propertyNamesNormalizationHandler = {
     }
 
     return outputs;
-  },
-  simpleApplicator: true
+  }
 };
 
 export default propertyNamesNormalizationHandler;

@@ -24,8 +24,7 @@ const propertiesNormalizationHandler = {
     }
 
     return outputs;
-  },
-  simpleApplicator: true
+  }
 };
 
 export default propertiesNormalizationHandler;

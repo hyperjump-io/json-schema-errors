@@ -3,9 +3,7 @@ import {
   describeConditional,
   evaluateRequirements,
   getCompiledKeywordValue,
-  getErrors,
-  getSuccesses,
-  mergeOutputs
+  getSuccesses
 } from "../json-schema-errors.js";
 
 /**
@@ -16,23 +14,8 @@ import {
 
 /** @type ErrorHandler */
 const dependentSchemasErrorHandler = {
-  error: (normalizedErrors, instance, localization, ast) => {
-    /** @type ErrorObject[] */
-    const errors = [];
-
-    for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/dependentSchemas"]) {
-      const dependentSchemas = normalizedErrors["https://json-schema.org/keyword/dependentSchemas"][schemaLocation];
-      if (dependentSchemas.valid !== false) {
-        continue;
-      }
-
-      // Merged so errors from different dependencies can be combined
-      const merged = mergeOutputs(dependentSchemas.outputs ?? []);
-      errors.push(...getErrors(merged, instance, localization, ast));
-    }
-
-    return errors;
-  },
+  // Failures in dependent schemas are merged into the parent schema's results,
+  // so they're reported by the handlers for the keywords that failed
 
   success: (normalizedOutput, instance, localization, ast) => {
     /** @type ErrorObject[] */

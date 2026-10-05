@@ -2,7 +2,6 @@ import {
   describeConditional,
   evaluateRequirements,
   getCompiledKeywordValue,
-  getErrors,
   getSuccesses,
   someTrue
 } from "../json-schema-errors.js";
@@ -15,25 +14,8 @@ import {
 
 /** @type ErrorHandler */
 const ifThenElseErrorHandler = {
-  error: (normalizedErrors, instance, localization, ast) => {
-    /** @type ErrorObject[] */
-    const errors = [];
-
-    for (const keywordUri of ["https://json-schema.org/keyword/then", "https://json-schema.org/keyword/else"]) {
-      for (const schemaLocation in normalizedErrors[keywordUri]) {
-        const keywordOutput = normalizedErrors[keywordUri][schemaLocation];
-        if (keywordOutput.valid !== false) {
-          continue;
-        }
-
-        for (const subschemaOutput of keywordOutput.outputs ?? []) {
-          errors.push(...getErrors(subschemaOutput, instance, localization, ast));
-        }
-      }
-    }
-
-    return errors;
-  },
+  // Failures in 'then' and 'else' are merged into the parent schema's results,
+  // so they're reported by the handlers for the keywords that failed
 
   success: (normalizedOutput, instance, localization, ast) => {
     /** @type ErrorObject[] */

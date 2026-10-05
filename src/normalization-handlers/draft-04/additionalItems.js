@@ -21,8 +21,7 @@ const additionalItemsNormalizationHandler = {
     }
 
     return outputs;
-  },
-  simpleApplicator: true
+  }
 };
 
 export default additionalItemsNormalizationHandler;

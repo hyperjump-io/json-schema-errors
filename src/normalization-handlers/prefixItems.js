@@ -23,8 +23,7 @@ const prefixItemsNormalizationHandler = {
     }
 
     return outputs;
-  },
-  simpleApplicator: true
+  }
 };
 
 export default prefixItemsNormalizationHandler;

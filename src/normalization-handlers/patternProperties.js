@@ -25,8 +25,7 @@ const patternPropertiesNormalizationHandler = {
     }
 
     return outputs;
-  },
-  simpleApplicator: true
+  }
 };
 
 export default patternPropertiesNormalizationHandler;

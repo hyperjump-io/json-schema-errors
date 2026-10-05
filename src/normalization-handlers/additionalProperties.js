@@ -25,8 +25,7 @@ const additionalPropertiesNormalizationHandler = {
     }
 
     return outputs;
-  },
-  simpleApplicator: true
+  }
 };
 
 export default additionalPropertiesNormalizationHandler;
