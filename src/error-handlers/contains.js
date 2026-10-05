@@ -1,5 +1,5 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
-import { allTrue, countTrue, getCompiledKeywordValue, getSiblingKeywordLocation, getSuccesses, isFailing, isPassing, someTrue } from "../json-schema-errors.js";
+import { allTrue, allowsAnyValue, countTrue, describeEach, getCompiledKeywordValue, getPlaceholder, getSiblingKeywordLocation, getSuccesses, isFailing, isPassing, someTrue } from "../json-schema-errors.js";
 
 /**
  * @import { ContainsAst } from "../normalization-handlers/contains.js"
@@ -81,11 +81,32 @@ const containsErrorHandler = {
           }
         }
 
-        errors.push({
-          message: localization.getContainsErrorMessage(range),
-          instanceLocation: Instance.uri(instance),
-          schemaLocations: schemaLocations
-        });
+        // Describe what an item would need to be like using an item that doesn't exist
+        const containsLocation = typeof contains === "string" ? contains : contains.contains;
+        const item = getPlaceholder(instance, String(Instance.length(instance)));
+        const description = describeEach(containsLocation, item, instance, localization, ast);
+
+        if (description.length > 0) {
+          errors.push({
+            message: localization.getContainsErrorMessage(range, true),
+            alternatives: [description],
+            instanceLocation: Instance.uri(instance),
+            schemaLocations: schemaLocations
+          });
+        } else if (allowsAnyValue(containsLocation, ast)) {
+          // Any item matches, so there aren't enough items
+          errors.push({
+            message: localization.getMinItemsErrorMessage(range.minContains ?? 1),
+            instanceLocation: Instance.uri(instance),
+            schemaLocations: schemaLocations
+          });
+        } else {
+          errors.push({
+            message: localization.getContainsErrorMessage(range, false),
+            instanceLocation: Instance.uri(instance),
+            schemaLocations: schemaLocations
+          });
+        }
       }
     }
 

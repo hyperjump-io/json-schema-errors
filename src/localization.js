@@ -170,16 +170,22 @@ export class Localization {
     return this.#formatMessage("minItems-message", { minItems });
   }
 
-  /** @type (range: ContainsRange) => string */
-  getContainsErrorMessage(range) {
+  /**
+   * When the 'contains' schema can be described, the description follows the
+   * message. Otherwise, the message has to refer to the schema.
+   *
+   * @type (range: ContainsRange, isDescribed: boolean) => string
+   */
+  getContainsErrorMessage(range, isDescribed) {
     range.minContains ??= 1;
+    const prefix = isDescribed ? "contains" : "contains-schema";
 
     if (range.minContains === range.maxContains) {
-      return this.#formatMessage("contains-exact-message", range);
+      return this.#formatMessage(`${prefix}-exact-message`, range);
     } else if (range.maxContains) {
-      return this.#formatMessage("contains-range-message", range);
+      return this.#formatMessage(`${prefix}-range-message`, range);
     } else {
-      return this.#formatMessage("contains-message", range);
+      return this.#formatMessage(`${prefix}-message`, range);
     }
   }
 

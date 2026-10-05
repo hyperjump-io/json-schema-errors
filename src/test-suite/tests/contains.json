@@ -16,6 +16,20 @@
           "messageParams": {
             "minContains": 1
           },
+          "alternatives": [
+            [
+              {
+                "messageId": "type-success-message",
+                "messageParams": {
+                  "count": 1,
+                  "type": "number",
+                  "types": { "or": ["number"] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/contains/type"]
+              }
+            ]
+          ],
           "instanceLocation": "#",
           "schemaLocations": ["#/contains"]
         }
@@ -35,6 +49,20 @@
           "messageParams": {
             "minContains": 2
           },
+          "alternatives": [
+            [
+              {
+                "messageId": "type-success-message",
+                "messageParams": {
+                  "count": 1,
+                  "type": "number",
+                  "types": { "or": ["number"] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/contains/type"]
+              }
+            ]
+          ],
           "instanceLocation": "#",
           "schemaLocations": ["#/contains", "#/minContains"]
         }
@@ -56,6 +84,20 @@
             "minContains": 2,
             "maxContains": 2
           },
+          "alternatives": [
+            [
+              {
+                "messageId": "type-success-message",
+                "messageParams": {
+                  "count": 1,
+                  "type": "number",
+                  "types": { "or": ["number"] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/contains/type"]
+              }
+            ]
+          ],
           "instanceLocation": "#",
           "schemaLocations": ["#/contains", "#/minContains", "#/maxContains"]
         }
@@ -436,7 +478,7 @@
       ],
       "errors": [
         {
-          "messageId": "contains-exact-message",
+          "messageId": "contains-schema-exact-message",
           "messageParams": {
             "minContains": 1,
             "maxContains": 1
@@ -461,8 +503,40 @@
             "minContains": 1,
             "maxContains": 2
           },
+          "alternatives": [
+            [
+              {
+                "messageId": "type-success-message",
+                "messageParams": {
+                  "count": 1,
+                  "type": "number",
+                  "types": { "or": ["number"] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/contains/type"]
+              }
+            ]
+          ],
           "instanceLocation": "#",
           "schemaLocations": ["#/contains", "#/maxContains"]
+        }
+      ]
+    },
+    {
+      "description": "contains with not enough items when any item matches",
+      "compatibility": "6",
+      "schema": {
+        "contains": {}
+      },
+      "instance": [],
+      "errors": [
+        {
+          "messageId": "minItems-message",
+          "messageParams": {
+            "minItems": 1
+          },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/contains"]
         }
       ]
     },

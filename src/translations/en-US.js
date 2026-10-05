@@ -103,12 +103,21 @@ minItems-negated-message = The value is an array with fewer than {$minItems ->
   [one] one item
  *[other] {$minItems} items
 }
-contains-message = Expected an array that contains {$minContains ->
+contains-message = Expected the array to contain {$minContains ->
+  [1] at least one item
+ *[other] at least {$minContains} items
+} like the following
+contains-range-message = Expected the array to contain between {$minContains} and {$maxContains} items like the following
+contains-exact-message = Expected the array to contain {$minContains ->
+  [1] exactly one item
+ *[other] exactly {$minContains} items
+} like the following
+contains-schema-message = Expected an array that contains {$minContains ->
   [1] at least one item matching
  *[other] at least {$minContains} items matching
 } the 'contains' schema
-contains-range-message = Expected an array containing between {$minContains} and {$maxContains} items matching the 'contains' schema
-contains-exact-message = Expected an array containing {$minContains ->
+contains-schema-range-message = Expected an array containing between {$minContains} and {$maxContains} items matching the 'contains' schema
+contains-schema-exact-message = Expected an array containing {$minContains ->
   [1] exactly one item matching
  *[other] exactly {$minContains} items matching
 } the 'contains' schema
