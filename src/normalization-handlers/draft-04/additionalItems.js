@@ -22,8 +22,7 @@ const additionalItemsNormalizationHandler = {
 
     return outputs;
   },
-  simpleApplicator: true,
-  recordResult: true
+  simpleApplicator: true
 };
 
 export default additionalItemsNormalizationHandler;

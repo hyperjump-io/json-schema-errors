@@ -94,6 +94,10 @@ export type NormalizationHandler<KeywordValue = unknown, Context extends Evaluat
    * never fail. Only their subschema can fail. `anyOf` and `oneOf` are not simple
    * applicators because they can fail independently of the validation result of
    * their subschemas.
+   *
+   * The results of a simple applicator's subschemas are merged into the results
+   * of its parent schema. Its own result is recorded too so it can be described,
+   * and like `validityFromSubschemas`, it fails if any of its subschemas fail.
    */
   simpleApplicator?: true;
 
@@ -104,14 +108,6 @@ export type NormalizationHandler<KeywordValue = unknown, Context extends Evaluat
    * validator's output doesn't include the keyword.
    */
   validityFromSubschemas?: true;
-
-  /**
-   * Simple applicators don't record a result for themselves because their
-   * subschema results are merged into their parent. This records one anyway so
-   * the keyword can be described when its subschemas don't apply to the value.
-   * Its validity comes from its subschemas.
-   */
-  recordResult?: true;
 
   /**
    * Annotations, such as `title` and `description`, never affect validation. A
