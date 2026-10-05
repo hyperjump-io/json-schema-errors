@@ -146,14 +146,14 @@ custom keyword we'll need to register a handler for each phase of the process.
 
 Here's an example of adding support for a simple keyword called `startsWith`.
 `startsWith` takes a string and asserts that a string JSON instance starts with
-the value of `startsWith`.
+the value of `startsWith`. The keyword itself needs to be defined with
+`@hyperjump/json-schema`'s `addKeyword` and included in a dialect.
+
+Every keyword needs a normalization handler. Keywords that aren't applicators
+don't have anything to evaluate.
 
 ```TypeScript
-import { setNormalizationHandler, addErrorHandler } from "@hyperjump/json-schema-errors";
-import { getSchema } from "@hyperjump/json-schema/experimental";
-import * as Schema from "@hyperjump/browser";
-import * as Instance from "@hyperjump/json-schema/instance/experimental";
-import type { ErrorObject } from "@hyperjump/json-schema-errors";
+import { setNormalizationHandler } from "@hyperjump/json-schema-errors";
 
 const KEYWORD_URI = "https://example.com/keyword/startsWith";
 
@@ -162,26 +162,65 @@ setNormalizationHandler(KEYWORD_URI, {
     // Only applicator keywords need to return a value
   }
 });
+```
 
-addErrorHandler(async (normalizedErrors, instance, localization) => {
-  const errors: ErrorObject = [];
+An error handler turns the normalized results into messages. It's registered
+with a URI that identifies the handler. A handler can handle any number of
+keywords, so it gets the results of every keyword that applies to a location in
+the instance and picks out the ones it handles.
 
-  for (const schemaLocation in normalizedErrors[KEYWORD_URI]) {
-    if (normalizedErrors[KEYWORD_URI][schemaLocation]) {
-      continue;
+`error` describes keywords that failed. A result's `valid` is `false` if the
+keyword failed, `true` if it passed, and `undefined` if the result isn't known.
+
+`success` describes what keywords require. It's used to explain failures caused
+by a subschema passing, such as with `not`. When `localization.isNegated` is
+`true`, it describes what would make the keyword fail instead. A keyword without
+a `success` handler can't be described, so messages for keywords like `not` and
+`oneOf` will be less specific.
+
+```TypeScript
+import * as Instance from "@hyperjump/json-schema/instance/experimental";
+import { getCompiledKeywordValue, setErrorHandler } from "@hyperjump/json-schema-errors";
+import type { ErrorObject } from "@hyperjump/json-schema-errors";
+
+const KEYWORD_URI = "https://example.com/keyword/startsWith";
+
+setErrorHandler("https://example.com/error-handler/startsWith", {
+  error: (normalizedErrors, instance, localization, context) => {
+    const errors: ErrorObject[] = [];
+
+    for (const schemaLocation in normalizedErrors[KEYWORD_URI]) {
+      if (normalizedErrors[KEYWORD_URI][schemaLocation].valid !== false) {
+        continue;
+      }
+
+      const startsWith = getCompiledKeywordValue(context.ast, schemaLocation) as string;
+      errors.push({
+        message: `Expected a string that starts with '${startsWith}'`,
+        instanceLocation: Instance.uri(instance),
+        schemaLocations: [schemaLocation]
+      });
     }
 
-    const keyword = await getSchema(schemaLocation);
-    const startsWith = Schema.value(keyword) as string;
+    return errors;
+  },
 
-    errors.push({
-      message: "Expected a string that starts with '${startsWith}'",
-      instanceLocation: Instance.uri(instance),
-      schemaLocations: [schemaLocation]
-    });
+  success: (normalizedOutput, instance, localization, context) => {
+    const successes: ErrorObject[] = [];
+
+    for (const schemaLocation in normalizedOutput[KEYWORD_URI]) {
+      const startsWith = getCompiledKeywordValue(context.ast, schemaLocation) as string;
+      successes.push({
+        message: localization.isNegated
+          ? `The value is a string that doesn't start with '${startsWith}'`
+          : `The value is either not a string or starts with '${startsWith}'`,
+        instanceLocation: Instance.uri(instance),
+        schemaLocations: [schemaLocation]
+      });
+    }
+
+    return successes;
   }
-
-  return errors;
 });
 ```
 
