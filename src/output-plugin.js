@@ -30,18 +30,11 @@ export class JsonSchemaErrorsOutputPlugin {
   }
 
   // Each keyword's result includes the output of its subschemas so the
-  // subschemas can be described. The results of a simple applicator's
-  // subschemas are also merged into the results of its parent schema.
+  // subschemas can be described
 
   /** @type NonNullable<EvaluationPlugin<ErrorsContext>["afterKeyword"]> */
-  afterKeyword(keywordNode, instance, context, valid, schemaContext, keyword) {
+  afterKeyword(keywordNode, instance, context, valid, schemaContext) {
     const [keywordUri, schemaLocation] = keywordNode;
-
-    if (keyword.simpleApplicator) {
-      for (const subSchemaOutput of context.subSchemaOutput ?? []) {
-        mergeOutput(schemaContext.output, subSchemaOutput);
-      }
-    }
 
     schemaContext.output[Instance.uri(instance)] ??= {};
     schemaContext.output[Instance.uri(instance)][keywordUri] ??= {};
@@ -64,15 +57,3 @@ export class JsonSchemaErrorsOutputPlugin {
     this.output = context.output;
   }
 }
-
-/** @type (a: NormalizedOutput, b: NormalizedOutput) => void */
-const mergeOutput = (a, b) => {
-  for (const instanceLocation in b) {
-    a[instanceLocation] ??= {};
-    for (const keywordUri in b[instanceLocation]) {
-      a[instanceLocation][keywordUri] ??= {};
-
-      Object.assign(a[instanceLocation][keywordUri], b[instanceLocation][keywordUri]);
-    }
-  }
-};

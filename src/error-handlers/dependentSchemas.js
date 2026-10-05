@@ -13,7 +13,7 @@ import {
 
 /** @type ErrorHandler */
 const dependentSchemasErrorHandler = {
-  // Failures in dependent schemas are merged into the parent schema's results,
+  // Failures in dependent schemas are flattened into the parent schema's results,
   // so they're reported by the handlers for the keywords that failed
 
   success: (normalizedOutput, instance, localization, context) => {

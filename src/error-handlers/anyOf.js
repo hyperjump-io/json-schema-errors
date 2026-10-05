@@ -1,6 +1,6 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
 import * as Pact from "@hyperjump/pact";
-import { allTrue, getErrors, getSuccesses, someTrue } from "../json-schema-errors.js";
+import { allTrue, flattenOutput, getErrors, getSuccesses, someTrue } from "../json-schema-errors.js";
 
 /**
  * @import { ErrorHandler, ErrorObject, InstanceOutput } from "../index.d.ts"
@@ -25,29 +25,32 @@ const anyOfErrorHandler = {
         Pact.collectArray
       );
 
+      const alternativeResults = anyOf.map(flattenOutput);
       const discriminators = propertyLocations.filter((propertyLocation) => {
-        return anyOf.some((alternative) => isPassingProperty(alternative[propertyLocation]));
+        return alternativeResults.some((results) => isPassingProperty(results[propertyLocation]));
       });
 
       /** @type ErrorObject[][] */
       const alternatives = [];
       const instanceLocation = Instance.uri(instance);
 
-      for (const alternative of anyOf) {
+      for (const [index, alternative] of anyOf.entries()) {
+        const results = alternativeResults[index];
+
         // Filter alternatives whose declared type doesn't match the instance type
-        const typeResults = alternative[instanceLocation]?.["https://json-schema.org/keyword/type"];
+        const typeResults = results[instanceLocation]?.["https://json-schema.org/keyword/type"];
         if (typeResults && !Object.values(typeResults).every(({ valid }) => valid)) {
           continue;
         }
 
         if (Instance.typeOf(instance) === "object") {
           // Filter alternative if it has no declared properties in common with the instance
-          if (!propertyLocations.some((propertyLocation) => propertyLocation in alternative)) {
+          if (!propertyLocations.some((propertyLocation) => propertyLocation in results)) {
             continue;
           }
 
           // Filter alternative if it has failing properties that are declared and passing in another alternative
-          if (discriminators.some((propertyLocation) => !isPassingProperty(alternative[propertyLocation]))) {
+          if (discriminators.some((propertyLocation) => !isPassingProperty(results[propertyLocation]))) {
             continue;
           }
         }

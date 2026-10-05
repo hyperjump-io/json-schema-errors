@@ -1158,6 +1158,78 @@
       ]
     },
     {
+      "description": "not with a definition referenced directly and by a nested then",
+      "compatibility": "2019",
+      "schema": {
+        "not": { "$ref": "#/$defs/user" },
+        "$defs": {
+          "base": { "required": ["id"] },
+          "admin": {
+            "$ref": "#/$defs/base",
+            "required": ["permissions"]
+          },
+          "user": {
+            "$ref": "#/$defs/base",
+            "if": { "required": ["admin"] },
+            "then": { "$ref": "#/$defs/admin" }
+          }
+        }
+      },
+      "instance": { "id": 1, "admin": true, "permissions": [] },
+      "errors": [
+        {
+          "messageId": "not-message",
+          "messageParams": {
+            "quantifier": "some"
+          },
+          "alternatives": [
+            [
+              {
+                "messageId": "required-negated-message",
+                "messageParams": {
+                  "count": 1,
+                  "required": { "or": ["'id'"] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/$defs/base/required"]
+              }
+            ],
+            [
+              {
+                "messageId": "all-true-message",
+                "alternatives": [
+                  [
+                    {
+                      "messageId": "required-success-message",
+                      "messageParams": {
+                        "count": 1,
+                        "required": { "and": ["'admin'"] }
+                      },
+                      "instanceLocation": "#",
+                      "schemaLocations": ["#/$defs/user/if/required"]
+                    },
+                    {
+                      "messageId": "required-negated-message",
+                      "messageParams": {
+                        "count": 2,
+                        "required": { "or": ["'id'", "'permissions'"] }
+                      },
+                      "instanceLocation": "#",
+                      "schemaLocations": ["#/$defs/base/required", "#/$defs/admin/required"]
+                    }
+                  ]
+                ],
+                "instanceLocation": "#",
+                "schemaLocations": ["#/$defs/user/if"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/not"]
+        }
+      ]
+    },
+    {
       "description": "not with maximum",
       "schema": {
         "not": { "maximum": 10 }
