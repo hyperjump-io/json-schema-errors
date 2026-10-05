@@ -83,7 +83,7 @@ const runTests = (dialectUri, dialect) => {
 
           const instance = testCase.instance;
           const output = await validate(schemaUri, instance, BASIC);
-          const errors = await jsonSchemaErrors(output, schemaUri, instance);
+          const errors = await jsonSchemaErrors(output, schemaUri, instance, { isFormatAsserted: true });
 
           expect(errors).to.eql(buildErrors(testCase.errors, schemaUri));
           expectNestedLocations(errors);

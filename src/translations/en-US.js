@@ -18,8 +18,10 @@ enum-message = Expected one of {$expected}
 enum-success-message = The value is one of {$expected}
 enum-negated-message = The value is not one of {$expected}
 format-message = Expected a value matching the '{$format}' format
-format-success-message = The value is either not a string or matches the '{$format}' format (if formats are validated)
-format-negated-message = The value is a string that doesn't match the '{$format}' format (if formats are validated)
+format-success-message = The value is either not a string or matches the '{$format}' format
+format-negated-message = The value is a string that doesn't match the '{$format}' format
+formatIfValidated-success-message = The value is either not a string or matches the '{$format}' format (if formats are validated)
+formatIfValidated-negated-message = The value is a string that doesn't match the '{$format}' format (if formats are validated)
 unknown-message = Validation failed for '{$keyword}'
 type-success-message = The value is {$count ->
   [one] {$type ->

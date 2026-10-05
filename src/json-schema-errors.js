@@ -8,7 +8,7 @@ import { Localization } from "./localization.js";
 /**
  * @import * as API from "./index.d.ts"
  * @import { Browser } from "@hyperjump/browser";
- * @import { AST, SchemaDocument, CompiledSchema, Node } from "@hyperjump/json-schema/experimental";
+ * @import { AST, SchemaDocument, Node } from "@hyperjump/json-schema/experimental";
  * @import { JsonNode } from "@hyperjump/json-schema/instance/experimental"
  */
 
@@ -24,7 +24,10 @@ export const jsonSchemaErrors = async (errorOutput, schemaUri, instance, options
     plugins: [...ast.plugins]
   });
   const localization = Localization.forLocale(options.locale ?? "en-US");
-  return getErrors(normalizedErrors, rootInstance, localization, { ast });
+  return getErrors(normalizedErrors, rootInstance, localization, {
+    ast,
+    isFormatAsserted: () => options.isFormatAsserted
+  });
 };
 
 /** @type Record<string, API.NormalizationHandler> */
