@@ -1,5 +1,5 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
-import { allTrue, getSuccesses, isAllTrueGroup, limitOptions, negate, someTrue } from "../json-schema-errors.js";
+import { allTrue, getSuccesses, isAllTrueGroup, negate, showSmallestFirst, someTrue } from "../json-schema-errors.js";
 
 /**
  * @import { ErrorHandler, ErrorObject } from "../index.d.ts"
@@ -39,12 +39,12 @@ const notErrorHandler = {
           schemaLocations: [schemaLocation]
         });
       } else {
-        errors.push({
+        errors.push(showSmallestFirst({
           message: context.localization.getNotErrorMessage(options.length === 1 ? "one" : "some"),
-          alternatives: limitOptions(options.map((option) => [option]), instance, context),
+          alternatives: options.map((option) => [option]),
           instanceLocation: Instance.uri(instance),
           schemaLocations: [schemaLocation]
-        });
+        }));
       }
     }
 

@@ -1,6 +1,6 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
 import * as Pact from "@hyperjump/pact";
-import { allowsAnyValue, allTrue, countTrue, flattenOutput, getCompiledKeywordValue, getErrors, getSuccesses, isPassing, limitItems, limitOptions, negate, someTrue } from "../json-schema-errors.js";
+import { allowsAnyValue, allTrue, countTrue, flattenOutput, getErrors, getSuccesses, getValidity, negate, someTrue } from "../json-schema-errors.js";
 
 /**
  * @import { JsonNode } from "@hyperjump/json-schema/instance/experimental"
@@ -20,9 +20,9 @@ const oneOfErrorHandler = {
       }
       const oneOf = oneOfOutput.outputs ?? [];
 
-      const alternativeLocations = /** @type string[] */ (getCompiledKeywordValue(context.ast, schemaLocation));
+      const alternativeLocations = /** @type string[] */ (normalizedErrors["https://json-schema.org/keyword/oneOf"][schemaLocation].value);
       const matches = alternativeLocations.flatMap((alternativeLocation, index) => {
-        return isPassing(oneOf[index]) ? [{ alternativeLocation, output: oneOf[index] }] : [];
+        return getValidity(oneOf[index]) === true ? [{ alternativeLocation, output: oneOf[index] }] : [];
       });
       if (matches.length > 1) {
         errors.push(multipleMatchesError(matches, schemaLocation, instance, context));
@@ -174,9 +174,7 @@ const multipleMatchesError = (matches, schemaLocation, instance, context) => {
   return {
     message: context.localization.getOneOfMultipleMatchesErrorMessage(),
     // Options are shown in the same order as the alternatives
-    alternatives: limitOptions(removeCommonSuccesses(alternatives).map((alternative) => {
-      return limitItems(alternative, instance, context);
-    }), instance, context, false),
+    alternatives: removeCommonSuccesses(alternatives),
     instanceLocation: Instance.uri(instance),
     schemaLocations: [schemaLocation]
   };

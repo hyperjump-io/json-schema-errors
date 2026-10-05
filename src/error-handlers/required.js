@@ -1,5 +1,4 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
-import { getCompiledKeywordValue } from "../json-schema-errors.js";
 
 /**
  * @import { ErrorHandler, ErrorObject } from "../index.d.ts"
@@ -19,7 +18,7 @@ const requiredErrorHandler = {
       }
 
       allSchemaLocations.push(schemaLocation);
-      const required = /** @type string[] */ (getCompiledKeywordValue(context.ast, schemaLocation));
+      const required = /** @type string[] */ (normalizedErrors["https://json-schema.org/keyword/required"][schemaLocation].value);
 
       addMissingProperties(required, instance, allMissingRequired);
     }
@@ -30,7 +29,7 @@ const requiredErrorHandler = {
       }
 
       allSchemaLocations.push(schemaLocation);
-      const dependencies = /** @type {[string, string[]][]} */ (getCompiledKeywordValue(context.ast, schemaLocation));
+      const dependencies = /** @type {[string, string[]][]} */ (normalizedErrors["https://json-schema.org/keyword/dependentRequired"][schemaLocation].value);
 
       for (const [propertyName, requiredProperties] of dependencies) {
         if (!Instance.has(propertyName, instance)) {
@@ -45,7 +44,7 @@ const requiredErrorHandler = {
         continue;
       }
 
-      const dependencies = /** @type {[string, unknown][]} */ (getCompiledKeywordValue(context.ast, schemaLocation));
+      const dependencies = /** @type {[string, unknown][]} */ (normalizedErrors["https://json-schema.org/keyword/draft-04/dependencies"][schemaLocation].value);
 
       let hasArrayFormDependencies = false;
       for (const [propertyName, dependency] of dependencies) {
@@ -82,7 +81,7 @@ const requiredErrorHandler = {
     const allRequired = new Set();
     const requiredSchemaLocations = [];
     for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/required"]) {
-      const required = /** @type string[] */ (getCompiledKeywordValue(context.ast, schemaLocation));
+      const required = /** @type string[] */ (normalizedOutput["https://json-schema.org/keyword/required"][schemaLocation].value);
       if (required.length) {
         requiredSchemaLocations.push(schemaLocation);
         addAll(required, allRequired);
@@ -98,7 +97,7 @@ const requiredErrorHandler = {
     }
 
     for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/dependentRequired"]) {
-      const dependencies = /** @type {[string, string[]][]} */ (getCompiledKeywordValue(context.ast, schemaLocation));
+      const dependencies = /** @type {[string, string[]][]} */ (normalizedOutput["https://json-schema.org/keyword/dependentRequired"][schemaLocation].value);
       for (const [propertyName, requiredProperties] of dependencies) {
         if (requiredProperties.length > 0) {
           successes.push({
@@ -111,7 +110,7 @@ const requiredErrorHandler = {
     }
 
     for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/draft-04/dependencies"]) {
-      const dependencies = /** @type {[string, unknown][]} */ (getCompiledKeywordValue(context.ast, schemaLocation));
+      const dependencies = /** @type {[string, unknown][]} */ (normalizedOutput["https://json-schema.org/keyword/draft-04/dependencies"][schemaLocation].value);
       for (const [propertyName, dependency] of dependencies) {
         if (Array.isArray(dependency) && dependency.length > 0) {
           successes.push({

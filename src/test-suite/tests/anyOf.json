@@ -47,6 +47,99 @@
       ]
     },
     {
+      "description": "anyOf with more alternatives than are shown",
+      "schema": {
+        "anyOf": [
+          { "type": "string" },
+          { "type": "number" },
+          { "type": "boolean" },
+          { "type": "array" },
+          { "type": "object" },
+          { "type": "integer" }
+        ]
+      },
+      "instance": null,
+      "errors": [
+        {
+          "messageId": "anyOf-message",
+          "alternatives": [
+            [
+              {
+                "messageId": "type-message",
+                "messageParams": {
+                  "count": 1,
+                  "type": "string",
+                  "expectedTypes": { "or": ["string"] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/anyOf/0/type"]
+              }
+            ],
+            [
+              {
+                "messageId": "type-message",
+                "messageParams": {
+                  "count": 1,
+                  "type": "number",
+                  "expectedTypes": { "or": ["number"] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/anyOf/1/type"]
+              }
+            ],
+            [
+              {
+                "messageId": "type-message",
+                "messageParams": {
+                  "count": 1,
+                  "type": "boolean",
+                  "expectedTypes": { "or": ["boolean"] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/anyOf/2/type"]
+              }
+            ],
+            [
+              {
+                "messageId": "type-message",
+                "messageParams": {
+                  "count": 1,
+                  "type": "array",
+                  "expectedTypes": { "or": ["array"] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/anyOf/3/type"]
+              }
+            ],
+            [
+              {
+                "messageId": "type-message",
+                "messageParams": {
+                  "count": 1,
+                  "type": "object",
+                  "expectedTypes": { "or": ["object"] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/anyOf/4/type"]
+              }
+            ],
+            [
+              {
+                "messageId": "not-shown-message",
+                "messageParams": {
+                  "count": 1
+                },
+                "instanceLocation": "#",
+                "schemaLocations": []
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/anyOf"]
+        }
+      ]
+    },
+    {
       "description": "anyOf pass",
       "schema": {
         "anyOf": [

@@ -1,8 +1,6 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
 import {
   describeConditional,
-  evaluateRequirements,
-  getCompiledKeywordValue,
   getSuccesses
 } from "../json-schema-errors.js";
 
@@ -21,7 +19,7 @@ const dependentSchemasErrorHandler = {
     const successes = [];
 
     for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/dependentSchemas"]) {
-      const dependencies = /** @type [string, string][] */ (getCompiledKeywordValue(context.ast, schemaLocation));
+      const dependencies = /** @type [string, string][] */ (normalizedOutput["https://json-schema.org/keyword/dependentSchemas"][schemaLocation].value);
       const outputs = normalizedOutput["https://json-schema.org/keyword/dependentSchemas"][schemaLocation].outputs ?? [];
       successes.push(...describeSchemaDependencies(dependencies, outputs, instance, context));
     }
@@ -46,8 +44,7 @@ export const describeSchemaDependencies = (dependencies, outputs, instance, cont
 
   for (const [propertyName, dependencyLocation] of dependencies) {
     const isPresent = isObject && Instance.has(propertyName, instance);
-    const output = (isPresent ? outputs[outputIndex++] : undefined)
-      ?? evaluateRequirements(dependencyLocation, instance, context.ast);
+    const output = (isPresent ? outputs[outputIndex++] : undefined) ?? dependencyLocation;
 
     // The dependency only applies if the property is present
     successes.push(...describeConditional({

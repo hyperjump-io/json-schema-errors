@@ -44,7 +44,7 @@ const uniqueItemsErrorHandler = {
 
   success: (normalizedOutput, instance, context) => {
     // 'uniqueItems: false' allows anything, so there's nothing to say
-    return describeKeyword(normalizedOutput, "https://json-schema.org/keyword/uniqueItems", instance, context.ast, (/** @type boolean */ uniqueItems) => {
+    return describeKeyword(normalizedOutput, "https://json-schema.org/keyword/uniqueItems", instance, (/** @type boolean */ uniqueItems) => {
       return uniqueItems ? context.localization.getUniqueItemsSuccessMessage() : undefined;
     });
   }

@@ -1,8 +1,6 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
 import {
   describeConditional,
-  evaluateRequirements,
-  getCompiledKeywordValue,
   getPlaceholder,
   getSuccesses,
   isPlaceholder
@@ -30,7 +28,7 @@ const propertiesErrorHandler = {
     }
 
     for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/properties"]) {
-      const properties = /** @type Record<string, string> */ (getCompiledKeywordValue(context.ast, schemaLocation));
+      const properties = /** @type Record<string, string> */ (normalizedOutput["https://json-schema.org/keyword/properties"][schemaLocation].value);
       const isObject = Instance.typeOf(instance) === "object";
 
       for (const propertyName in properties) {
@@ -40,14 +38,13 @@ const propertiesErrorHandler = {
 
         // The property's subschema only applies if the property is present
         const property = getPlaceholder(instance, propertyName);
-        const output = evaluateRequirements(properties[propertyName], property, context.ast);
         successes.push(...describeConditional({
           condition: (context) => [{
             message: context.localization.getHasPropertySuccessMessage([propertyName]),
             instanceLocation: Instance.uri(instance),
             schemaLocations: [schemaLocation]
           }],
-          then: (context) => getSuccesses(output, instance, context)
+          then: (context) => getSuccesses(properties[propertyName], property, context)
         }, instance, schemaLocation, context));
       }
     }

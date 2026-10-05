@@ -1,8 +1,7 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
-import { describeScope, getCompiledKeywordValue, getPlaceholder, isPlaceholder } from "../json-schema-errors.js";
+import { describeScope, getPlaceholder, isPlaceholder } from "../json-schema-errors.js";
 
 /**
- * @import { AST } from "@hyperjump/json-schema/experimental"
  * @import { ErrorHandler, ErrorObject, InstanceOutput } from "../index.d.ts"
  */
 
@@ -24,7 +23,7 @@ const itemsErrorHandler = {
       return successes;
     }
 
-    for (const [schemaLocation, startIndex, itemsLocation] of getItemsKeywords(normalizedOutput, context.ast)) {
+    for (const [schemaLocation, startIndex, itemsLocation] of getItemsKeywords(normalizedOutput)) {
       // An item that doesn't exist stands in for any item
       const length = Instance.typeOf(instance) === "array" ? Instance.length(instance) : 0;
       successes.push(...describeScope({
@@ -42,15 +41,15 @@ const itemsErrorHandler = {
 /**
  * Finds the keywords that apply a schema to every item starting at some index.
  *
- * @type (normalizedOutput: InstanceOutput, ast: AST) => [string, number, string][]
+ * @type (normalizedOutput: InstanceOutput) => [string, number, string][]
  */
-const getItemsKeywords = (normalizedOutput, ast) => {
+const getItemsKeywords = (normalizedOutput) => {
   /** @type [string, number, string][] */
   const keywords = [];
 
   for (const keywordUri of ["https://json-schema.org/keyword/items", "https://json-schema.org/keyword/draft-04/additionalItems"]) {
     for (const schemaLocation in normalizedOutput[keywordUri]) {
-      const [startIndex, itemsLocation] = /** @type [number, string] */ (getCompiledKeywordValue(ast, schemaLocation));
+      const [startIndex, itemsLocation] = /** @type [number, string] */ (normalizedOutput[keywordUri][schemaLocation].value);
       // 'additionalItems' doesn't apply unless 'items' is an array
       if (startIndex !== Number.MAX_SAFE_INTEGER) {
         keywords.push([schemaLocation, startIndex, itemsLocation]);
@@ -60,7 +59,7 @@ const getItemsKeywords = (normalizedOutput, ast) => {
 
   // Draft-04 style 'items' with a single schema applies to every item
   for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/draft-04/items"]) {
-    const items = /** @type string | string[] */ (getCompiledKeywordValue(ast, schemaLocation));
+    const items = /** @type string | string[] */ (normalizedOutput["https://json-schema.org/keyword/draft-04/items"][schemaLocation].value);
     if (typeof items === "string") {
       keywords.push([schemaLocation, 0, items]);
     }

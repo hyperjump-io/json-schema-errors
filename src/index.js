@@ -186,16 +186,22 @@ setErrorHandler("https://hyperjump.io/error-handler/uniqueItems", uniqueItemsErr
 setErrorHandler("https://hyperjump.io/error-handler/unknown", unknownErrorHandler);
 
 export {
+  allTrue,
+  countTrue,
+  describeConditional,
+  describeScope,
   evaluateSchema,
-  flattenOutput,
-  getCompiledKeywordValue,
   getErrors,
+  getPlaceholder,
   getSuccesses,
+  getValidity,
+  isPlaceholder,
   jsonSchemaErrors,
   negate,
   removeErrorHandler,
   setErrorHandler,
-  setNormalizationHandler
+  setNormalizationHandler,
+  someTrue
 } from "./json-schema-errors.js";
 export { addTranslation } from "./localization.js";
 export { JSE } from "./output-format.js";

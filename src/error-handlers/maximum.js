@@ -1,5 +1,5 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
-import { describeKeyword, getCompiledKeywordValue, getSiblingKeywordLocation } from "../json-schema-errors.js";
+import { describeKeyword, getSiblingKeywordLocation } from "../json-schema-errors.js";
 
 /**
  * @import { ErrorHandler, ErrorObject } from "../index.d.ts"
@@ -19,7 +19,7 @@ const maximumErrorHandler = {
         continue;
       }
 
-      const maximum = /** @type number */ (getCompiledKeywordValue(context.ast, schemaLocation));
+      const maximum = /** @type number */ (normalizedErrors["https://json-schema.org/keyword/maximum"][schemaLocation].value);
       if (maximum < lowestMaximum) {
         lowestMaximum = maximum;
         schemaLocations = [schemaLocation];
@@ -31,7 +31,7 @@ const maximumErrorHandler = {
         continue;
       }
 
-      const exclusiveMaximum = /** @type number */ (getCompiledKeywordValue(context.ast, schemaLocation));
+      const exclusiveMaximum = /** @type number */ (normalizedErrors["https://json-schema.org/keyword/exclusiveMaximum"][schemaLocation].value);
       if (exclusiveMaximum < lowestMaximum) {
         lowestMaximum = exclusiveMaximum;
         isExclusive = true;
@@ -44,7 +44,7 @@ const maximumErrorHandler = {
         continue;
       }
 
-      const [maximum, exclusive] = /** @type [number, boolean] */ (getCompiledKeywordValue(context.ast, schemaLocation));
+      const [maximum, exclusive] = /** @type [number, boolean] */ (normalizedErrors["https://json-schema.org/keyword/draft-04/maximum"][schemaLocation].value);
       if (maximum < lowestMaximum) {
         lowestMaximum = maximum;
         isExclusive = exclusive;
@@ -77,17 +77,17 @@ const maximumErrorHandler = {
     /** @type ErrorObject[] */
     const successes = [];
 
-    successes.push(...describeKeyword(normalizedOutput, "https://json-schema.org/keyword/maximum", instance, context.ast, (/** @type number */ maximum) => {
+    successes.push(...describeKeyword(normalizedOutput, "https://json-schema.org/keyword/maximum", instance, (/** @type number */ maximum) => {
       return context.localization.getMaximumSuccessMessage(maximum);
     }));
 
-    successes.push(...describeKeyword(normalizedOutput, "https://json-schema.org/keyword/exclusiveMaximum", instance, context.ast, (/** @type number */ exclusiveMaximum) => {
+    successes.push(...describeKeyword(normalizedOutput, "https://json-schema.org/keyword/exclusiveMaximum", instance, (/** @type number */ exclusiveMaximum) => {
       return context.localization.getExclusiveMaximumSuccessMessage(exclusiveMaximum);
     }));
 
     // Draft-04 has a boolean 'exclusiveMaximum' keyword that modifies 'maximum'
     for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/draft-04/maximum"]) {
-      const [maximum, exclusive] = /** @type [number, boolean] */ (getCompiledKeywordValue(context.ast, schemaLocation));
+      const [maximum, exclusive] = /** @type [number, boolean] */ (normalizedOutput["https://json-schema.org/keyword/draft-04/maximum"][schemaLocation].value);
       if (exclusive) {
         const exclusiveLocation = getSiblingKeywordLocation(context.ast, schemaLocation, "https://json-schema.org/keyword/draft-04/exclusiveMaximum");
         successes.push({
