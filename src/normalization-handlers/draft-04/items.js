@@ -30,8 +30,7 @@ const itemsDraft04NormalizationHandler = {
 
     return outputs;
   },
-  simpleApplicator: true,
-  recordResult: true
+  simpleApplicator: true
 };
 
 export default itemsDraft04NormalizationHandler;

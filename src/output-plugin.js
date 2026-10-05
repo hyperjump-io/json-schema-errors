@@ -1,5 +1,5 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
-import { isRecordingResult, isSimpleApplicator } from "./json-schema-errors.js";
+import { isSimpleApplicator } from "./json-schema-errors.js";
 
 /**
  * @import { EvaluationPlugin, ValidationContext } from "@hyperjump/json-schema/experimental"
@@ -37,23 +37,18 @@ export class JsonSchemaErrorsOutputPlugin {
     // Whether the result is merged with its parent depends on how this package
     // models the keyword rather than the validator. For example, 'if' never
     // fails, but its result isn't a requirement of its parent.
-    if (isSimpleApplicator(keywordUri)) {
+    const isSimple = isSimpleApplicator(keywordUri);
+    if (isSimple) {
       for (const subSchemaOutput of context.subSchemaOutput ?? []) {
         mergeOutput(schemaContext.output, subSchemaOutput);
       }
-
-      if (isRecordingResult(keywordUri)) {
-        schemaContext.output[Instance.uri(instance)] ??= {};
-        schemaContext.output[Instance.uri(instance)][keywordUri] ??= {};
-        schemaContext.output[Instance.uri(instance)][keywordUri][schemaLocation] = { valid };
-      }
-    } else {
-      schemaContext.output[Instance.uri(instance)] ??= {};
-      schemaContext.output[Instance.uri(instance)][keywordUri] ??= {};
-      schemaContext.output[Instance.uri(instance)][keywordUri][schemaLocation] = context.subSchemaOutput
-        ? { valid, outputs: context.subSchemaOutput }
-        : { valid };
     }
+
+    schemaContext.output[Instance.uri(instance)] ??= {};
+    schemaContext.output[Instance.uri(instance)][keywordUri] ??= {};
+    schemaContext.output[Instance.uri(instance)][keywordUri][schemaLocation] = !isSimple && context.subSchemaOutput
+      ? { valid, outputs: context.subSchemaOutput }
+      : { valid };
   }
 
   /** @type NonNullable<EvaluationPlugin<ErrorsContext>["afterSchema"]> */

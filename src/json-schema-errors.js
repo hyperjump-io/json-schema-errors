@@ -42,11 +42,6 @@ export const allowsAnyValue = (schemaLocation, ast) => {
 };
 
 /** @type (keywordUri: string) => boolean */
-export const isRecordingResult = (keywordUri) => {
-  return normalizationHandlers[toAbsoluteIri(keywordUri)]?.recordResult ?? false;
-};
-
-/** @type (keywordUri: string) => boolean */
 export const isSimpleApplicator = (keywordUri) => {
   return normalizationHandlers[toAbsoluteIri(keywordUri)]?.simpleApplicator ?? false;
 };
@@ -170,7 +165,7 @@ export const evaluateSchema = (schemaLocation, instance, context) => {
       const keywordOutput = keyword.evaluate(keywordValue, instance, keywordContext);
 
       const isReported = context.errorIndex[keywordLocation]?.[keywordInstanceLocation] !== undefined;
-      const isValidityFromSubschemas = keyword.validityFromSubschemas || keyword.recordResult;
+      const isValidityFromSubschemas = keyword.validityFromSubschemas || keyword.simpleApplicator;
       if (isValidityFromSubschemas && !isReported && keywordOutput?.some(isFailing)) {
         isKeywordValid = false;
       }
@@ -183,19 +178,13 @@ export const evaluateSchema = (schemaLocation, instance, context) => {
         for (const suboutput of /** @type API.NormalizedOutput[] */ (keywordOutput)) {
           mergeOutput(output, suboutput);
         }
-
-        if (keyword.recordResult) {
-          output[instanceLocation] ??= {};
-          output[instanceLocation][normalizedKeywordUri] ??= {};
-          output[instanceLocation][normalizedKeywordUri][keywordLocation] = { valid: isKeywordValid };
-        }
-      } else {
-        output[instanceLocation] ??= {};
-        output[instanceLocation][normalizedKeywordUri] ??= {};
-        output[instanceLocation][normalizedKeywordUri][keywordLocation] = keywordOutput
-          ? { valid: isKeywordValid, outputs: keywordOutput }
-          : { valid: isKeywordValid };
       }
+
+      output[instanceLocation] ??= {};
+      output[instanceLocation][normalizedKeywordUri] ??= {};
+      output[instanceLocation][normalizedKeywordUri][keywordLocation] = !keyword.simpleApplicator && keywordOutput
+        ? { valid: isKeywordValid, outputs: keywordOutput }
+        : { valid: isKeywordValid };
 
       for (const plugin of context.plugins) {
         plugin.afterKeyword?.(node, instance, keywordContext, isKeywordValid !== false, context, validationKeyword);

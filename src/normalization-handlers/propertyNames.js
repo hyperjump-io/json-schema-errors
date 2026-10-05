@@ -21,8 +21,7 @@ const propertyNamesNormalizationHandler = {
 
     return outputs;
   },
-  simpleApplicator: true,
-  recordResult: true
+  simpleApplicator: true
 };
 
 export default propertyNamesNormalizationHandler;
