@@ -1,4 +1,11 @@
-import { allTrue, evaluateRequirements, getCompiledKeywordValue, getErrors, getSuccesses, someTrue } from "../json-schema-errors.js";
+import {
+  describeConditional,
+  evaluateRequirements,
+  getCompiledKeywordValue,
+  getErrors,
+  getSuccesses,
+  someTrue
+} from "../json-schema-errors.js";
 
 /**
  * @import { JsonNode } from "@hyperjump/json-schema/instance/experimental"
@@ -40,43 +47,22 @@ const ifThenElseErrorHandler = {
         continue;
       }
 
-      /** @type (output: NormalizedOutput, localization: Localization) => ErrorObject[] */
-      const describe = (output, localization) => getSuccesses(output, instance, localization, ast);
-      /** @type (output: NormalizedOutput, localization: Localization) => ErrorObject[] */
-      const describeOptions = (output, localization) => {
-        const options = describe(output, localization);
-        return someTrue(options.map((option) => [option]), instance, ifLocation, localization);
-      };
+      /** @type (output: NormalizedOutput) => (localization: Localization) => ErrorObject[] */
+      const describe = (output) => (localization) => getSuccesses(output, instance, localization, ast);
 
-      if (localization.isNegated) {
-        // Fails if 'if' passes and 'then' fails or if 'if' fails and 'else' fails.
-        // Changing the value could change whether 'if' passes, so both need to be
-        // described even if we know which way 'if' went.
-        if (thenOutput) {
-          const thenOptions = describeOptions(thenOutput, localization);
-          if (thenOptions.length > 0) {
-            const requirements = [...describe(ifOutput, localization.negated()), ...thenOptions];
-            successes.push(...allTrue(requirements, instance, ifLocation, localization));
-          }
-        }
-
-        if (elseOutput) {
-          const elseOptions = describeOptions(elseOutput, localization);
-          if (elseOptions.length > 0) {
-            const requirements = [...describeOptions(ifOutput, localization), ...elseOptions];
-            successes.push(...allTrue(requirements, instance, ifLocation, localization));
-          }
-        }
-      } else {
-        // Passes if 'if' passes and 'then' passes or if 'if' fails and 'else'
-        // passes. Both are described, even if we know which way 'if' went,
-        // because these descriptions tell the user what would need to change to
-        // make it fail.
-        const negated = localization.negated();
-        const thenOption = [...describe(ifOutput, localization), ...thenOutput ? describe(thenOutput, localization) : []];
-        const elseOption = [...describeOptions(ifOutput, negated), ...elseOutput ? describe(elseOutput, localization) : []];
-        successes.push(...someTrue([thenOption, elseOption], instance, ifLocation, localization));
-      }
+      // Both branches are described, even if we know which way 'if' went,
+      // because changing the value could change whether 'if' passes
+      successes.push(...describeConditional({
+        condition: (localization) => {
+          const description = describe(ifOutput)(localization);
+          // 'if' fails if any of its keywords fail
+          return localization.isNegated
+            ? someTrue(description.map((option) => [option]), instance, ifLocation, localization)
+            : description;
+        },
+        then: thenOutput ? describe(thenOutput) : undefined,
+        else: elseOutput ? describe(elseOutput) : undefined
+      }, instance, ifLocation, localization));
     }
 
     return successes;

@@ -1,16 +1,15 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
 import {
-  allTrue,
+  describeConditional,
   evaluateRequirements,
   getCompiledKeywordValue,
   getPlaceholder,
   getSuccesses,
-  isPlaceholder,
-  someTrue
+  isPlaceholder
 } from "../json-schema-errors.js";
 
 /**
- * @import { ErrorHandler, ErrorObject, Localization } from "../index.d.ts"
+ * @import { ErrorHandler, ErrorObject } from "../index.d.ts"
  */
 
 /**
@@ -36,37 +35,22 @@ const propertiesErrorHandler = {
       const properties = /** @type Record<string, string> */ (getCompiledKeywordValue(ast, schemaLocation));
       const isObject = Instance.typeOf(instance) === "object";
 
-      /** @type (localization: Localization, propertyName: string) => ErrorObject */
-      const hasProperty = (localization, propertyName) => ({
-        message: localization.getHasPropertySuccessMessage([propertyName]),
-        instanceLocation: Instance.uri(instance),
-        schemaLocations: [schemaLocation]
-      });
-
       for (const propertyName in properties) {
         if (isObject && Instance.has(propertyName, instance)) {
           continue;
         }
 
+        // The property's subschema only applies if the property is present
         const property = getPlaceholder(instance, propertyName);
         const output = evaluateRequirements(properties[propertyName], property, ast);
-        const propertyDescription = getSuccesses(output, instance, localization, ast);
-        if (propertyDescription.length === 0) {
-          continue;
-        }
-
-        if (localization.isNegated) {
-          // Fails if the value is an object with the property and the property's value fails
-          const requirements = [
-            hasProperty(localization.negated(), propertyName),
-            ...someTrue(propertyDescription.map((option) => [option]), instance, schemaLocation, localization)
-          ];
-          successes.push(...allTrue(requirements, instance, schemaLocation, localization));
-        } else {
-          // Passes if the property isn't there or the property's value passes
-          const options = [[hasProperty(localization.negated(), propertyName)], propertyDescription];
-          successes.push(...someTrue(options, instance, schemaLocation, localization));
-        }
+        successes.push(...describeConditional({
+          condition: (localization) => [{
+            message: localization.getHasPropertySuccessMessage([propertyName]),
+            instanceLocation: Instance.uri(instance),
+            schemaLocations: [schemaLocation]
+          }],
+          then: (localization) => getSuccesses(output, instance, localization, ast)
+        }, instance, schemaLocation, localization));
       }
     }
 

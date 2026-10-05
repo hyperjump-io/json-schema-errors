@@ -1,12 +1,11 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
 import {
-  allTrue,
+  describeConditional,
   evaluateRequirements,
   getCompiledKeywordValue,
   getErrors,
   getSuccesses,
-  mergeOutputs,
-  someTrue
+  mergeOutputs
 } from "../json-schema-errors.js";
 
 /**
@@ -68,31 +67,15 @@ export const describeSchemaDependencies = (dependencies, outputs, instance, loca
     const output = (isPresent ? outputs[outputIndex++] : undefined)
       ?? evaluateRequirements(dependencyLocation, instance, ast);
 
-    /** @type (localization: Localization) => ErrorObject */
-    const hasProperty = (localization) => ({
-      message: localization.getHasPropertySuccessMessage([propertyName]),
-      instanceLocation: Instance.uri(instance),
-      schemaLocations: [dependencyLocation]
-    });
-
-    if (localization.isNegated) {
-      // Fails if the value is an object with the property and the dependency fails.
-      // Changing the value could remove the property, so it has to be included.
-      const options = getSuccesses(output, instance, localization, ast);
-      if (options.length > 0) {
-        const requirements = [
-          hasProperty(localization.negated()),
-          ...someTrue(options.map((option) => [option]), instance, dependencyLocation, localization)
-        ];
-        successes.push(...allTrue(requirements, instance, dependencyLocation, localization));
-      }
-    } else {
-      // Passes if the value doesn't have the property or the dependency passes
-      const description = getSuccesses(output, instance, localization, ast);
-      if (description.length > 0) {
-        successes.push(...someTrue([[hasProperty(localization.negated())], description], instance, dependencyLocation, localization));
-      }
-    }
+    // The dependency only applies if the property is present
+    successes.push(...describeConditional({
+      condition: (localization) => [{
+        message: localization.getHasPropertySuccessMessage([propertyName]),
+        instanceLocation: Instance.uri(instance),
+        schemaLocations: [dependencyLocation]
+      }],
+      then: (localization) => getSuccesses(output, instance, localization, ast)
+    }, instance, dependencyLocation, localization));
   }
 
   return successes;
