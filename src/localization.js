@@ -226,6 +226,40 @@ export class Localization {
     }
   }
 
+  /** @type (pattern: string) => string */
+  getEachMatchingPropertySuccessMessage(pattern) {
+    return this.#formatSuccessMessage("eachMatchingProperty", { pattern });
+  }
+
+  /** @type (pattern: string) => string */
+  getNoMatchingPropertySuccessMessage(pattern) {
+    return this.#formatSuccessMessage("noMatchingProperty", { pattern });
+  }
+
+  /** @type (properties: string[], patterns: string[]) => string */
+  getEachAdditionalPropertySuccessMessage(properties, patterns) {
+    return this.#formatSuccessMessage("eachAdditionalProperty", this.#additionalPropertiesScope(properties, patterns));
+  }
+
+  /** @type (properties: string[], patterns: string[]) => string */
+  getNoAdditionalPropertySuccessMessage(properties, patterns) {
+    return this.#formatSuccessMessage("noAdditionalProperty", this.#additionalPropertiesScope(properties, patterns));
+  }
+
+  /** @type (properties: string[], patterns: string[]) => Record<string, FluentVariable> */
+  #additionalPropertiesScope(properties, patterns) {
+    const scope = properties.length && patterns.length ? "both" : properties.length ? "names" : patterns.length ? "patterns" : "all";
+    return {
+      scope,
+      properties: this.conjunction.format(properties),
+      patterns: this.disjunction.format(patterns.map((pattern) => `/${pattern}/`))
+    };
+  }
+
+  getEachPropertyNameSuccessMessage() {
+    return this.#formatSuccessMessage("eachPropertyName", {});
+  }
+
   /** @type (index: number) => string */
   getEachItemSuccessMessage(index) {
     return this.#formatSuccessMessage("eachItem", { index });

@@ -2416,6 +2416,238 @@
           "schemaLocations": ["#/not"]
         }
       ]
+    },
+    {
+      "description": "not with patternProperties that aren't present",
+      "schema": {
+        "not": {
+          "patternProperties": {
+            "x": { "type": "string" }
+          }
+        }
+      },
+      "instance": {},
+      "errors": [
+        {
+          "messageId": "not-message",
+          "messageParams": {
+            "quantifier": "one"
+          },
+          "alternatives": [
+            [
+              {
+                "messageId": "eachMatchingProperty-negated-message",
+                "messageParams": {
+                  "pattern": "x"
+                },
+                "alternatives": [
+                  [
+                    {
+                      "messageId": "type-negated-message",
+                      "messageParams": {
+                        "count": 1,
+                        "type": "string",
+                        "types": { "or": ["string"] }
+                      },
+                      "instanceLocation": "#",
+                      "schemaLocations": ["#/not/patternProperties/x/type"]
+                    }
+                  ]
+                ],
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/patternProperties"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/not"]
+        }
+      ]
+    },
+    {
+      "description": "not with additionalProperties that aren't present",
+      "schema": {
+        "not": {
+          "additionalProperties": { "type": "string" }
+        }
+      },
+      "instance": {},
+      "errors": [
+        {
+          "messageId": "not-message",
+          "messageParams": {
+            "quantifier": "one"
+          },
+          "alternatives": [
+            [
+              {
+                "messageId": "eachAdditionalProperty-negated-message",
+                "messageParams": {
+                  "scope": "all",
+                  "properties": { "and": [] },
+                  "patterns": { "or": [] }
+                },
+                "alternatives": [
+                  [
+                    {
+                      "messageId": "type-negated-message",
+                      "messageParams": {
+                        "count": 1,
+                        "type": "string",
+                        "types": { "or": ["string"] }
+                      },
+                      "instanceLocation": "#",
+                      "schemaLocations": ["#/not/additionalProperties/type"]
+                    }
+                  ]
+                ],
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/additionalProperties"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/not"]
+        }
+      ]
+    },
+    {
+      "description": "not with additionalProperties false",
+      "compatibility": "6",
+      "schema": {
+        "not": {
+          "properties": {
+            "a": { "type": "number" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "instance": {},
+      "errors": [
+        {
+          "messageId": "not-message",
+          "messageParams": {
+            "quantifier": "some"
+          },
+          "alternatives": [
+            [
+              {
+                "messageId": "noAdditionalProperty-negated-message",
+                "messageParams": {
+                  "scope": "names",
+                  "properties": { "and": ["a"] },
+                  "patterns": { "or": [] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/additionalProperties"]
+              }
+            ],
+            [
+              {
+                "messageId": "all-true-message",
+                "alternatives": [
+                  [
+                    {
+                      "messageId": "hasProperty-success-message",
+                      "messageParams": {
+                        "count": 1,
+                        "properties": { "or": ["a"] }
+                      },
+                      "instanceLocation": "#",
+                      "schemaLocations": ["#/not/properties"]
+                    },
+                    {
+                      "messageId": "type-negated-message",
+                      "messageParams": {
+                        "count": 1,
+                        "type": "number",
+                        "types": { "or": ["number"] }
+                      },
+                      "instanceLocation": "#/a",
+                      "schemaLocations": ["#/not/properties/a/type"]
+                    }
+                  ]
+                ],
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/properties"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/not"]
+        }
+      ]
+    },
+    {
+      "description": "not with propertyNames that aren't present",
+      "compatibility": "6",
+      "schema": {
+        "not": {
+          "propertyNames": { "pattern": "^a" }
+        }
+      },
+      "instance": {},
+      "errors": [
+        {
+          "messageId": "not-message",
+          "messageParams": {
+            "quantifier": "one"
+          },
+          "alternatives": [
+            [
+              {
+                "messageId": "eachPropertyName-negated-message",
+                "alternatives": [
+                  [
+                    {
+                      "messageId": "pattern-negated-message",
+                      "messageParams": {
+                        "pattern": "^a"
+                      },
+                      "instanceLocation": "#",
+                      "schemaLocations": ["#/not/propertyNames/pattern"]
+                    }
+                  ]
+                ],
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/propertyNames"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/not"]
+        }
+      ]
+    },
+    {
+      "description": "not with items false",
+      "compatibility": "6",
+      "schema": {
+        "not": { "items": false }
+      },
+      "instance": [],
+      "errors": [
+        {
+          "messageId": "not-message",
+          "messageParams": {
+            "quantifier": "one"
+          },
+          "alternatives": [
+            [
+              {
+                "messageId": "maxItems-negated-message",
+                "messageParams": {
+                  "maxItems": 0
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/items"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/not"]
+        }
+      ]
     }
   ]
 }

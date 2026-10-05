@@ -663,13 +663,12 @@
     },
     {
       "description": "oneOf more than one match with a match that can't be described",
+      "compatibility": "2019",
       "schema": {
         "oneOf": [
           { "type": "number" },
           {
-            "patternProperties": {
-              "^a": { "type": "string" }
-            }
+            "unevaluatedProperties": { "type": "string" }
           }
         ]
       },
@@ -2101,6 +2100,201 @@
                 ],
                 "instanceLocation": "#",
                 "schemaLocations": ["#/oneOf/1/items"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/oneOf"]
+        }
+      ]
+    },
+    {
+      "description": "oneOf more than one match with additionalProperties false",
+      "compatibility": "6",
+      "schema": {
+        "oneOf": [
+          { "type": "object" },
+          {
+            "properties": {
+              "a": { "type": "number" }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "instance": {},
+      "errors": [
+        {
+          "messageId": "oneOf-multiple-matches-message",
+          "alternatives": [
+            [
+              {
+                "messageId": "type-success-message",
+                "messageParams": {
+                  "count": 1,
+                  "type": "object",
+                  "types": { "or": ["object"] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/0/type"]
+              }
+            ],
+            [
+              {
+                "messageId": "noAdditionalProperty-success-message",
+                "messageParams": {
+                  "scope": "names",
+                  "properties": { "and": ["a"] },
+                  "patterns": { "or": [] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/1/additionalProperties"]
+              },
+              {
+                "messageId": "count-true-message",
+                "messageParams": {
+                  "kind": "atLeast",
+                  "min": 1
+                },
+                "alternatives": [
+                  [
+                    {
+                      "messageId": "hasProperty-negated-message",
+                      "messageParams": {
+                        "count": 1,
+                        "properties": { "and": ["a"] }
+                      },
+                      "instanceLocation": "#",
+                      "schemaLocations": ["#/oneOf/1/properties"]
+                    }
+                  ],
+                  [
+                    {
+                      "messageId": "type-success-message",
+                      "messageParams": {
+                        "count": 1,
+                        "type": "number",
+                        "types": { "or": ["number"] }
+                      },
+                      "instanceLocation": "#/a",
+                      "schemaLocations": ["#/oneOf/1/properties/a/type"]
+                    }
+                  ]
+                ],
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/1/properties"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/oneOf"]
+        }
+      ]
+    },
+    {
+      "description": "oneOf more than one match with patternProperties that aren't present",
+      "schema": {
+        "oneOf": [
+          { "type": "object" },
+          {
+            "patternProperties": {
+              "x": { "type": "string" }
+            }
+          }
+        ]
+      },
+      "instance": {},
+      "errors": [
+        {
+          "messageId": "oneOf-multiple-matches-message",
+          "alternatives": [
+            [
+              {
+                "messageId": "type-success-message",
+                "messageParams": {
+                  "count": 1,
+                  "type": "object",
+                  "types": { "or": ["object"] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/0/type"]
+              }
+            ],
+            [
+              {
+                "messageId": "eachMatchingProperty-success-message",
+                "messageParams": {
+                  "pattern": "x"
+                },
+                "alternatives": [
+                  [
+                    {
+                      "messageId": "type-success-message",
+                      "messageParams": {
+                        "count": 1,
+                        "type": "string",
+                        "types": { "or": ["string"] }
+                      },
+                      "instanceLocation": "#",
+                      "schemaLocations": ["#/oneOf/1/patternProperties/x/type"]
+                    }
+                  ]
+                ],
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/1/patternProperties"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/oneOf"]
+        }
+      ]
+    },
+    {
+      "description": "oneOf more than one match with propertyNames that aren't present",
+      "compatibility": "6",
+      "schema": {
+        "oneOf": [
+          { "type": "object" },
+          {
+            "propertyNames": { "maxLength": 3 }
+          }
+        ]
+      },
+      "instance": {},
+      "errors": [
+        {
+          "messageId": "oneOf-multiple-matches-message",
+          "alternatives": [
+            [
+              {
+                "messageId": "type-success-message",
+                "messageParams": {
+                  "count": 1,
+                  "type": "object",
+                  "types": { "or": ["object"] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/0/type"]
+              }
+            ],
+            [
+              {
+                "messageId": "eachPropertyName-success-message",
+                "alternatives": [
+                  [
+                    {
+                      "messageId": "maxLength-success-message",
+                      "messageParams": {
+                        "maxLength": 3
+                      },
+                      "instanceLocation": "#",
+                      "schemaLocations": ["#/oneOf/1/propertyNames/maxLength"]
+                    }
+                  ]
+                ],
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/1/propertyNames"]
               }
             ]
           ],

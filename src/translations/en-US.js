@@ -140,6 +140,36 @@ minProperties-negated-message = The value is an object with fewer than {$minProp
   [one] one property
  *[other] {$minProperties} properties
 }
+eachMatchingProperty-success-message = Each property whose name matches the regular expression /{$pattern}/ satisfies the following
+eachMatchingProperty-negated-message = There is a property whose name matches the regular expression /{$pattern}/ where at least one of the following is true
+noMatchingProperty-success-message = The value is either not an object or has no properties whose names match the regular expression /{$pattern}/
+noMatchingProperty-negated-message = The value is an object with a property whose name matches the regular expression /{$pattern}/
+eachAdditionalProperty-success-message = {$scope ->
+  [names] Each property other than {$properties} satisfies the following
+  [patterns] Each property whose name doesn't match {$patterns} satisfies the following
+  [both] Each property other than {$properties} whose name doesn't match {$patterns} satisfies the following
+ *[all] Each property satisfies the following
+}
+eachAdditionalProperty-negated-message = {$scope ->
+  [names] There is a property other than {$properties} where at least one of the following is true
+  [patterns] There is a property whose name doesn't match {$patterns} where at least one of the following is true
+  [both] There is a property other than {$properties} whose name doesn't match {$patterns} where at least one of the following is true
+ *[all] There is a property where at least one of the following is true
+}
+noAdditionalProperty-success-message = {$scope ->
+  [names] The value is either not an object or has no properties other than {$properties}
+  [patterns] The value is either not an object or has no properties whose names don't match {$patterns}
+  [both] The value is either not an object or has no properties other than {$properties} whose names don't match {$patterns}
+ *[all] The value is either not an object or has no properties
+}
+noAdditionalProperty-negated-message = {$scope ->
+  [names] The value is an object with a property other than {$properties}
+  [patterns] The value is an object with a property whose name doesn't match {$patterns}
+  [both] The value is an object with a property other than {$properties} whose name doesn't match {$patterns}
+ *[all] The value is an object with at least one property
+}
+eachPropertyName-success-message = Each property name satisfies the following
+eachPropertyName-negated-message = There is a property name where at least one of the following is true
 required-message = Missing required {$count ->
   [one] property: {$required}
  *[other] properties: {$required}
