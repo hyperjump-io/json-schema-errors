@@ -360,27 +360,6 @@ export const isFailing = (normalizedOutput) => {
   return false;
 };
 
-/** @type (normalizedOutput: API.NormalizedOutput, predicate: (keywordOutput: API.KeywordOutput) => boolean) => API.NormalizedOutput */
-export const selectKeywords = (normalizedOutput, predicate) => {
-  /** @type API.NormalizedOutput */
-  const selected = {};
-
-  for (const instanceLocation in normalizedOutput) {
-    for (const keywordUri in normalizedOutput[instanceLocation]) {
-      for (const schemaLocation in normalizedOutput[instanceLocation][keywordUri]) {
-        const keywordOutput = normalizedOutput[instanceLocation][keywordUri][schemaLocation];
-        if (predicate(keywordOutput)) {
-          selected[instanceLocation] ??= {};
-          selected[instanceLocation][keywordUri] ??= {};
-          selected[instanceLocation][keywordUri][schemaLocation] = keywordOutput;
-        }
-      }
-    }
-  }
-
-  return selected;
-};
-
 /** @type WeakSet<API.ErrorObject> */
 const allTrueGroups = new WeakSet();
 

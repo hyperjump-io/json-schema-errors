@@ -1,5 +1,5 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
-import { allTrue, getSuccesses, isAllTrueGroup, selectKeywords, someTrue } from "../json-schema-errors.js";
+import { allTrue, getSuccesses, isAllTrueGroup, someTrue } from "../json-schema-errors.js";
 
 /**
  * @import { ErrorHandler, ErrorObject } from "../index.d.ts"
@@ -64,15 +64,11 @@ const notErrorHandler = {
           const requirements = getSuccesses(notOutput, instance, localization.negated(), ast);
           successes.push(...allTrue(requirements, instance, schemaLocation, localization));
         } else {
-          // 'not' passes if its schema fails. If we know which keywords failed,
-          // describe those. Otherwise, all we know is at least one of them failed.
-          const failing = selectKeywords(notOutput, ({ valid }) => valid === false);
-          if (Object.keys(failing).length > 0) {
-            successes.push(...getSuccesses(failing, instance, localization.negated(), ast));
-          } else {
-            const options = getSuccesses(notOutput, instance, localization.negated(), ast);
-            successes.push(...someTrue(options.map((option) => [option]), instance, schemaLocation, localization));
-          }
+          // 'not' passes if at least one of its schema's keywords fails. All of them
+          // are described, even if we know which ones fail, because these
+          // descriptions tell the user what would need to change to make 'not' fail.
+          const options = getSuccesses(notOutput, instance, localization.negated(), ast);
+          successes.push(...someTrue(options.map((option) => [option]), instance, schemaLocation, localization));
         }
       }
     }

@@ -1,4 +1,4 @@
-import { allTrue, evaluateRequirements, getCompiledKeywordValue, getErrors, getSuccesses, isFailing, isPassing, selectKeywords, someTrue } from "../json-schema-errors.js";
+import { allTrue, evaluateRequirements, getCompiledKeywordValue, getErrors, getSuccesses, someTrue } from "../json-schema-errors.js";
 
 /**
  * @import { JsonNode } from "@hyperjump/json-schema/instance/experimental"
@@ -48,9 +48,6 @@ const ifThenElseErrorHandler = {
         return someTrue(options.map((option) => [option]), instance, ifLocation, localization);
       };
 
-      const ifPassed = isPassing(ifOutput);
-      const ifFailed = isFailing(ifOutput);
-
       if (localization.isNegated) {
         // Fails if 'if' passes and 'then' fails or if 'if' fails and 'else' fails.
         // Changing the value could change whether 'if' passes, so both need to be
@@ -71,25 +68,14 @@ const ifThenElseErrorHandler = {
           }
         }
       } else {
-        // Passes if 'if' passes and 'then' passes or if 'if' fails and 'else' passes
+        // Passes if 'if' passes and 'then' passes or if 'if' fails and 'else'
+        // passes. Both are described, even if we know which way 'if' went,
+        // because these descriptions tell the user what would need to change to
+        // make it fail.
         const negated = localization.negated();
-
-        if (ifPassed) {
-          successes.push(...describe(ifOutput, localization));
-          if (thenOutput) {
-            successes.push(...describe(thenOutput, localization));
-          }
-        } else if (ifFailed) {
-          const failing = selectKeywords(ifOutput, ({ valid }) => valid === false);
-          successes.push(...describe(failing, negated));
-          if (elseOutput) {
-            successes.push(...describe(elseOutput, localization));
-          }
-        } else {
-          const thenOption = [...describe(ifOutput, localization), ...thenOutput ? describe(thenOutput, localization) : []];
-          const elseOption = [...describeOptions(ifOutput, negated), ...elseOutput ? describe(elseOutput, localization) : []];
-          successes.push(...someTrue([thenOption, elseOption], instance, ifLocation, localization));
-        }
+        const thenOption = [...describe(ifOutput, localization), ...thenOutput ? describe(thenOutput, localization) : []];
+        const elseOption = [...describeOptions(ifOutput, negated), ...elseOutput ? describe(elseOutput, localization) : []];
+        successes.push(...someTrue([thenOption, elseOption], instance, ifLocation, localization));
       }
     }
 

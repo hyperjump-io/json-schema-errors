@@ -1239,39 +1239,6 @@
           "instanceLocation": "#",
           "schemaLocations": ["#/oneOf"]
         }
-      ],
-      "errorsWithFullResults": [
-        {
-          "messageId": "oneOf-multiple-matches-message",
-          "alternatives": [
-            [
-              {
-                "messageId": "type-negated-message",
-                "messageParams": {
-                  "count": 1,
-                  "type": "string",
-                  "types": { "or": ["string"] }
-                },
-                "instanceLocation": "#",
-                "schemaLocations": ["#/oneOf/0/not/type"]
-              }
-            ],
-            [
-              {
-                "messageId": "type-success-message",
-                "messageParams": {
-                  "count": 1,
-                  "type": "number",
-                  "types": { "or": ["number"] }
-                },
-                "instanceLocation": "#",
-                "schemaLocations": ["#/oneOf/1/type"]
-              }
-            ]
-          ],
-          "instanceLocation": "#",
-          "schemaLocations": ["#/oneOf"]
-        }
       ]
     },
     {
@@ -1345,39 +1312,6 @@
           "instanceLocation": "#",
           "schemaLocations": ["#/oneOf"]
         }
-      ],
-      "errorsWithFullResults": [
-        {
-          "messageId": "oneOf-multiple-matches-message",
-          "alternatives": [
-            [
-              {
-                "messageId": "type-success-message",
-                "messageParams": {
-                  "count": 1,
-                  "type": "integer",
-                  "types": { "or": ["integer"] }
-                },
-                "instanceLocation": "#",
-                "schemaLocations": ["#/oneOf/0/anyOf/0/type"]
-              }
-            ],
-            [
-              {
-                "messageId": "type-success-message",
-                "messageParams": {
-                  "count": 1,
-                  "type": "number",
-                  "types": { "or": ["number"] }
-                },
-                "instanceLocation": "#",
-                "schemaLocations": ["#/oneOf/1/type"]
-              }
-            ]
-          ],
-          "instanceLocation": "#",
-          "schemaLocations": ["#/oneOf"]
-        }
       ]
     },
     {
@@ -1433,39 +1367,6 @@
                 ],
                 "instanceLocation": "#",
                 "schemaLocations": ["#/oneOf/0/oneOf"]
-              }
-            ],
-            [
-              {
-                "messageId": "type-success-message",
-                "messageParams": {
-                  "count": 1,
-                  "type": "number",
-                  "types": { "or": ["number"] }
-                },
-                "instanceLocation": "#",
-                "schemaLocations": ["#/oneOf/1/type"]
-              }
-            ]
-          ],
-          "instanceLocation": "#",
-          "schemaLocations": ["#/oneOf"]
-        }
-      ],
-      "errorsWithFullResults": [
-        {
-          "messageId": "oneOf-multiple-matches-message",
-          "alternatives": [
-            [
-              {
-                "messageId": "type-success-message",
-                "messageParams": {
-                  "count": 1,
-                  "type": "integer",
-                  "types": { "or": ["integer"] }
-                },
-                "instanceLocation": "#",
-                "schemaLocations": ["#/oneOf/0/oneOf/0/type"]
               }
             ],
             [
@@ -1663,49 +1564,6 @@
                 ],
                 "instanceLocation": "#",
                 "schemaLocations": ["#/oneOf/0/if"]
-              }
-            ],
-            [
-              {
-                "messageId": "type-success-message",
-                "messageParams": {
-                  "count": 1,
-                  "type": "string",
-                  "types": { "or": ["string"] }
-                },
-                "instanceLocation": "#",
-                "schemaLocations": ["#/oneOf/1/type"]
-              }
-            ]
-          ],
-          "instanceLocation": "#",
-          "schemaLocations": ["#/oneOf"]
-        }
-      ],
-      "errorsWithFullResults": [
-        {
-          "messageId": "oneOf-multiple-matches-message",
-          "alternatives": [
-            [
-              {
-                "messageId": "type-negated-message",
-                "messageParams": {
-                  "count": 1,
-                  "type": "number",
-                  "types": { "or": ["number"] }
-                },
-                "instanceLocation": "#",
-                "schemaLocations": ["#/oneOf/0/if/type"]
-              },
-              {
-                "messageId": "type-success-message",
-                "messageParams": {
-                  "count": 1,
-                  "type": "string",
-                  "types": { "or": ["string"] }
-                },
-                "instanceLocation": "#",
-                "schemaLocations": ["#/oneOf/0/else/type"]
               }
             ],
             [
@@ -2001,11 +1859,35 @@
           "alternatives": [
             [
               {
-                "messageId": "hasProperty-negated-message",
+                "messageId": "count-true-message",
                 "messageParams": {
-                  "count": 1,
-                  "properties": { "and": ["a"] }
+                  "kind": "atLeast",
+                  "min": 1
                 },
+                "alternatives": [
+                  [
+                    {
+                      "messageId": "hasProperty-negated-message",
+                      "messageParams": {
+                        "count": 1,
+                        "properties": { "and": ["a"] }
+                      },
+                      "instanceLocation": "#",
+                      "schemaLocations": ["#/oneOf/0/dependentSchemas/a"]
+                    }
+                  ],
+                  [
+                    {
+                      "messageId": "required-success-message",
+                      "messageParams": {
+                        "count": 1,
+                        "required": { "and": ["b"] }
+                      },
+                      "instanceLocation": "#",
+                      "schemaLocations": ["#/oneOf/0/dependentSchemas/a/required"]
+                    }
+                  ]
+                ],
                 "instanceLocation": "#",
                 "schemaLocations": ["#/oneOf/0/dependentSchemas/a"]
               }
@@ -2048,13 +1930,37 @@
           "alternatives": [
             [
               {
-                "messageId": "required-success-message",
+                "messageId": "count-true-message",
                 "messageParams": {
-                  "count": 1,
-                  "required": { "and": ["b"] }
+                  "kind": "atLeast",
+                  "min": 1
                 },
+                "alternatives": [
+                  [
+                    {
+                      "messageId": "hasProperty-negated-message",
+                      "messageParams": {
+                        "count": 1,
+                        "properties": { "and": ["a"] }
+                      },
+                      "instanceLocation": "#",
+                      "schemaLocations": ["#/oneOf/0/dependentSchemas/a"]
+                    }
+                  ],
+                  [
+                    {
+                      "messageId": "required-success-message",
+                      "messageParams": {
+                        "count": 1,
+                        "required": { "and": ["b"] }
+                      },
+                      "instanceLocation": "#",
+                      "schemaLocations": ["#/oneOf/0/dependentSchemas/a/required"]
+                    }
+                  ]
+                ],
                 "instanceLocation": "#",
-                "schemaLocations": ["#/oneOf/0/dependentSchemas/a/required"]
+                "schemaLocations": ["#/oneOf/0/dependentSchemas/a"]
               }
             ],
             [

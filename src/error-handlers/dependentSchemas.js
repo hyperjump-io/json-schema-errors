@@ -86,10 +86,12 @@ export const describeSchemaDependencies = (dependencies, outputs, instance, loca
         ];
         successes.push(...allTrue(requirements, instance, dependencyLocation, localization));
       }
-    } else if (isPresent) {
-      successes.push(...getSuccesses(output, instance, localization, ast));
     } else {
-      successes.push(hasProperty(localization.negated()));
+      // Passes if the value doesn't have the property or the dependency passes
+      const description = getSuccesses(output, instance, localization, ast);
+      if (description.length > 0) {
+        successes.push(...someTrue([[hasProperty(localization.negated())], description], instance, dependencyLocation, localization));
+      }
     }
   }
 

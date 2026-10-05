@@ -1,6 +1,6 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
 import * as Pact from "@hyperjump/pact";
-import { allTrue, allowsAnyValue, countTrue, getCompiledKeywordValue, getErrors, getSuccesses, isFailing, isPassing, someTrue } from "../json-schema-errors.js";
+import { allTrue, allowsAnyValue, countTrue, getCompiledKeywordValue, getErrors, getSuccesses, isPassing, someTrue } from "../json-schema-errors.js";
 
 /**
  * @import { AST } from "@hyperjump/json-schema/experimental"
@@ -126,16 +126,12 @@ const oneOfErrorHandler = {
           successes.push(...allTrue(requirements, instance, schemaLocation, localization));
         }
       } else {
-        // 'oneOf' passed, so if one alternative is known to match, it's the only one
-        const matching = alternatives.filter(isPassing);
-        if (matching.length === 1) {
-          successes.push(...getSuccesses(matching[0], instance, localization, ast));
-        } else {
-          const notFailing = alternatives.filter((alternative) => !isFailing(alternative));
-          const descriptions = notFailing.map((alternative) => getSuccesses(alternative, instance, localization, ast));
-          if (descriptions.every((description) => description.length > 0)) {
-            successes.push(...countTrue(descriptions, { min: 1, max: 1 }, instance, schemaLocation, localization));
-          }
+        // Passes if exactly one alternative passes. All of them are described, even
+        // if we know which one matches, because these descriptions tell the user
+        // what would need to change to make 'oneOf' fail.
+        const descriptions = alternatives.map((alternative) => getSuccesses(alternative, instance, localization, ast));
+        if (descriptions.every((description) => description.length > 0)) {
+          successes.push(...countTrue(descriptions, { min: 1, max: 1 }, instance, schemaLocation, localization));
         }
       }
     }
