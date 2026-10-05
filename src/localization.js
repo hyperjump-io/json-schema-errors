@@ -83,7 +83,9 @@ export class Localization {
   /** @type (expectedTypes: string[]) => string */
   getTypeErrorMessage(expectedTypes) {
     return this.#formatMessage("type-message", {
-      expectedTypes: this.disjunction.format(expectedTypes)
+      type: expectedTypes[0],
+      expectedTypes: this.disjunction.format(expectedTypes),
+      count: expectedTypes.length
     });
   }
 
@@ -108,6 +110,11 @@ export class Localization {
         expected: this.disjunction.format(expectedJson)
       });
     }
+  }
+
+  /** @type (names: string[]) => string[] */
+  #propertyNames(names) {
+    return names.map((name) => this.#formatMessage("property-name", { name }));
   }
 
   /** @type (format: string) => string */
@@ -221,20 +228,20 @@ export class Localization {
   getRequiredSuccessMessage(required) {
     if (this.isNegated) {
       return this.#formatMessage("required-negated-message", {
-        required: this.disjunction.format(required),
+        required: this.disjunction.format(this.#propertyNames(required)),
         count: required.length
       });
     } else {
       return this.#formatMessage("required-success-message", {
-        required: this.conjunction.format(required),
+        required: this.conjunction.format(this.#propertyNames(required)),
         count: required.length
       });
     }
   }
 
-  /** @type (pattern: string) => string */
-  getEachMatchingPropertySuccessMessage(pattern) {
-    return this.#formatSuccessMessage("eachMatchingProperty", { pattern });
+  /** @type (pattern: string, count: number) => string */
+  getEachMatchingPropertySuccessMessage(pattern, count) {
+    return this.#formatSuccessMessage("eachMatchingProperty", { pattern, count });
   }
 
   /** @type (pattern: string) => string */
@@ -242,9 +249,9 @@ export class Localization {
     return this.#formatSuccessMessage("noMatchingProperty", { pattern });
   }
 
-  /** @type (properties: string[], patterns: string[]) => string */
-  getEachAdditionalPropertySuccessMessage(properties, patterns) {
-    return this.#formatSuccessMessage("eachAdditionalProperty", this.#additionalPropertiesScope(properties, patterns));
+  /** @type (properties: string[], patterns: string[], count: number) => string */
+  getEachAdditionalPropertySuccessMessage(properties, patterns, count) {
+    return this.#formatSuccessMessage("eachAdditionalProperty", { ...this.#additionalPropertiesScope(properties, patterns), count });
   }
 
   /** @type (properties: string[], patterns: string[]) => string */
@@ -257,18 +264,19 @@ export class Localization {
     const scope = properties.length && patterns.length ? "both" : properties.length ? "names" : patterns.length ? "patterns" : "all";
     return {
       scope,
-      properties: this.conjunction.format(properties),
+      properties: this.conjunction.format(this.#propertyNames(properties)),
       patterns: this.disjunction.format(patterns.map((pattern) => `/${pattern}/`))
     };
   }
 
-  getEachPropertyNameSuccessMessage() {
-    return this.#formatSuccessMessage("eachPropertyName", {});
+  /** @type (count: number) => string */
+  getEachPropertyNameSuccessMessage(count) {
+    return this.#formatSuccessMessage("eachPropertyName", { count });
   }
 
-  /** @type (index: number) => string */
-  getEachItemSuccessMessage(index) {
-    return this.#formatSuccessMessage("eachItem", { index });
+  /** @type (index: number, count: number) => string */
+  getEachItemSuccessMessage(index, count) {
+    return this.#formatSuccessMessage("eachItem", { index, count });
   }
 
   /** @type (index: number) => string */
@@ -279,7 +287,9 @@ export class Localization {
   /** @type (properties: string[]) => string */
   getHasPropertySuccessMessage(properties) {
     return this.#formatSuccessMessage("hasProperty", {
-      properties: this.isNegated ? this.conjunction.format(properties) : this.disjunction.format(properties),
+      properties: this.isNegated
+        ? this.conjunction.format(this.#propertyNames(properties))
+        : this.disjunction.format(this.#propertyNames(properties)),
       count: properties.length
     });
   }
@@ -288,14 +298,14 @@ export class Localization {
   getDependentRequiredSuccessMessage(property, required) {
     if (this.isNegated) {
       return this.#formatMessage("dependentRequired-negated-message", {
-        property,
-        required: this.disjunction.format(required),
+        property: this.#propertyNames([property])[0],
+        required: this.disjunction.format(this.#propertyNames(required)),
         count: required.length
       });
     } else {
       return this.#formatMessage("dependentRequired-success-message", {
-        property,
-        required: this.conjunction.format(required),
+        property: this.#propertyNames([property])[0],
+        required: this.conjunction.format(this.#propertyNames(required)),
         count: required.length
       });
     }

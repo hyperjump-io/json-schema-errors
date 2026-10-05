@@ -13,7 +13,7 @@
         {
           "messageId": "maxLength-message",
           "messageParams": {
-            "maxLength": "3"
+            "maxLength": 3
           },
           "instanceLocation": "#",
           "schemaLocations": ["#/maxLength"]
@@ -41,7 +41,7 @@
         {
           "messageId": "maxLength-message",
           "messageParams": {
-            "maxLength": "2"
+            "maxLength": 2
           },
           "instanceLocation": "#",
           "schemaLocations": ["#/allOf/0/maxLength"]

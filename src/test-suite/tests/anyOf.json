@@ -20,6 +20,8 @@
               {
                 "messageId": "type-message",
                 "messageParams": {
+                  "count": 1,
+                  "type": "string",
                   "expectedTypes": { "or": ["string"] }
                 },
                 "instanceLocation": "#",
@@ -30,6 +32,8 @@
               {
                 "messageId": "type-message",
                 "messageParams": {
+                  "count": 1,
+                  "type": "number",
                   "expectedTypes": { "or": ["number"] }
                 },
                 "instanceLocation": "#",
@@ -102,6 +106,8 @@
               {
                 "messageId": "type-message",
                 "messageParams": {
+                  "count": 1,
+                  "type": "string",
                   "expectedTypes": { "or": ["string"] }
                 },
                 "instanceLocation": "#",
@@ -112,6 +118,8 @@
               {
                 "messageId": "type-message",
                 "messageParams": {
+                  "count": 1,
+                  "type": "number",
                   "expectedTypes": { "or": ["number"] }
                 },
                 "instanceLocation": "#",
@@ -232,6 +240,8 @@
               {
                 "messageId": "type-message",
                 "messageParams": {
+                  "count": 1,
+                  "type": "string",
                   "expectedTypes": { "or": ["string"] }
                 },
                 "instanceLocation": "#/foo",
@@ -242,6 +252,8 @@
               {
                 "messageId": "type-message",
                 "messageParams": {
+                  "count": 1,
+                  "type": "boolean",
                   "expectedTypes": { "or": ["boolean"] }
                 },
                 "instanceLocation": "#/foo",
@@ -279,6 +291,8 @@
         {
           "messageId": "type-message",
           "messageParams": {
+            "count": 1,
+            "type": "string",
             "expectedTypes": { "or": ["string"] }
           },
           "instanceLocation": "#/a",
@@ -367,6 +381,8 @@
         {
           "messageId": "type-message",
           "messageParams": {
+            "count": 1,
+            "type": "number",
             "expectedTypes": { "or": ["number"] }
           },
           "instanceLocation": "#/b",
@@ -411,6 +427,8 @@
               {
                 "messageId": "type-message",
                 "messageParams": {
+                  "count": 1,
+                  "type": "string",
                   "expectedTypes": { "or": ["string"] }
                 },
                 "instanceLocation": "#/x",
@@ -421,7 +439,7 @@
               {
                 "messageId": "minLength-message",
                 "messageParams": {
-                  "minLength": "2"
+                  "minLength": 2
                 },
                 "instanceLocation": "#/type",
                 "schemaLocations": ["#/anyOf/1/properties/type/allOf/1/minLength"]
@@ -459,7 +477,9 @@
         {
           "messageId": "type-message",
           "messageParams": {
-            "expectedTypes": "string"
+            "count": 1,
+            "type": "string",
+            "expectedTypes": { "or": ["string"] }
           },
           "instanceLocation": "#/a",
           "schemaLocations": ["#/anyOf/0/properties/a/type"]
@@ -547,6 +567,8 @@
         {
           "messageId": "type-message",
           "messageParams": {
+            "count": 1,
+            "type": "string",
             "expectedTypes": { "or": ["string"] }
           },
           "instanceLocation": "#/b",

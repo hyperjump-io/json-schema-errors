@@ -42,7 +42,7 @@ const eachPropertyErrorHandler = {
         successes.push(...describeScope({
           subschemaLocation,
           placeholder: property,
-          each: (localization) => localization.getEachMatchingPropertySuccessMessage(pattern.source),
+          each: (localization, count) => localization.getEachMatchingPropertySuccessMessage(pattern.source, count),
           none: (localization) => localization.getNoMatchingPropertySuccessMessage(pattern.source)
         }, instance, schemaLocation, localization, ast));
       }
@@ -59,7 +59,7 @@ const eachPropertyErrorHandler = {
       successes.push(...describeScope({
         subschemaLocation,
         placeholder: property,
-        each: (localization) => localization.getEachAdditionalPropertySuccessMessage(properties, patterns),
+        each: (localization, count) => localization.getEachAdditionalPropertySuccessMessage(properties, patterns, count),
         none: (localization) => localization.getNoAdditionalPropertySuccessMessage(properties, patterns)
       }, instance, schemaLocation, localization, ast));
     }
@@ -71,7 +71,7 @@ const eachPropertyErrorHandler = {
       successes.push(...describeScope({
         subschemaLocation,
         placeholder: propertyName,
-        each: (localization) => localization.getEachPropertyNameSuccessMessage(),
+        each: (localization, count) => localization.getEachPropertyNameSuccessMessage(count),
         none: (localization) => localization.getMaxPropertiesSuccessMessage(0)
       }, instance, schemaLocation, localization, ast));
     }

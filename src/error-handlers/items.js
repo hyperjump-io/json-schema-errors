@@ -30,7 +30,7 @@ const itemsErrorHandler = {
       successes.push(...describeScope({
         subschemaLocation: itemsLocation,
         placeholder: getPlaceholder(instance, String(Math.max(startIndex, length))),
-        each: (localization) => localization.getEachItemSuccessMessage(startIndex),
+        each: (localization, count) => localization.getEachItemSuccessMessage(startIndex, count),
         none: (localization) => localization.getMaxItemsSuccessMessage(startIndex)
       }, instance, schemaLocation, localization, ast));
     }
