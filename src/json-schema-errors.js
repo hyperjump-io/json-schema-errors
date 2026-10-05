@@ -295,7 +295,7 @@ export const describeEach = (subschemaLocation, placeholder, parent, localizatio
  * @typedef {{
  *   subschemaLocation: string;
  *   placeholder: JsonNode;
- *   each: (localization: Localization) => string;
+ *   each: (localization: Localization, count: number) => string;
  *   none: (localization: Localization) => string;
  * }} Scope
  */
@@ -304,7 +304,7 @@ export const describeEach = (subschemaLocation, placeholder, parent, localizatio
  * Describes a subschema that applies to every location in some scope, such as
  * every item in an array, including locations that could be added. The
  * placeholder stands in for any of those locations. `each` is the message for
- * the group of what each location requires and `none` describes the scope
+ * the group of what each location requires, given how many things are in it, and `none` describes the scope
  * being empty, which is what the subschema requires if it's `false`.
  *
  * @type (scope: Scope, instance: JsonNode, schemaLocation: string, localization: Localization, ast: AST) => API.ErrorObject[]
@@ -324,7 +324,7 @@ export const describeScope = ({ subschemaLocation, placeholder, each, none }, in
   }
 
   return [{
-    message: each(localization),
+    message: each(localization, description.length),
     // Every location satisfies all of them or there's one that satisfies at least one
     alternatives: localization.isNegated ? description.map((option) => [option]) : [description],
     instanceLocation: Instance.uri(instance),

@@ -180,7 +180,7 @@
                 "messageId": "required-negated-message",
                 "messageParams": {
                   "count": 2,
-                  "required": { "or": ["foo", "bar"] }
+                  "required": { "or": ["'foo'", "'bar'"] }
                 },
                 "instanceLocation": "#",
                 "schemaLocations": ["#/not/required"]
@@ -210,7 +210,7 @@
                 "messageId": "required-negated-message",
                 "messageParams": {
                   "count": 1,
-                  "required": { "or": ["a"] }
+                  "required": { "or": ["'a'"] }
                 },
                 "instanceLocation": "#",
                 "schemaLocations": ["#/not/required"]
@@ -243,8 +243,8 @@
                 "messageId": "dependentRequired-negated-message",
                 "messageParams": {
                   "count": 2,
-                  "required": { "or": ["b", "c"] },
-                  "property": "a"
+                  "required": { "or": ["'b'", "'c'"] },
+                  "property": "'a'"
                 },
                 "instanceLocation": "#",
                 "schemaLocations": ["#/not/dependentRequired"]
@@ -277,8 +277,8 @@
                 "messageId": "dependentRequired-negated-message",
                 "messageParams": {
                   "count": 1,
-                  "required": { "or": ["b"] },
-                  "property": "a"
+                  "required": { "or": ["'b'"] },
+                  "property": "'a'"
                 },
                 "instanceLocation": "#",
                 "schemaLocations": ["#/not/dependentRequired"]
@@ -311,8 +311,8 @@
                 "messageId": "dependentRequired-negated-message",
                 "messageParams": {
                   "count": 1,
-                  "required": { "or": ["b"] },
-                  "property": "a"
+                  "required": { "or": ["'b'"] },
+                  "property": "'a'"
                 },
                 "instanceLocation": "#",
                 "schemaLocations": ["#/not/dependentRequired"]
@@ -349,7 +349,7 @@
                 "messageId": "required-negated-message",
                 "messageParams": {
                   "count": 1,
-                  "required": { "or": ["foo"] }
+                  "required": { "or": ["'foo'"] }
                 },
                 "instanceLocation": "#",
                 "schemaLocations": ["#/not/required"]
@@ -360,8 +360,8 @@
                 "messageId": "dependentRequired-negated-message",
                 "messageParams": {
                   "count": 1,
-                  "required": { "or": ["bar"] },
-                  "property": "foo"
+                  "required": { "or": ["'bar'"] },
+                  "property": "'foo'"
                 },
                 "instanceLocation": "#",
                 "schemaLocations": ["#/not/dependentRequired"]
@@ -372,8 +372,8 @@
                 "messageId": "dependentRequired-negated-message",
                 "messageParams": {
                   "count": 1,
-                  "required": { "or": ["qux"] },
-                  "property": "baz"
+                  "required": { "or": ["'qux'"] },
+                  "property": "'baz'"
                 },
                 "instanceLocation": "#",
                 "schemaLocations": ["#/not/dependentRequired"]
@@ -406,8 +406,8 @@
                 "messageId": "dependentRequired-negated-message",
                 "messageParams": {
                   "count": 1,
-                  "required": { "or": ["b"] },
-                  "property": "a"
+                  "required": { "or": ["'b'"] },
+                  "property": "'a'"
                 },
                 "instanceLocation": "#",
                 "schemaLocations": ["#/not/dependencies"]
@@ -1666,7 +1666,7 @@
                 "messageId": "hasProperty-success-message",
                 "messageParams": {
                   "count": 1,
-                  "properties": { "or": ["a"] }
+                  "properties": { "or": ["'a'"] }
                 },
                 "instanceLocation": "#",
                 "schemaLocations": ["#/not/dependencies/a"]
@@ -1675,7 +1675,7 @@
                 "messageId": "required-negated-message",
                 "messageParams": {
                   "count": 1,
-                  "required": { "or": ["b"] }
+                  "required": { "or": ["'b'"] }
                 },
                 "instanceLocation": "#",
                 "schemaLocations": ["#/not/dependencies/a/required"]
@@ -1773,7 +1773,7 @@
                 "messageId": "hasProperty-success-message",
                 "messageParams": {
                   "count": 1,
-                  "properties": { "or": ["a"] }
+                  "properties": { "or": ["'a'"] }
                 },
                 "instanceLocation": "#",
                 "schemaLocations": ["#/not/dependencies/a"]
@@ -1782,7 +1782,7 @@
                 "messageId": "required-negated-message",
                 "messageParams": {
                   "count": 1,
-                  "required": { "or": ["b"] }
+                  "required": { "or": ["'b'"] }
                 },
                 "instanceLocation": "#",
                 "schemaLocations": ["#/not/dependencies/a/required"]
@@ -1817,7 +1817,7 @@
                 "messageId": "hasProperty-success-message",
                 "messageParams": {
                   "count": 1,
-                  "properties": { "or": ["a"] }
+                  "properties": { "or": ["'a'"] }
                 },
                 "instanceLocation": "#",
                 "schemaLocations": ["#/not/dependentSchemas/a"]
@@ -1826,7 +1826,7 @@
                 "messageId": "required-negated-message",
                 "messageParams": {
                   "count": 1,
-                  "required": { "or": ["b"] }
+                  "required": { "or": ["'b'"] }
                 },
                 "instanceLocation": "#",
                 "schemaLocations": ["#/not/dependentSchemas/a/required"]
@@ -1861,7 +1861,7 @@
                 "messageId": "hasProperty-success-message",
                 "messageParams": {
                   "count": 1,
-                  "properties": { "or": ["a"] }
+                  "properties": { "or": ["'a'"] }
                 },
                 "instanceLocation": "#",
                 "schemaLocations": ["#/not/dependentSchemas/a"]
@@ -1870,7 +1870,7 @@
                 "messageId": "required-negated-message",
                 "messageParams": {
                   "count": 1,
-                  "required": { "or": ["b"] }
+                  "required": { "or": ["'b'"] }
                 },
                 "instanceLocation": "#",
                 "schemaLocations": ["#/not/dependentSchemas/a/required"]
@@ -1905,7 +1905,7 @@
                 "messageId": "hasProperty-success-message",
                 "messageParams": {
                   "count": 1,
-                  "properties": { "or": ["a"] }
+                  "properties": { "or": ["'a'"] }
                 },
                 "instanceLocation": "#",
                 "schemaLocations": ["#/not/dependentSchemas/a"]
@@ -1914,7 +1914,7 @@
                 "messageId": "required-negated-message",
                 "messageParams": {
                   "count": 1,
-                  "required": { "or": ["b"] }
+                  "required": { "or": ["'b'"] }
                 },
                 "instanceLocation": "#",
                 "schemaLocations": ["#/not/dependentSchemas/a/required"]
@@ -1983,7 +1983,7 @@
                 "messageId": "hasProperty-success-message",
                 "messageParams": {
                   "count": 1,
-                  "properties": { "or": ["a"] }
+                  "properties": { "or": ["'a'"] }
                 },
                 "instanceLocation": "#",
                 "schemaLocations": ["#/not/properties"]
@@ -2027,7 +2027,7 @@
                 "messageId": "hasProperty-success-message",
                 "messageParams": {
                   "count": 1,
-                  "properties": { "or": ["a"] }
+                  "properties": { "or": ["'a'"] }
                 },
                 "instanceLocation": "#",
                 "schemaLocations": ["#/not/properties"]
@@ -2178,7 +2178,8 @@
               {
                 "messageId": "eachItem-negated-message",
                 "messageParams": {
-                  "index": 0
+                  "index": 0,
+                  "count": 1
                 },
                 "alternatives": [
                   [
@@ -2235,7 +2236,8 @@
               {
                 "messageId": "eachItem-negated-message",
                 "messageParams": {
-                  "index": 0
+                  "index": 0,
+                  "count": 1
                 },
                 "alternatives": [
                   [
@@ -2284,7 +2286,8 @@
               {
                 "messageId": "eachItem-negated-message",
                 "messageParams": {
-                  "index": 1
+                  "index": 1,
+                  "count": 1
                 },
                 "alternatives": [
                   [
@@ -2362,7 +2365,8 @@
               {
                 "messageId": "eachItem-negated-message",
                 "messageParams": {
-                  "index": 1
+                  "index": 1,
+                  "count": 1
                 },
                 "alternatives": [
                   [
@@ -2438,7 +2442,8 @@
               {
                 "messageId": "eachMatchingProperty-negated-message",
                 "messageParams": {
-                  "pattern": "x"
+                  "pattern": "x",
+                  "count": 1
                 },
                 "alternatives": [
                   [
@@ -2485,7 +2490,8 @@
                 "messageParams": {
                   "scope": "all",
                   "properties": { "and": [] },
-                  "patterns": { "or": [] }
+                  "patterns": { "or": [] },
+                  "count": 1
                 },
                 "alternatives": [
                   [
@@ -2535,7 +2541,7 @@
                 "messageId": "noAdditionalProperty-negated-message",
                 "messageParams": {
                   "scope": "names",
-                  "properties": { "and": ["a"] },
+                  "properties": { "and": ["'a'"] },
                   "patterns": { "or": [] }
                 },
                 "instanceLocation": "#",
@@ -2551,7 +2557,7 @@
                       "messageId": "hasProperty-success-message",
                       "messageParams": {
                         "count": 1,
-                        "properties": { "or": ["a"] }
+                        "properties": { "or": ["'a'"] }
                       },
                       "instanceLocation": "#",
                       "schemaLocations": ["#/not/properties"]
@@ -2597,6 +2603,9 @@
             [
               {
                 "messageId": "eachPropertyName-negated-message",
+                "messageParams": {
+                  "count": 1
+                },
                 "alternatives": [
                   [
                     {

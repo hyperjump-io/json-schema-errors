@@ -47,7 +47,9 @@
         {
           "messageId": "type-message",
           "messageParams": {
-            "expectedTypes": "string"
+            "count": 1,
+            "type": "string",
+            "expectedTypes": { "or": ["string"] }
           },
           "instanceLocation": "#/bar",
           "schemaLocations": ["#/additionalProperties/type"]

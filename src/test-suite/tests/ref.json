@@ -18,6 +18,8 @@
         {
           "messageId": "type-message",
           "messageParams": {
+            "count": 1,
+            "type": "number",
             "expectedTypes": { "or": ["number"] }
           },
           "instanceLocation": "#/foo",

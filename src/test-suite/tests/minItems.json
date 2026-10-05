@@ -13,7 +13,7 @@
         {
           "messageId": "minItems-message",
           "messageParams": {
-            "minItems": "1"
+            "minItems": 1
           },
           "instanceLocation": "#",
           "schemaLocations": ["#/minItems"]
@@ -38,7 +38,7 @@
         {
           "messageId": "minItems-message",
           "messageParams": {
-            "minItems": "4"
+            "minItems": 4
           },
           "instanceLocation": "#",
           "schemaLocations": ["#/allOf/0/minItems"]

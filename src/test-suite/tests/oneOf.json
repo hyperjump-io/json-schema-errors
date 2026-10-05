@@ -20,6 +20,8 @@
               {
                 "messageId": "type-message",
                 "messageParams": {
+                  "count": 1,
+                  "type": "string",
                   "expectedTypes": { "or": ["string"] }
                 },
                 "instanceLocation": "#",
@@ -30,6 +32,8 @@
               {
                 "messageId": "type-message",
                 "messageParams": {
+                  "count": 1,
+                  "type": "number",
                   "expectedTypes": { "or": ["number"] }
                 },
                 "instanceLocation": "#",
@@ -151,7 +155,7 @@
                 "messageId": "required-success-message",
                 "messageParams": {
                   "count": 1,
-                  "required": { "and": ["a"] }
+                  "required": { "and": ["'a'"] }
                 },
                 "instanceLocation": "#",
                 "schemaLocations": ["#/oneOf/0/required"]
@@ -162,7 +166,7 @@
                 "messageId": "required-success-message",
                 "messageParams": {
                   "count": 1,
-                  "required": { "and": ["b"] }
+                  "required": { "and": ["'b'"] }
                 },
                 "instanceLocation": "#",
                 "schemaLocations": ["#/oneOf/1/required"]
@@ -192,7 +196,7 @@
                 "messageId": "required-success-message",
                 "messageParams": {
                   "count": 1,
-                  "required": { "and": ["a"] }
+                  "required": { "and": ["'a'"] }
                 },
                 "instanceLocation": "#",
                 "schemaLocations": ["#/oneOf/0/required"]
@@ -203,7 +207,7 @@
                 "messageId": "required-success-message",
                 "messageParams": {
                   "count": 1,
-                  "required": { "and": ["b"] }
+                  "required": { "and": ["'b'"] }
                 },
                 "instanceLocation": "#",
                 "schemaLocations": ["#/oneOf/1/required"]
@@ -384,7 +388,7 @@
                       "messageId": "hasProperty-negated-message",
                       "messageParams": {
                         "count": 1,
-                        "properties": { "and": ["a"] }
+                        "properties": { "and": ["'a'"] }
                       },
                       "instanceLocation": "#",
                       "schemaLocations": ["#/oneOf/1/properties"]
@@ -456,7 +460,7 @@
                       "messageId": "hasProperty-negated-message",
                       "messageParams": {
                         "count": 1,
-                        "properties": { "and": ["a"] }
+                        "properties": { "and": ["'a'"] }
                       },
                       "instanceLocation": "#",
                       "schemaLocations": ["#/oneOf/1/properties"]
@@ -490,7 +494,7 @@
                       "messageId": "hasProperty-negated-message",
                       "messageParams": {
                         "count": 1,
-                        "properties": { "and": ["b"] }
+                        "properties": { "and": ["'b'"] }
                       },
                       "instanceLocation": "#",
                       "schemaLocations": ["#/oneOf/1/properties"]
@@ -790,6 +794,8 @@
               {
                 "messageId": "type-message",
                 "messageParams": {
+                  "count": 1,
+                  "type": "string",
                   "expectedTypes": { "or": ["string"] }
                 },
                 "instanceLocation": "#",
@@ -800,6 +806,8 @@
               {
                 "messageId": "type-message",
                 "messageParams": {
+                  "count": 1,
+                  "type": "number",
                   "expectedTypes": { "or": ["number"] }
                 },
                 "instanceLocation": "#",
@@ -873,6 +881,8 @@
               {
                 "messageId": "type-message",
                 "messageParams": {
+                  "count": 1,
+                  "type": "string",
                   "expectedTypes": { "or": ["string"] }
                 },
                 "instanceLocation": "#/foo",
@@ -883,6 +893,8 @@
               {
                 "messageId": "type-message",
                 "messageParams": {
+                  "count": 1,
+                  "type": "boolean",
                   "expectedTypes": { "or": ["boolean"] }
                 },
                 "instanceLocation": "#/foo",
@@ -920,6 +932,8 @@
         {
           "messageId": "type-message",
           "messageParams": {
+            "count": 1,
+            "type": "string",
             "expectedTypes": { "or": ["string"] }
           },
           "instanceLocation": "#/a",
@@ -1008,6 +1022,8 @@
         {
           "messageId": "type-message",
           "messageParams": {
+            "count": 1,
+            "type": "number",
             "expectedTypes": { "or": ["number"] }
           },
           "instanceLocation": "#/b",
@@ -1041,6 +1057,8 @@
         {
           "messageId": "type-message",
           "messageParams": {
+            "count": 1,
+            "type": "string",
             "expectedTypes": { "or": ["string"] }
           },
           "instanceLocation": "#/a",
@@ -1137,6 +1155,8 @@
               {
                 "messageId": "type-message",
                 "messageParams": {
+                  "count": 1,
+                  "type": "string",
                   "expectedTypes": { "or": ["string"] }
                 },
                 "instanceLocation": "#/x",
@@ -1147,7 +1167,7 @@
               {
                 "messageId": "minLength-message",
                 "messageParams": {
-                  "minLength": "2"
+                  "minLength": 2
                 },
                 "instanceLocation": "#/type",
                 "schemaLocations": ["#/oneOf/1/properties/type/allOf/1/minLength"]
@@ -1188,6 +1208,8 @@
         {
           "messageId": "type-message",
           "messageParams": {
+            "count": 1,
+            "type": "string",
             "expectedTypes": { "or": ["string"] }
           },
           "instanceLocation": "#/b",
@@ -1869,7 +1891,7 @@
                       "messageId": "hasProperty-negated-message",
                       "messageParams": {
                         "count": 1,
-                        "properties": { "and": ["a"] }
+                        "properties": { "and": ["'a'"] }
                       },
                       "instanceLocation": "#",
                       "schemaLocations": ["#/oneOf/0/dependentSchemas/a"]
@@ -1880,7 +1902,7 @@
                       "messageId": "required-success-message",
                       "messageParams": {
                         "count": 1,
-                        "required": { "and": ["b"] }
+                        "required": { "and": ["'b'"] }
                       },
                       "instanceLocation": "#",
                       "schemaLocations": ["#/oneOf/0/dependentSchemas/a/required"]
@@ -1940,7 +1962,7 @@
                       "messageId": "hasProperty-negated-message",
                       "messageParams": {
                         "count": 1,
-                        "properties": { "and": ["a"] }
+                        "properties": { "and": ["'a'"] }
                       },
                       "instanceLocation": "#",
                       "schemaLocations": ["#/oneOf/0/dependentSchemas/a"]
@@ -1951,7 +1973,7 @@
                       "messageId": "required-success-message",
                       "messageParams": {
                         "count": 1,
-                        "required": { "and": ["b"] }
+                        "required": { "and": ["'b'"] }
                       },
                       "instanceLocation": "#",
                       "schemaLocations": ["#/oneOf/0/dependentSchemas/a/required"]
@@ -2144,7 +2166,7 @@
                 "messageId": "noAdditionalProperty-success-message",
                 "messageParams": {
                   "scope": "names",
-                  "properties": { "and": ["a"] },
+                  "properties": { "and": ["'a'"] },
                   "patterns": { "or": [] }
                 },
                 "instanceLocation": "#",
@@ -2162,7 +2184,7 @@
                       "messageId": "hasProperty-negated-message",
                       "messageParams": {
                         "count": 1,
-                        "properties": { "and": ["a"] }
+                        "properties": { "and": ["'a'"] }
                       },
                       "instanceLocation": "#",
                       "schemaLocations": ["#/oneOf/1/properties"]
