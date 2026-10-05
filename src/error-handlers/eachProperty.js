@@ -23,7 +23,7 @@ import {
  * @type ErrorHandler
  */
 const eachPropertyErrorHandler = {
-  success: (normalizedOutput, instance, localization, ast) => {
+  success: (normalizedOutput, instance, localization, context) => {
     /** @type ErrorObject[] */
     const successes = [];
 
@@ -37,43 +37,43 @@ const eachPropertyErrorHandler = {
     const property = getPlaceholder(instance, unusedPropertyName(instance));
 
     for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/patternProperties"]) {
-      const patternProperties = /** @type [RegExp, string][] */ (getCompiledKeywordValue(ast, schemaLocation));
+      const patternProperties = /** @type [RegExp, string][] */ (getCompiledKeywordValue(context.ast, schemaLocation));
       for (const [pattern, subschemaLocation] of patternProperties) {
         successes.push(...describeScope({
           subschemaLocation,
           placeholder: property,
           each: (localization, count) => localization.getEachMatchingPropertySuccessMessage(pattern.source, count),
           none: (localization) => localization.getNoMatchingPropertySuccessMessage(pattern.source)
-        }, instance, schemaLocation, localization, ast));
+        }, instance, schemaLocation, localization, context));
       }
     }
 
     for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/additionalProperties"]) {
-      const [, subschemaLocation] = /** @type [RegExp, string] */ (getCompiledKeywordValue(ast, schemaLocation));
+      const [, subschemaLocation] = /** @type [RegExp, string] */ (getCompiledKeywordValue(context.ast, schemaLocation));
       const properties = Object.keys(/** @type Record<string, string> */ (
-        getSiblingValue(ast, schemaLocation, "https://json-schema.org/keyword/properties") ?? {}
+        getSiblingValue(context.ast, schemaLocation, "https://json-schema.org/keyword/properties") ?? {}
       ));
       const patterns = /** @type [RegExp, string][] */ (
-        getSiblingValue(ast, schemaLocation, "https://json-schema.org/keyword/patternProperties") ?? []
+        getSiblingValue(context.ast, schemaLocation, "https://json-schema.org/keyword/patternProperties") ?? []
       ).map(([pattern]) => pattern.source);
       successes.push(...describeScope({
         subschemaLocation,
         placeholder: property,
         each: (localization, count) => localization.getEachAdditionalPropertySuccessMessage(properties, patterns, count),
         none: (localization) => localization.getNoAdditionalPropertySuccessMessage(properties, patterns)
-      }, instance, schemaLocation, localization, ast));
+      }, instance, schemaLocation, localization, context));
     }
 
     // Property names are at a different location than property values
     const propertyName = getPropertyNamePlaceholder(instance, unusedPropertyName(instance));
     for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/propertyNames"]) {
-      const subschemaLocation = /** @type string */ (getCompiledKeywordValue(ast, schemaLocation));
+      const subschemaLocation = /** @type string */ (getCompiledKeywordValue(context.ast, schemaLocation));
       successes.push(...describeScope({
         subschemaLocation,
         placeholder: propertyName,
         each: (localization, count) => localization.getEachPropertyNameSuccessMessage(count),
         none: (localization) => localization.getMaxPropertiesSuccessMessage(0)
-      }, instance, schemaLocation, localization, ast));
+      }, instance, schemaLocation, localization, context));
     }
 
     return successes;

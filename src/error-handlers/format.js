@@ -17,7 +17,7 @@ const keywordUris = [
 
 /** @type ErrorHandler */
 const formatErrorHandler = {
-  error: (normalizedErrors, instance, localization, ast) => {
+  error: (normalizedErrors, instance, localization, context) => {
     /** @type ErrorObject[] */
     const errors = [];
 
@@ -27,7 +27,7 @@ const formatErrorHandler = {
           continue;
         }
 
-        const format = /** @type string */ (getCompiledKeywordValue(ast, schemaLocation));
+        const format = /** @type string */ (getCompiledKeywordValue(context.ast, schemaLocation));
 
         errors.push({
           message: localization.getFormatErrorMessage(format),
@@ -40,13 +40,13 @@ const formatErrorHandler = {
     return errors;
   },
 
-  success: (normalizedOutput, instance, localization, ast) => {
+  success: (normalizedOutput, instance, localization, context) => {
     // Whether 'format' is an assertion depends on how the validator is
     // configured, which we don't know, so the messages say that it only applies
     // if formats are validated. That includes 'format-assertion' because some
     // validators can be configured not to validate it either.
     return keywordUris.flatMap((keywordUri) => {
-      return describeKeyword(normalizedOutput, keywordUri, instance, ast, (/** @type string */ format) => {
+      return describeKeyword(normalizedOutput, keywordUri, instance, context.ast, (/** @type string */ format) => {
         return localization.getFormatSuccessMessage(format);
       });
     });

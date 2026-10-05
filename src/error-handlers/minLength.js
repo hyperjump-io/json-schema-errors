@@ -7,7 +7,7 @@ import { describeKeyword, getCompiledKeywordValue } from "../json-schema-errors.
 
 /** @type ErrorHandler */
 const minLengthErrorHandler = {
-  error: (normalizedErrors, instance, localization, ast) => {
+  error: (normalizedErrors, instance, localization, context) => {
     /** @type ErrorObject[] */
     const errors = [];
     let highestMinLength = -Infinity;
@@ -18,7 +18,7 @@ const minLengthErrorHandler = {
         continue;
       }
 
-      const minLength = /** @type number */ (getCompiledKeywordValue(ast, schemaLocation));
+      const minLength = /** @type number */ (getCompiledKeywordValue(context.ast, schemaLocation));
 
       if (minLength > highestMinLength) {
         highestMinLength = minLength;
@@ -36,8 +36,8 @@ const minLengthErrorHandler = {
     return errors;
   },
 
-  success: (normalizedOutput, instance, localization, ast) => {
-    return describeKeyword(normalizedOutput, "https://json-schema.org/keyword/minLength", instance, ast, (/** @type number */ minLength) => {
+  success: (normalizedOutput, instance, localization, context) => {
+    return describeKeyword(normalizedOutput, "https://json-schema.org/keyword/minLength", instance, context.ast, (/** @type number */ minLength) => {
       return localization.getMinLengthSuccessMessage(minLength);
     });
   }

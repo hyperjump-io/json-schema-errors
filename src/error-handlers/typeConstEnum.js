@@ -9,7 +9,7 @@ const ALL_TYPES = new Set(["null", "boolean", "number", "string", "array", "obje
 
 /** @type {ErrorHandler} */
 const typeConstEnumErrorHandler = {
-  error: (normalizedErrors, instance, localization, ast) => {
+  error: (normalizedErrors, instance, localization, context) => {
     let allowedTypes = new Set(ALL_TYPES);
     /** @type {string[]} */
     const failedTypeLocations = [];
@@ -19,7 +19,7 @@ const typeConstEnumErrorHandler = {
         failedTypeLocations.push(schemaLocation);
 
         /** @type {string | string[]} */
-        const value = /** @type {string | string[]} */ (getCompiledKeywordValue(ast, schemaLocation));
+        const value = /** @type {string | string[]} */ (getCompiledKeywordValue(context.ast, schemaLocation));
         const types = Array.isArray(value) ? value : [value];
         /** @type {Set<string>} */
         const keywordTypes = new Set(types);
@@ -51,7 +51,7 @@ const typeConstEnumErrorHandler = {
       }
 
       const keywordJson = new Set();
-      const constValueJson = /** @type string */ (getCompiledKeywordValue(ast, schemaLocation));
+      const constValueJson = /** @type string */ (getCompiledKeywordValue(context.ast, schemaLocation));
       if (allowedTypes.has(jsonTypeOf(constValueJson))) {
         keywordJson.add(constValueJson);
       } else {
@@ -68,7 +68,7 @@ const typeConstEnumErrorHandler = {
       }
 
       const keywordJson = new Set();
-      const enumValuesJson = /** @type string[] */ (getCompiledKeywordValue(ast, schemaLocation));
+      const enumValuesJson = /** @type string[] */ (getCompiledKeywordValue(context.ast, schemaLocation));
       for (const enumValueJson of enumValuesJson) {
         if (allowedTypes.has(jsonTypeOf(enumValueJson))) {
           keywordJson.add(enumValueJson);
@@ -112,15 +112,15 @@ const typeConstEnumErrorHandler = {
     }
   },
 
-  success: (normalizedOutput, instance, localization, ast) => {
+  success: (normalizedOutput, instance, localization, context) => {
     return [
-      ...describeKeyword(normalizedOutput, "https://json-schema.org/keyword/type", instance, ast, (/** @type string | string[] */ type) => {
+      ...describeKeyword(normalizedOutput, "https://json-schema.org/keyword/type", instance, context.ast, (/** @type string | string[] */ type) => {
         return localization.getTypeSuccessMessage(Array.isArray(type) ? type : [type]);
       }),
-      ...describeKeyword(normalizedOutput, "https://json-schema.org/keyword/const", instance, ast, (/** @type string */ constJson) => {
+      ...describeKeyword(normalizedOutput, "https://json-schema.org/keyword/const", instance, context.ast, (/** @type string */ constJson) => {
         return localization.getEnumSuccessMessage([JSON.parse(constJson)]);
       }),
-      ...describeKeyword(normalizedOutput, "https://json-schema.org/keyword/enum", instance, ast, (/** @type string[] */ enumJson) => {
+      ...describeKeyword(normalizedOutput, "https://json-schema.org/keyword/enum", instance, context.ast, (/** @type string[] */ enumJson) => {
         return localization.getEnumSuccessMessage(enumJson.map((json) => JSON.parse(json)));
       })
     ];

@@ -19,7 +19,7 @@ import {
  * @type ErrorHandler
  */
 const propertiesErrorHandler = {
-  success: (normalizedOutput, instance, localization, ast) => {
+  success: (normalizedOutput, instance, localization, context) => {
     /** @type ErrorObject[] */
     const successes = [];
 
@@ -30,7 +30,7 @@ const propertiesErrorHandler = {
     }
 
     for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/properties"]) {
-      const properties = /** @type Record<string, string> */ (getCompiledKeywordValue(ast, schemaLocation));
+      const properties = /** @type Record<string, string> */ (getCompiledKeywordValue(context.ast, schemaLocation));
       const isObject = Instance.typeOf(instance) === "object";
 
       for (const propertyName in properties) {
@@ -40,14 +40,14 @@ const propertiesErrorHandler = {
 
         // The property's subschema only applies if the property is present
         const property = getPlaceholder(instance, propertyName);
-        const output = evaluateRequirements(properties[propertyName], property, ast);
+        const output = evaluateRequirements(properties[propertyName], property, context.ast);
         successes.push(...describeConditional({
           condition: (localization) => [{
             message: localization.getHasPropertySuccessMessage([propertyName]),
             instanceLocation: Instance.uri(instance),
             schemaLocations: [schemaLocation]
           }],
-          then: (localization) => getSuccesses(output, instance, localization, ast)
+          then: (localization) => getSuccesses(output, instance, localization, context)
         }, instance, schemaLocation, localization));
       }
     }

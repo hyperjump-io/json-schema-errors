@@ -14,7 +14,7 @@ import { describeScope, getCompiledKeywordValue, getPlaceholder, isPlaceholder }
  * @type ErrorHandler
  */
 const itemsErrorHandler = {
-  success: (normalizedOutput, instance, localization, ast) => {
+  success: (normalizedOutput, instance, localization, context) => {
     /** @type ErrorObject[] */
     const successes = [];
 
@@ -24,7 +24,7 @@ const itemsErrorHandler = {
       return successes;
     }
 
-    for (const [schemaLocation, startIndex, itemsLocation] of getItemsKeywords(normalizedOutput, ast)) {
+    for (const [schemaLocation, startIndex, itemsLocation] of getItemsKeywords(normalizedOutput, context.ast)) {
       // An item that doesn't exist stands in for any item
       const length = Instance.typeOf(instance) === "array" ? Instance.length(instance) : 0;
       successes.push(...describeScope({
@@ -32,7 +32,7 @@ const itemsErrorHandler = {
         placeholder: getPlaceholder(instance, String(Math.max(startIndex, length))),
         each: (localization, count) => localization.getEachItemSuccessMessage(startIndex, count),
         none: (localization) => localization.getMaxItemsSuccessMessage(startIndex)
-      }, instance, schemaLocation, localization, ast));
+      }, instance, schemaLocation, localization, context));
     }
 
     return successes;

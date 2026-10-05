@@ -7,7 +7,7 @@ import { describeKeyword, getCompiledKeywordValue } from "../json-schema-errors.
 
 /** @type ErrorHandler */
 const minItemsErrorHandler = {
-  error: (normalizedErrors, instance, localization, ast) => {
+  error: (normalizedErrors, instance, localization, context) => {
     /** @type ErrorObject[] */
     const errors = [];
     let highestMinItem = 0;
@@ -18,7 +18,7 @@ const minItemsErrorHandler = {
         continue;
       }
 
-      const minItems = /** @type number */ (getCompiledKeywordValue(ast, schemaLocation));
+      const minItems = /** @type number */ (getCompiledKeywordValue(context.ast, schemaLocation));
 
       if (minItems > highestMinItem) {
         highestMinItem = minItems;
@@ -37,8 +37,8 @@ const minItemsErrorHandler = {
     return errors;
   },
 
-  success: (normalizedOutput, instance, localization, ast) => {
-    return describeKeyword(normalizedOutput, "https://json-schema.org/keyword/minItems", instance, ast, (/** @type number */ minItems) => {
+  success: (normalizedOutput, instance, localization, context) => {
+    return describeKeyword(normalizedOutput, "https://json-schema.org/keyword/minItems", instance, context.ast, (/** @type number */ minItems) => {
       return localization.getMinItemsSuccessMessage(minItems);
     });
   }

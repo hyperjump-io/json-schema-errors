@@ -189,22 +189,29 @@ export const removeErrorHandler: (errorHandlerUri: string) => void;
  * passing, such as with `not`. A handler can have either or both.
  */
 export type ErrorHandler = {
-  error?: (normalizedErrors: InstanceOutput, instance: JsonNode, localization: Localization, ast: AST) => ErrorObject[];
-  success?: (normalizedOutput: InstanceOutput, instance: JsonNode, localization: Localization, ast: AST) => ErrorObject[];
+  error?: (normalizedErrors: InstanceOutput, instance: JsonNode, localization: Localization, context: ErrorHandlerContext) => ErrorObject[];
+  success?: (normalizedOutput: InstanceOutput, instance: JsonNode, localization: Localization, context: ErrorHandlerContext) => ErrorObject[];
+};
+
+/**
+ * What error handlers need to know about the schema and how it was validated.
+ */
+export type ErrorHandlerContext = {
+  ast: AST;
 };
 
 /**
  * Converts the normalized error format to human readable errors. It's used to
  * build errors in applicator error handlers.
  */
-export const getErrors: (normalizedErrors: NormalizedOutput, instance: JsonNode, localization: Localization, ast: AST) => ErrorObject[];
+export const getErrors: (normalizedErrors: NormalizedOutput, instance: JsonNode, localization: Localization, context: ErrorHandlerContext) => ErrorObject[];
 
 /**
  * Converts the normalized output of a passing subschema to human readable
  * messages describing how the instance satisfied the subschema. It's used to
  * build errors in applicator error handlers that fail when a subschema passes.
  */
-export const getSuccesses: (normalizedOutput: NormalizedOutput, instance: JsonNode, localization: Localization, ast: AST) => ErrorObject[];
+export const getSuccesses: (normalizedOutput: NormalizedOutput, instance: JsonNode, localization: Localization, context: ErrorHandlerContext) => ErrorObject[];
 
 export type { Localization };
 

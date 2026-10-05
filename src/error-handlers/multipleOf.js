@@ -7,7 +7,7 @@ import { describeKeyword, getCompiledKeywordValue } from "../json-schema-errors.
 
 /** @type ErrorHandler */
 const multipleOfErrorHandler = {
-  error: (normalizedErrors, instance, localization, ast) => {
+  error: (normalizedErrors, instance, localization, context) => {
     /** @type ErrorObject[] */
     const errors = [];
 
@@ -22,7 +22,7 @@ const multipleOfErrorHandler = {
         hasError = true;
       }
 
-      const multipleOf = /** @type number */ (getCompiledKeywordValue(ast, schemaLocation));
+      const multipleOf = /** @type number */ (getCompiledKeywordValue(context.ast, schemaLocation));
 
       combinedMultipleOf = combinedMultipleOf === null ? multipleOf : lcm(combinedMultipleOf, multipleOf);
       schemaLocations.push(schemaLocation);
@@ -39,8 +39,8 @@ const multipleOfErrorHandler = {
     return errors;
   },
 
-  success: (normalizedOutput, instance, localization, ast) => {
-    return describeKeyword(normalizedOutput, "https://json-schema.org/keyword/multipleOf", instance, ast, (/** @type number */ multipleOf) => {
+  success: (normalizedOutput, instance, localization, context) => {
+    return describeKeyword(normalizedOutput, "https://json-schema.org/keyword/multipleOf", instance, context.ast, (/** @type number */ multipleOf) => {
       return localization.getMultipleOfSuccessMessage(multipleOf);
     });
   }

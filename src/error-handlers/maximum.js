@@ -7,7 +7,7 @@ import { describeKeyword, getCompiledKeywordValue, getSiblingKeywordLocation } f
 
 /** @type ErrorHandler */
 const maximumErrorHandler = {
-  error: (normalizedErrors, instance, localization, ast) => {
+  error: (normalizedErrors, instance, localization, context) => {
     let lowestMaximum = Infinity;
     let isExclusive = false;
 
@@ -19,7 +19,7 @@ const maximumErrorHandler = {
         continue;
       }
 
-      const maximum = /** @type number */ (getCompiledKeywordValue(ast, schemaLocation));
+      const maximum = /** @type number */ (getCompiledKeywordValue(context.ast, schemaLocation));
       if (maximum < lowestMaximum) {
         lowestMaximum = maximum;
         schemaLocations = [schemaLocation];
@@ -31,7 +31,7 @@ const maximumErrorHandler = {
         continue;
       }
 
-      const exclusiveMaximum = /** @type number */ (getCompiledKeywordValue(ast, schemaLocation));
+      const exclusiveMaximum = /** @type number */ (getCompiledKeywordValue(context.ast, schemaLocation));
       if (exclusiveMaximum < lowestMaximum) {
         lowestMaximum = exclusiveMaximum;
         isExclusive = true;
@@ -44,13 +44,13 @@ const maximumErrorHandler = {
         continue;
       }
 
-      const [maximum, exclusive] = /** @type [number, boolean] */ (getCompiledKeywordValue(ast, schemaLocation));
+      const [maximum, exclusive] = /** @type [number, boolean] */ (getCompiledKeywordValue(context.ast, schemaLocation));
       if (maximum < lowestMaximum) {
         lowestMaximum = maximum;
         isExclusive = exclusive;
         schemaLocations = [schemaLocation];
         if (exclusive) {
-          const exclusiveLocation = getSiblingKeywordLocation(ast, schemaLocation, "https://json-schema.org/keyword/draft-04/exclusiveMaximum");
+          const exclusiveLocation = getSiblingKeywordLocation(context.ast, schemaLocation, "https://json-schema.org/keyword/draft-04/exclusiveMaximum");
           schemaLocations.push(exclusiveLocation);
         }
       }
@@ -73,23 +73,23 @@ const maximumErrorHandler = {
     }
   },
 
-  success: (normalizedOutput, instance, localization, ast) => {
+  success: (normalizedOutput, instance, localization, context) => {
     /** @type ErrorObject[] */
     const successes = [];
 
-    successes.push(...describeKeyword(normalizedOutput, "https://json-schema.org/keyword/maximum", instance, ast, (/** @type number */ maximum) => {
+    successes.push(...describeKeyword(normalizedOutput, "https://json-schema.org/keyword/maximum", instance, context.ast, (/** @type number */ maximum) => {
       return localization.getMaximumSuccessMessage(maximum);
     }));
 
-    successes.push(...describeKeyword(normalizedOutput, "https://json-schema.org/keyword/exclusiveMaximum", instance, ast, (/** @type number */ exclusiveMaximum) => {
+    successes.push(...describeKeyword(normalizedOutput, "https://json-schema.org/keyword/exclusiveMaximum", instance, context.ast, (/** @type number */ exclusiveMaximum) => {
       return localization.getExclusiveMaximumSuccessMessage(exclusiveMaximum);
     }));
 
     // Draft-04 has a boolean 'exclusiveMaximum' keyword that modifies 'maximum'
     for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/draft-04/maximum"]) {
-      const [maximum, exclusive] = /** @type [number, boolean] */ (getCompiledKeywordValue(ast, schemaLocation));
+      const [maximum, exclusive] = /** @type [number, boolean] */ (getCompiledKeywordValue(context.ast, schemaLocation));
       if (exclusive) {
-        const exclusiveLocation = getSiblingKeywordLocation(ast, schemaLocation, "https://json-schema.org/keyword/draft-04/exclusiveMaximum");
+        const exclusiveLocation = getSiblingKeywordLocation(context.ast, schemaLocation, "https://json-schema.org/keyword/draft-04/exclusiveMaximum");
         successes.push({
           message: localization.getExclusiveMaximumSuccessMessage(maximum),
           instanceLocation: Instance.uri(instance),

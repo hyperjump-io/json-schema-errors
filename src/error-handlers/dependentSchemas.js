@@ -7,9 +7,8 @@ import {
 } from "../json-schema-errors.js";
 
 /**
- * @import { AST } from "@hyperjump/json-schema/experimental"
  * @import { JsonNode } from "@hyperjump/json-schema/instance/experimental"
- * @import { ErrorHandler, ErrorObject, Localization, NormalizedOutput } from "../index.d.ts"
+ * @import { ErrorHandler, ErrorHandlerContext, ErrorObject, Localization, NormalizedOutput } from "../index.d.ts"
  */
 
 /** @type ErrorHandler */
@@ -17,14 +16,14 @@ const dependentSchemasErrorHandler = {
   // Failures in dependent schemas are merged into the parent schema's results,
   // so they're reported by the handlers for the keywords that failed
 
-  success: (normalizedOutput, instance, localization, ast) => {
+  success: (normalizedOutput, instance, localization, context) => {
     /** @type ErrorObject[] */
     const successes = [];
 
     for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/dependentSchemas"]) {
-      const dependencies = /** @type [string, string][] */ (getCompiledKeywordValue(ast, schemaLocation));
+      const dependencies = /** @type [string, string][] */ (getCompiledKeywordValue(context.ast, schemaLocation));
       const outputs = normalizedOutput["https://json-schema.org/keyword/dependentSchemas"][schemaLocation].outputs ?? [];
-      successes.push(...describeSchemaDependencies(dependencies, outputs, instance, localization, ast));
+      successes.push(...describeSchemaDependencies(dependencies, outputs, instance, localization, context));
     }
 
     return successes;
@@ -36,9 +35,9 @@ const dependentSchemasErrorHandler = {
  * dependency's property. The outputs are for the dependencies whose property is
  * present, in the order they appear in the schema.
  *
- * @type (dependencies: [string, string][], outputs: NormalizedOutput[], instance: JsonNode, localization: Localization, ast: AST) => ErrorObject[]
+ * @type (dependencies: [string, string][], outputs: NormalizedOutput[], instance: JsonNode, localization: Localization, context: ErrorHandlerContext) => ErrorObject[]
  */
-export const describeSchemaDependencies = (dependencies, outputs, instance, localization, ast) => {
+export const describeSchemaDependencies = (dependencies, outputs, instance, localization, context) => {
   /** @type ErrorObject[] */
   const successes = [];
 
@@ -48,7 +47,7 @@ export const describeSchemaDependencies = (dependencies, outputs, instance, loca
   for (const [propertyName, dependencyLocation] of dependencies) {
     const isPresent = isObject && Instance.has(propertyName, instance);
     const output = (isPresent ? outputs[outputIndex++] : undefined)
-      ?? evaluateRequirements(dependencyLocation, instance, ast);
+      ?? evaluateRequirements(dependencyLocation, instance, context.ast);
 
     // The dependency only applies if the property is present
     successes.push(...describeConditional({
@@ -57,7 +56,7 @@ export const describeSchemaDependencies = (dependencies, outputs, instance, loca
         instanceLocation: Instance.uri(instance),
         schemaLocations: [dependencyLocation]
       }],
-      then: (localization) => getSuccesses(output, instance, localization, ast)
+      then: (localization) => getSuccesses(output, instance, localization, context)
     }, instance, dependencyLocation, localization));
   }
 

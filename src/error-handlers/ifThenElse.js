@@ -17,20 +17,20 @@ const ifThenElseErrorHandler = {
   // Failures in 'then' and 'else' are merged into the parent schema's results,
   // so they're reported by the handlers for the keywords that failed
 
-  success: (normalizedOutput, instance, localization, ast) => {
+  success: (normalizedOutput, instance, localization, context) => {
     /** @type ErrorObject[] */
     const successes = [];
 
     for (const ifLocation in normalizedOutput["https://json-schema.org/keyword/if"]) {
       const ifOutput = normalizedOutput["https://json-schema.org/keyword/if"][ifLocation].outputs?.[0];
-      const thenOutput = getSiblingOutput(normalizedOutput, "https://json-schema.org/keyword/then", ifLocation, instance, ast);
-      const elseOutput = getSiblingOutput(normalizedOutput, "https://json-schema.org/keyword/else", ifLocation, instance, ast);
+      const thenOutput = getSiblingOutput(normalizedOutput, "https://json-schema.org/keyword/then", ifLocation, instance, context.ast);
+      const elseOutput = getSiblingOutput(normalizedOutput, "https://json-schema.org/keyword/else", ifLocation, instance, context.ast);
       if (!ifOutput || (!thenOutput && !elseOutput)) {
         continue;
       }
 
       /** @type (output: NormalizedOutput) => (localization: Localization) => ErrorObject[] */
-      const describe = (output) => (localization) => getSuccesses(output, instance, localization, ast);
+      const describe = (output) => (localization) => getSuccesses(output, instance, localization, context);
 
       // Both branches are described, even if we know which way 'if' went,
       // because changing the value could change whether 'if' passes
