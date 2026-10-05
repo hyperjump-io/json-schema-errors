@@ -75,6 +75,14 @@ pattern-success-message = The value is either not a string or matches the regula
 pattern-negated-message = The value is a string that doesn't match the regular expression /{$pattern}/
 
 // Array keywords
+eachItem-success-message = {$index ->
+  [0] Each item satisfies the following
+ *[other] Each item at index {$index} or later satisfies the following
+}
+eachItem-negated-message = {$index ->
+  [0] There is an item where at least one of the following is true
+ *[other] There is an item at index {$index} or later where at least one of the following is true
+}
 hasItem-success-message = The value is an array with an item at index {$index}
 hasItem-negated-message = The value is either not an array or doesn't have an item at index {$index}
 maxItems-message = Expected an array with no more than {$maxItems} items
