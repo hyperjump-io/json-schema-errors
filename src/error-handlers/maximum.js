@@ -7,7 +7,7 @@ import { describeKeyword, getCompiledKeywordValue, getSiblingKeywordLocation } f
 
 /** @type ErrorHandler */
 const maximumErrorHandler = {
-  error: (normalizedErrors, instance, localization, context) => {
+  error: (normalizedErrors, instance, context) => {
     let lowestMaximum = Infinity;
     let isExclusive = false;
 
@@ -60,29 +60,29 @@ const maximumErrorHandler = {
       return [];
     } else if (isExclusive) {
       return [{
-        message: localization.getExclusiveMaximumErrorMessage(lowestMaximum),
+        message: context.localization.getExclusiveMaximumErrorMessage(lowestMaximum),
         instanceLocation: Instance.uri(instance),
         schemaLocations: schemaLocations
       }];
     } else {
       return [{
-        message: localization.getMaximumErrorMessage(lowestMaximum),
+        message: context.localization.getMaximumErrorMessage(lowestMaximum),
         instanceLocation: Instance.uri(instance),
         schemaLocations: schemaLocations
       }];
     }
   },
 
-  success: (normalizedOutput, instance, localization, context) => {
+  success: (normalizedOutput, instance, context) => {
     /** @type ErrorObject[] */
     const successes = [];
 
     successes.push(...describeKeyword(normalizedOutput, "https://json-schema.org/keyword/maximum", instance, context.ast, (/** @type number */ maximum) => {
-      return localization.getMaximumSuccessMessage(maximum);
+      return context.localization.getMaximumSuccessMessage(maximum);
     }));
 
     successes.push(...describeKeyword(normalizedOutput, "https://json-schema.org/keyword/exclusiveMaximum", instance, context.ast, (/** @type number */ exclusiveMaximum) => {
-      return localization.getExclusiveMaximumSuccessMessage(exclusiveMaximum);
+      return context.localization.getExclusiveMaximumSuccessMessage(exclusiveMaximum);
     }));
 
     // Draft-04 has a boolean 'exclusiveMaximum' keyword that modifies 'maximum'
@@ -91,13 +91,13 @@ const maximumErrorHandler = {
       if (exclusive) {
         const exclusiveLocation = getSiblingKeywordLocation(context.ast, schemaLocation, "https://json-schema.org/keyword/draft-04/exclusiveMaximum");
         successes.push({
-          message: localization.getExclusiveMaximumSuccessMessage(maximum),
+          message: context.localization.getExclusiveMaximumSuccessMessage(maximum),
           instanceLocation: Instance.uri(instance),
           schemaLocations: [schemaLocation, exclusiveLocation]
         });
       } else {
         successes.push({
-          message: localization.getMaximumSuccessMessage(maximum),
+          message: context.localization.getMaximumSuccessMessage(maximum),
           instanceLocation: Instance.uri(instance),
           schemaLocations: [schemaLocation]
         });

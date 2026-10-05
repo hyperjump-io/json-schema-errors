@@ -19,7 +19,7 @@ import {
  * @type ErrorHandler
  */
 const propertiesErrorHandler = {
-  success: (normalizedOutput, instance, localization, context) => {
+  success: (normalizedOutput, instance, context) => {
     /** @type ErrorObject[] */
     const successes = [];
 
@@ -42,13 +42,13 @@ const propertiesErrorHandler = {
         const property = getPlaceholder(instance, propertyName);
         const output = evaluateRequirements(properties[propertyName], property, context.ast);
         successes.push(...describeConditional({
-          condition: (localization) => [{
-            message: localization.getHasPropertySuccessMessage([propertyName]),
+          condition: (context) => [{
+            message: context.localization.getHasPropertySuccessMessage([propertyName]),
             instanceLocation: Instance.uri(instance),
             schemaLocations: [schemaLocation]
           }],
-          then: (localization) => getSuccesses(output, instance, localization, context)
-        }, instance, schemaLocation, localization));
+          then: (context) => getSuccesses(output, instance, context)
+        }, instance, schemaLocation, context));
       }
     }
 

@@ -9,7 +9,7 @@ import {
 /**
  * @import { JsonNode } from "@hyperjump/json-schema/instance/experimental"
  * @import { AST } from "@hyperjump/json-schema/experimental"
- * @import { ErrorHandler, ErrorObject, InstanceOutput, Localization, NormalizedOutput } from "../index.d.ts"
+ * @import { ErrorHandler, ErrorHandlerContext, ErrorObject, InstanceOutput, NormalizedOutput } from "../index.d.ts"
  */
 
 /** @type ErrorHandler */
@@ -17,7 +17,7 @@ const ifThenElseErrorHandler = {
   // Failures in 'then' and 'else' are flattened into the parent schema's results,
   // so they're reported by the handlers for the keywords that failed
 
-  success: (normalizedOutput, instance, localization, context) => {
+  success: (normalizedOutput, instance, context) => {
     /** @type ErrorObject[] */
     const successes = [];
 
@@ -29,22 +29,22 @@ const ifThenElseErrorHandler = {
         continue;
       }
 
-      /** @type (output: NormalizedOutput) => (localization: Localization) => ErrorObject[] */
-      const describe = (output) => (localization) => getSuccesses(output, instance, localization, context);
+      /** @type (output: NormalizedOutput) => (context: ErrorHandlerContext) => ErrorObject[] */
+      const describe = (output) => (context) => getSuccesses(output, instance, context);
 
       // Both branches are described, even if we know which way 'if' went,
       // because changing the value could change whether 'if' passes
       successes.push(...describeConditional({
-        condition: (localization) => {
-          const description = describe(ifOutput)(localization);
+        condition: (context) => {
+          const description = describe(ifOutput)(context);
           // 'if' fails if any of its keywords fail
-          return localization.isNegated
-            ? someTrue(description.map((option) => [option]), instance, ifLocation, localization)
+          return context.localization.isNegated
+            ? someTrue(description.map((option) => [option]), instance, ifLocation, context)
             : description;
         },
         then: thenOutput ? describe(thenOutput) : undefined,
         else: elseOutput ? describe(elseOutput) : undefined
-      }, instance, ifLocation, localization));
+      }, instance, ifLocation, context));
     }
 
     return successes;

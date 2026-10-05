@@ -14,7 +14,7 @@ import { pointerSegments } from "@hyperjump/json-pointer";
  * @type ErrorHandler
  */
 const unknownErrorHandler = {
-  error: (normalizedErrors, instance, localization) => {
+  error: (normalizedErrors, instance, context) => {
     /** @type ErrorObject[] */
     const errors = [];
 
@@ -26,7 +26,7 @@ const unknownErrorHandler = {
       const keyword = /** @type string */ ([...pointerSegments(decodeURI(schemaLocation.split("#")[1]))].pop());
 
       errors.push({
-        message: localization.getUnknownErrorMessage(keyword),
+        message: context.localization.getUnknownErrorMessage(keyword),
         instanceLocation: Instance.uri(instance),
         schemaLocations: [schemaLocation]
       });

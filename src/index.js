@@ -192,6 +192,7 @@ export {
   getErrors,
   getSuccesses,
   jsonSchemaErrors,
+  negate,
   removeErrorHandler,
   setErrorHandler,
   setNormalizationHandler

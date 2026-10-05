@@ -199,15 +199,23 @@ export const removeErrorHandler: (errorHandlerUri: string) => void;
  * passing, such as with `not`. A handler can have either or both.
  */
 export type ErrorHandler = {
-  error?: (normalizedErrors: InstanceOutput, instance: JsonNode, localization: Localization, context: ErrorHandlerContext) => ErrorObject[];
-  success?: (normalizedOutput: InstanceOutput, instance: JsonNode, localization: Localization, context: ErrorHandlerContext) => ErrorObject[];
+  error?: (normalizedErrors: InstanceOutput, instance: JsonNode, context: ErrorHandlerContext) => ErrorObject[];
+  success?: (normalizedOutput: InstanceOutput, instance: JsonNode, context: ErrorHandlerContext) => ErrorObject[];
 };
 
 /**
- * What error handlers need to know about the schema and how it was validated.
+ * What error handlers need to know about the schema, how it was validated, and
+ * how to write messages.
  */
 export type ErrorHandlerContext = {
   ast: AST;
+
+  /**
+   * Builds messages in the requested locale. In a negated context, success
+   * messages describe what would make keywords fail instead of what they
+   * require.
+   */
+  localization: Localization;
 
   /**
    * Whether the validator treated a `format` keyword as an assertion rather
@@ -239,14 +247,22 @@ export const getCompiledKeywordValue: (ast: AST, schemaLocation: string) => unkn
  * Converts the normalized error format to human readable errors. It's used to
  * build errors in applicator error handlers.
  */
-export const getErrors: (normalizedErrors: NormalizedOutput, instance: JsonNode, localization: Localization, context: ErrorHandlerContext) => ErrorObject[];
+export const getErrors: (normalizedErrors: NormalizedOutput, instance: JsonNode, context: ErrorHandlerContext) => ErrorObject[];
 
 /**
  * Converts the normalized output of a passing subschema to human readable
  * messages describing how the instance satisfied the subschema. It's used to
  * build errors in applicator error handlers that fail when a subschema passes.
  */
-export const getSuccesses: (normalizedOutput: NormalizedOutput, instance: JsonNode, localization: Localization, context: ErrorHandlerContext) => ErrorObject[];
+export const getSuccesses: (normalizedOutput: NormalizedOutput, instance: JsonNode, context: ErrorHandlerContext) => ErrorObject[];
+
+/**
+ * A view of the context where success messages describe what would make
+ * keywords fail instead of what they require. It's used to explain failures of
+ * keywords like `not` that fail when a subschema passes. Negating a negated
+ * context gives back the original meaning.
+ */
+export const negate: (context: ErrorHandlerContext) => ErrorHandlerContext;
 
 export type { Localization };
 

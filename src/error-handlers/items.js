@@ -14,7 +14,7 @@ import { describeScope, getCompiledKeywordValue, getPlaceholder, isPlaceholder }
  * @type ErrorHandler
  */
 const itemsErrorHandler = {
-  success: (normalizedOutput, instance, localization, context) => {
+  success: (normalizedOutput, instance, context) => {
     /** @type ErrorObject[] */
     const successes = [];
 
@@ -32,7 +32,7 @@ const itemsErrorHandler = {
         placeholder: getPlaceholder(instance, String(Math.max(startIndex, length))),
         each: (localization, count) => localization.getEachItemSuccessMessage(startIndex, count),
         none: (localization) => localization.getMaxItemsSuccessMessage(startIndex)
-      }, instance, schemaLocation, localization, context));
+      }, instance, schemaLocation, context));
     }
 
     return successes;
