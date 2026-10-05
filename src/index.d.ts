@@ -266,6 +266,22 @@ export const negate: (context: ErrorHandlerContext) => ErrorHandlerContext;
 
 export type { Localization };
 
+/**
+ * Adds Fluent messages for a locale, such as messages for a custom keyword or
+ * a translation for a locale that isn't included. A message with the same id
+ * as an existing message replaces it. Messages that aren't translated for a
+ * locale fall back to en-US.
+ *
+ * Messages for keywords use the ids `{keyword}-message` for errors and
+ * `{keyword}-success-message` and `{keyword}-negated-message` for describing
+ * what a keyword requires.
+ *
+ * @param locale - A locale identifier in the form of "{language}-{region}"
+ * @param ftl - Messages in the Fluent syntax
+ * @param options.direction - The text direction of a new locale. It's ignored if the locale already exists.
+ */
+export const addTranslation: (locale: string, ftl: string, options?: { direction?: "ltr" | "rtl" }) => void;
+
 export type ContainsRange = {
   minContains?: number;
   maxContains?: number;

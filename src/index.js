@@ -197,4 +197,5 @@ export {
   setErrorHandler,
   setNormalizationHandler
 } from "./json-schema-errors.js";
+export { addTranslation } from "./localization.js";
 export { JSE } from "./output-format.js";

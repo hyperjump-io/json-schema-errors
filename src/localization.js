@@ -6,12 +6,57 @@ import { FluentBundle, FluentResource } from "@fluent/bundle";
  * @import { ContainsRange, Json } from "./index.d.ts"
  */
 
+const DEFAULT_LOCALE = "en-US";
+
+/** @type Map<string, FluentBundle> */
+const bundles = new Map();
+
 /** @type Map<string, Localization> */
 const localizationCache = new Map();
+
+/** @type (locale: string, direction: "ltr" | "rtl") => FluentBundle */
+const createBundle = (locale, direction) => {
+  return new FluentBundle(locale, { useIsolating: direction === "rtl" });
+};
+
+/** @type (locale: string) => FluentBundle | undefined */
+const getBundle = (locale) => {
+  if (!bundles.has(locale)) {
+    const translation = translations[locale];
+    if (!translation) {
+      return undefined;
+    }
+
+    const bundle = createBundle(locale, translation.direction);
+    bundle.addResource(new FluentResource(translation.ftl));
+    bundles.set(locale, bundle);
+  }
+
+  return bundles.get(locale);
+};
+
+/**
+ * @type (locale: string, ftl: string, options?: { direction?: "ltr" | "rtl" }) => void
+ */
+export const addTranslation = (locale, ftl, options = {}) => {
+  let bundle = getBundle(locale);
+  if (!bundle) {
+    bundle = createBundle(locale, options.direction ?? "ltr");
+    bundles.set(locale, bundle);
+  }
+
+  bundle.addResource(new FluentResource(ftl), { allowOverrides: true });
+};
 
 export class Localization {
   /** @type Localization | undefined */
   #negated;
+
+  /** @type Intl.ListFormat */
+  #disjunction;
+
+  /** @type Intl.ListFormat */
+  #conjunction;
 
   /**
    * @param {string} locale
@@ -24,8 +69,8 @@ export class Localization {
     this.bundle = bundle;
     this.isNegated = isNegated;
     this.#negated = negated;
-    this.disjunction = new Intl.ListFormat(this.locale, { type: "disjunction" });
-    this.conjunction = new Intl.ListFormat(this.locale, { type: "conjunction" });
+    this.#disjunction = new Intl.ListFormat(this.locale, { type: "disjunction" });
+    this.#conjunction = new Intl.ListFormat(this.locale, { type: "conjunction" });
   }
 
   /**
@@ -44,56 +89,80 @@ export class Localization {
   /** @type (locale: string) => Localization */
   static forLocale(locale) {
     if (!localizationCache.has(locale)) {
-      const translation = translations[locale];
-      if (!translation) {
+      const bundle = getBundle(locale);
+      if (!bundle) {
         throw Error(`The ${locale} locale is not supported.`);
       }
-      const resource = new FluentResource(translation.ftl);
-      const bundle = new FluentBundle(locale, { useIsolating: translation.direction === "rtl" });
-      bundle.addResource(resource);
       localizationCache.set(locale, new Localization(locale, bundle));
     }
 
     return /** @type Localization */ (localizationCache.get(locale));
   }
 
-  /** @type (messageId: string, args: Record<string, FluentVariable>) => string */
-  #formatMessage(messageId, args) {
-    const message = this.bundle.getMessage(messageId);
-    if (!message?.value) {
-      throw Error(`Message '${messageId}' not found.`);
+  /**
+   * Formats a message. Messages that haven't been translated for this locale
+   * fall back to en-US.
+   *
+   * @type (messageId: string, args?: Record<string, FluentVariable>) => string
+   */
+  format(messageId, args = {}) {
+    for (const bundle of [this.bundle, getBundle(DEFAULT_LOCALE)]) {
+      const message = bundle?.getMessage(messageId);
+      if (bundle && message?.value) {
+        return bundle.formatPattern(message.value, args);
+      }
     }
-    return this.bundle.formatPattern(message.value, args);
+
+    throw Error(`Message '${messageId}' not found.`);
   }
 
   /**
    * Success messages describe what a keyword requires. In a negated view, they
-   * describe what would make the keyword fail.
+   * describe what would make the keyword fail. The message ids are
+   * `{keyword}-success-message` and `{keyword}-negated-message`.
    *
-   * @type (keyword: string, args: Record<string, FluentVariable>) => string
+   * @type (keyword: string, args?: Record<string, FluentVariable>) => string
    */
-  #formatSuccessMessage(keyword, args) {
-    return this.#formatMessage(`${keyword}-${this.isNegated ? "negated" : "success"}-message`, args);
+  formatRequirement(keyword, args = {}) {
+    return this.format(`${keyword}-${this.isNegated ? "negated" : "success"}-message`, args);
+  }
+
+  /**
+   * A list where one of the items applies, such as "a, b, or c".
+   *
+   * @type (items: string[]) => string
+   */
+  or(items) {
+    return this.#disjunction.format(items);
+  }
+
+  /**
+   * A list where all of the items apply, such as "a, b, and c".
+   *
+   * @type (items: string[]) => string
+   */
+  and(items) {
+    return this.#conjunction.format(items);
   }
 
   getBooleanSchemaErrorMessage() {
-    return this.#formatMessage("boolean-schema-message", {});
+    return this.format("boolean-schema-message", {});
   }
 
   /** @type (expectedTypes: string[]) => string */
   getTypeErrorMessage(expectedTypes) {
-    return this.#formatMessage("type-message", {
+    return this.format("type-message", {
       type: expectedTypes[0],
-      expectedTypes: this.disjunction.format(expectedTypes),
+      expectedTypes: this.or(expectedTypes),
       count: expectedTypes.length
     });
   }
 
   /** @type (types: string[]) => string */
   getTypeSuccessMessage(types) {
-    return this.#formatSuccessMessage("type", {
+    return this.formatRequirement("type", {
       type: types[0],
-      types: this.disjunction.format(types),
+      types: this.or(types),
       count: types.length
     });
   }
@@ -101,80 +170,80 @@ export class Localization {
   /** @type (expected: Json[]) => string */
   getEnumErrorMessage(expected) {
     if (expected.length === 1) {
-      return this.#formatMessage("const-message", {
+      return this.format("const-message", {
         expected: JSON.stringify(expected[0], null, "  ")
       });
     } else {
       const expectedJson = expected.map((value) => JSON.stringify(value));
-      return this.#formatMessage("enum-message", {
-        expected: this.disjunction.format(expectedJson)
+      return this.format("enum-message", {
+        expected: this.or(expectedJson)
       });
     }
   }
 
   /** @type (names: string[]) => string[] */
   #propertyNames(names) {
-    return names.map((name) => this.#formatMessage("property-name", { name }));
+    return names.map((name) => this.format("property-name", { name }));
   }
 
   /** @type (format: string) => string */
   getFormatErrorMessage(format) {
-    return this.#formatMessage("format-message", { format });
+    return this.format("format-message", { format });
   }
 
   /** @type (exclusiveMaximum: number) => string */
   getExclusiveMaximumErrorMessage(exclusiveMaximum) {
-    return this.#formatMessage("exclusiveMaximum-message", { exclusiveMaximum });
+    return this.format("exclusiveMaximum-message", { exclusiveMaximum });
   }
 
   /** @type (maximum: number) => string */
   getMaximumErrorMessage(maximum) {
-    return this.#formatMessage("maximum-message", { maximum });
+    return this.format("maximum-message", { maximum });
   }
 
   /** @type (exclusiveMinimum: number) => string */
   getExclusiveMinimumErrorMessage(exclusiveMinimum) {
-    return this.#formatMessage("exclusiveMinimum-message", { exclusiveMinimum });
+    return this.format("exclusiveMinimum-message", { exclusiveMinimum });
   }
 
   /** @type (minimum: number) => string */
   getMinimumErrorMessage(minimum) {
-    return this.#formatMessage("minimum-message", { minimum });
+    return this.format("minimum-message", { minimum });
   }
 
   /** @type (multipleOf: number) => string */
   getMultipleOfErrorMessage(multipleOf) {
-    return this.#formatMessage("multipleOf-message", { multipleOf });
+    return this.format("multipleOf-message", { multipleOf });
   }
 
   /** @type (maxLength: number) => string */
   getMaxLengthErrorMessage(maxLength) {
-    return this.#formatMessage("maxLength-message", { maxLength });
+    return this.format("maxLength-message", { maxLength });
   }
 
   /** @type (minLength: number) => string */
   getMinLengthErrorMessage(minLength) {
-    return this.#formatMessage("minLength-message", { minLength });
+    return this.format("minLength-message", { minLength });
   }
 
   /** @type (pattern: string) => string */
   getPatternErrorMessage(pattern) {
-    return this.#formatMessage("pattern-message", { pattern });
+    return this.format("pattern-message", { pattern });
   }
 
   /** @type (pattern: string) => string */
   getPatternSuccessMessage(pattern) {
-    return this.#formatSuccessMessage("pattern", { pattern });
+    return this.formatRequirement("pattern", { pattern });
   }
 
   /** @type (maxItems: number) => string */
   getMaxItemsErrorMessage(maxItems) {
-    return this.#formatMessage("maxItems-message", { maxItems });
+    return this.format("maxItems-message", { maxItems });
   }
 
   /** @type (minItems: number) => string */
   getMinItemsErrorMessage(minItems) {
-    return this.#formatMessage("minItems-message", { minItems });
+    return this.format("minItems-message", { minItems });
   }
 
   /**
@@ -188,38 +257,38 @@ export class Localization {
     const prefix = isDescribed ? "contains" : "contains-schema";
 
     if (range.minContains === range.maxContains) {
-      return this.#formatMessage(`${prefix}-exact-message`, range);
+      return this.format(`${prefix}-exact-message`, range);
     } else if (range.maxContains) {
-      return this.#formatMessage(`${prefix}-range-message`, range);
+      return this.format(`${prefix}-range-message`, range);
     } else {
-      return this.#formatMessage(`${prefix}-message`, range);
+      return this.format(`${prefix}-message`, range);
     }
   }
 
   /** @type (maxContains: number) => string */
   getContainsTooManyErrorMessage(maxContains) {
-    return this.#formatMessage("contains-too-many-message", { maxContains });
+    return this.format("contains-too-many-message", { maxContains });
   }
 
   /** @type () => string */
   getUniqueItemsErrorMessage() {
-    return this.#formatMessage("uniqueItems-message", {});
+    return this.format("uniqueItems-message", {});
   }
 
   /** @type (maxProperties: number) => string */
   getMaxPropertiesErrorMessage(maxProperties) {
-    return this.#formatMessage("maxProperties-message", { maxProperties });
+    return this.format("maxProperties-message", { maxProperties });
   }
 
   /** @type (minProperties: number) => string */
   getMinPropertiesErrorMessage(minProperties) {
-    return this.#formatMessage("minProperties-message", { minProperties });
+    return this.format("minProperties-message", { minProperties });
   }
 
   /** @type (required: string[]) => string */
   getRequiredErrorMessage(required) {
-    return this.#formatMessage("required-message", {
-      required: this.conjunction.format(required),
+    return this.format("required-message", {
+      required: this.and(required),
       count: required.length
     });
   }
@@ -227,13 +296,13 @@ export class Localization {
   /** @type (required: string[]) => string */
   getRequiredSuccessMessage(required) {
     if (this.isNegated) {
-      return this.#formatMessage("required-negated-message", {
-        required: this.disjunction.format(this.#propertyNames(required)),
+      return this.format("required-negated-message", {
+        required: this.or(this.#propertyNames(required)),
         count: required.length
       });
     } else {
-      return this.#formatMessage("required-success-message", {
-        required: this.conjunction.format(this.#propertyNames(required)),
+      return this.format("required-success-message", {
+        required: this.and(this.#propertyNames(required)),
         count: required.length
       });
     }
@@ -241,22 +310,22 @@ export class Localization {
 
   /** @type (pattern: string, count: number) => string */
   getEachMatchingPropertySuccessMessage(pattern, count) {
-    return this.#formatSuccessMessage("eachMatchingProperty", { pattern, count });
+    return this.formatRequirement("eachMatchingProperty", { pattern, count });
   }
 
   /** @type (pattern: string) => string */
   getNoMatchingPropertySuccessMessage(pattern) {
-    return this.#formatSuccessMessage("noMatchingProperty", { pattern });
+    return this.formatRequirement("noMatchingProperty", { pattern });
   }
 
   /** @type (properties: string[], patterns: string[], count: number) => string */
   getEachAdditionalPropertySuccessMessage(properties, patterns, count) {
-    return this.#formatSuccessMessage("eachAdditionalProperty", { ...this.#additionalPropertiesScope(properties, patterns), count });
+    return this.formatRequirement("eachAdditionalProperty", { ...this.#additionalPropertiesScope(properties, patterns), count });
   }
 
   /** @type (properties: string[], patterns: string[]) => string */
   getNoAdditionalPropertySuccessMessage(properties, patterns) {
-    return this.#formatSuccessMessage("noAdditionalProperty", this.#additionalPropertiesScope(properties, patterns));
+    return this.formatRequirement("noAdditionalProperty", this.#additionalPropertiesScope(properties, patterns));
   }
 
   /** @type (properties: string[], patterns: string[]) => Record<string, FluentVariable> */
@@ -264,32 +333,32 @@ export class Localization {
     const scope = properties.length && patterns.length ? "both" : properties.length ? "names" : patterns.length ? "patterns" : "all";
     return {
       scope,
-      properties: this.conjunction.format(this.#propertyNames(properties)),
-      patterns: this.disjunction.format(patterns.map((pattern) => `/${pattern}/`))
+      properties: this.and(this.#propertyNames(properties)),
+      patterns: this.or(patterns.map((pattern) => `/${pattern}/`))
     };
   }
 
   /** @type (count: number) => string */
   getEachPropertyNameSuccessMessage(count) {
-    return this.#formatSuccessMessage("eachPropertyName", { count });
+    return this.formatRequirement("eachPropertyName", { count });
   }
 
   /** @type (index: number, count: number) => string */
   getEachItemSuccessMessage(index, count) {
-    return this.#formatSuccessMessage("eachItem", { index, count });
+    return this.formatRequirement("eachItem", { index, count });
   }
 
   /** @type (index: number) => string */
   getHasItemSuccessMessage(index) {
-    return this.#formatSuccessMessage("hasItem", { index });
+    return this.formatRequirement("hasItem", { index });
   }
 
   /** @type (properties: string[]) => string */
   getHasPropertySuccessMessage(properties) {
-    return this.#formatSuccessMessage("hasProperty", {
+    return this.formatRequirement("hasProperty", {
       properties: this.isNegated
-        ? this.conjunction.format(this.#propertyNames(properties))
-        : this.disjunction.format(this.#propertyNames(properties)),
+        ? this.and(this.#propertyNames(properties))
+        : this.or(this.#propertyNames(properties)),
       count: properties.length
     });
   }
@@ -297,15 +366,15 @@ export class Localization {
   /** @type (property: string, required: string[]) => string */
   getDependentRequiredSuccessMessage(property, required) {
     if (this.isNegated) {
-      return this.#formatMessage("dependentRequired-negated-message", {
+      return this.format("dependentRequired-negated-message", {
         property: this.#propertyNames([property])[0],
-        required: this.disjunction.format(this.#propertyNames(required)),
+        required: this.or(this.#propertyNames(required)),
         count: required.length
       });
     } else {
-      return this.#formatMessage("dependentRequired-success-message", {
+      return this.format("dependentRequired-success-message", {
         property: this.#propertyNames([property])[0],
-        required: this.conjunction.format(this.#propertyNames(required)),
+        required: this.and(this.#propertyNames(required)),
         count: required.length
       });
     }
@@ -313,142 +382,142 @@ export class Localization {
 
   /** @type (maximum: number) => string */
   getMaximumSuccessMessage(maximum) {
-    return this.#formatSuccessMessage("maximum", { maximum });
+    return this.formatRequirement("maximum", { maximum });
   }
 
   /** @type (exclusiveMaximum: number) => string */
   getExclusiveMaximumSuccessMessage(exclusiveMaximum) {
-    return this.#formatSuccessMessage("exclusiveMaximum", { exclusiveMaximum });
+    return this.formatRequirement("exclusiveMaximum", { exclusiveMaximum });
   }
 
   /** @type (minimum: number) => string */
   getMinimumSuccessMessage(minimum) {
-    return this.#formatSuccessMessage("minimum", { minimum });
+    return this.formatRequirement("minimum", { minimum });
   }
 
   /** @type (exclusiveMinimum: number) => string */
   getExclusiveMinimumSuccessMessage(exclusiveMinimum) {
-    return this.#formatSuccessMessage("exclusiveMinimum", { exclusiveMinimum });
+    return this.formatRequirement("exclusiveMinimum", { exclusiveMinimum });
   }
 
   /** @type (multipleOf: number) => string */
   getMultipleOfSuccessMessage(multipleOf) {
-    return this.#formatSuccessMessage("multipleOf", { multipleOf });
+    return this.formatRequirement("multipleOf", { multipleOf });
   }
 
   /** @type (maxLength: number) => string */
   getMaxLengthSuccessMessage(maxLength) {
-    return this.#formatSuccessMessage("maxLength", { maxLength });
+    return this.formatRequirement("maxLength", { maxLength });
   }
 
   /** @type (minLength: number) => string */
   getMinLengthSuccessMessage(minLength) {
-    return this.#formatSuccessMessage("minLength", { minLength });
+    return this.formatRequirement("minLength", { minLength });
   }
 
   /** @type (format: string) => string */
   getFormatSuccessMessage(format) {
-    return this.#formatSuccessMessage("format", { format });
+    return this.formatRequirement("format", { format });
   }
 
   /** @type (format: string) => string */
   getFormatIfValidatedSuccessMessage(format) {
-    return this.#formatSuccessMessage("formatIfValidated", { format });
+    return this.formatRequirement("formatIfValidated", { format });
   }
 
   /** @type (maxItems: number) => string */
   getMaxItemsSuccessMessage(maxItems) {
-    return this.#formatSuccessMessage("maxItems", { maxItems });
+    return this.formatRequirement("maxItems", { maxItems });
   }
 
   /** @type (minItems: number) => string */
   getMinItemsSuccessMessage(minItems) {
-    return this.#formatSuccessMessage("minItems", { minItems });
+    return this.formatRequirement("minItems", { minItems });
   }
 
   /** @type (maxProperties: number) => string */
   getMaxPropertiesSuccessMessage(maxProperties) {
-    return this.#formatSuccessMessage("maxProperties", { maxProperties });
+    return this.formatRequirement("maxProperties", { maxProperties });
   }
 
   /** @type (minProperties: number) => string */
   getMinPropertiesSuccessMessage(minProperties) {
-    return this.#formatSuccessMessage("minProperties", { minProperties });
+    return this.formatRequirement("minProperties", { minProperties });
   }
 
   getUniqueItemsSuccessMessage() {
-    return this.#formatSuccessMessage("uniqueItems", {});
+    return this.formatRequirement("uniqueItems", {});
   }
 
   /** @type (expected: Json[]) => string */
   getEnumSuccessMessage(expected) {
     if (expected.length === 1) {
-      return this.#formatSuccessMessage("const", {
+      return this.formatRequirement("const", {
         expected: JSON.stringify(expected[0], null, "  ")
       });
     } else {
       const expectedJson = expected.map((value) => JSON.stringify(value));
-      return this.#formatSuccessMessage("enum", {
-        expected: this.disjunction.format(expectedJson)
+      return this.formatRequirement("enum", {
+        expected: this.or(expectedJson)
       });
     }
   }
 
   /** @type () => string */
   getAnyOfErrorMessage() {
-    return this.#formatMessage("anyOf-message", {});
+    return this.format("anyOf-message", {});
   }
 
   getOneOfErrorMessage() {
-    return this.#formatMessage("oneOf-message", {});
+    return this.format("oneOf-message", {});
   }
 
   getOneOfTooManyErrorMessage() {
-    return this.#formatMessage("oneOf-too-many-message", {});
+    return this.format("oneOf-too-many-message", {});
   }
 
   /** @type () => string */
   getOneOfMultipleMatchesErrorMessage() {
-    return this.#formatMessage("oneOf-multiple-matches-message", {});
+    return this.format("oneOf-multiple-matches-message", {});
   }
 
   /** @type (quantifier: "one" | "all" | "some") => string */
   getNotErrorMessage(quantifier) {
-    return this.#formatMessage("not-message", { quantifier });
+    return this.format("not-message", { quantifier });
   }
 
   getAnyValueMessage() {
-    return this.#formatMessage("any-value-message", {});
+    return this.format("any-value-message", {});
   }
 
   /** @type (min: number, max: number) => string */
   getCountTrueMessage(min, max) {
     if (min <= 0) {
-      return this.#formatMessage("count-true-message", { kind: "atMost", max });
+      return this.format("count-true-message", { kind: "atMost", max });
     } else if (min === max) {
-      return this.#formatMessage("count-true-message", { kind: "exactly", min });
+      return this.format("count-true-message", { kind: "exactly", min });
     } else if (max === Infinity) {
-      return this.#formatMessage("count-true-message", { kind: "atLeast", min });
+      return this.format("count-true-message", { kind: "atLeast", min });
     } else {
-      return this.#formatMessage("count-true-message", { kind: "between", min, max });
+      return this.format("count-true-message", { kind: "between", min, max });
     }
   }
 
   /** @type (count: number) => string */
   getNotShownMessage(count) {
-    return this.#formatMessage("not-shown-message", { count });
+    return this.format("not-shown-message", { count });
   }
 
   getDetailsNotShownMessage() {
-    return this.#formatMessage("details-not-shown-message", {});
+    return this.format("details-not-shown-message", {});
   }
 
   getAllTrueMessage() {
-    return this.#formatMessage("all-true-message", {});
+    return this.format("all-true-message", {});
   }
 
   /** @type (keyword: string) => string */
   getUnknownErrorMessage(keyword) {
-    return this.#formatMessage("unknown-message", { keyword });
+    return this.format("unknown-message", { keyword });
   }
 }
