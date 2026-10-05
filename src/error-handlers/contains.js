@@ -2,7 +2,7 @@ import * as Instance from "@hyperjump/json-schema/instance/experimental";
 import { allTrue, allowsAnyValue, countTrue, describeEach, getPlaceholder, getSiblingKeywordLocation, getSuccesses, getValidity, negate, someTrue } from "../json-schema-errors.js";
 
 /**
- * @import { ContainsAst } from "../normalization-handlers/contains.js"
+ * @import { ContainsAst } from "../keywords/contains.js"
  * @import { ContainsRange, ErrorHandler, ErrorHandlerContext, ErrorObject, NormalizedOutput } from "../index.d.ts"
  */
 

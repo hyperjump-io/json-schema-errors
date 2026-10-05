@@ -160,74 +160,94 @@ type-message = Une valeur de type {$expectedTypes} est attendue
 
 https://json-schema-errors.hyperjump.io
 
-## Custom Keywords and Error Handlers
+## Custom Keywords
 
-`@hyperjump/json-schema-errors` uses a two phase process. In order to support a
-custom keyword we'll need to register a handler for each phase of the process.
-
-1. **Normalization**: This phase takes the raw error output from the validator
-   and converts it to a `NormalizedOutput`.
-
-2. **Error Handling**: This phase takes the `NormalizedOutput` and uses it to
-   generate the error messages that will be presented to the user.
-
-Here's an example of adding support for a simple keyword called `startsWith`.
-`startsWith` takes a string and asserts that a string JSON instance starts with
-the value of `startsWith`. The keyword itself needs to be defined with
-`@hyperjump/json-schema`'s `addKeyword` and included in a dialect.
+A custom keyword needs to be defined with `@hyperjump/json-schema`'s
+`addKeyword` and included in a dialect. Then use `defineKeyword` to add messages
+for it. Here's an example for a keyword called `startsWith` that asserts that a
+string starts with the keyword's value.
 
 Messages for a keyword use the ids `{keyword}-message` for errors and
 `{keyword}-success-message` and `{keyword}-negated-message` for describing what
 the keyword requires.
 
 ```TypeScript
-import { addTranslation } from "@hyperjump/json-schema-errors";
+import { addTranslation, defineKeyword } from "@hyperjump/json-schema-errors";
 
 addTranslation("en-US", `
 startsWith-message = Expected a string that starts with '{$prefix}'
 startsWith-success-message = The value is either not a string or starts with '{$prefix}'
 startsWith-negated-message = The value is a string that doesn't start with '{$prefix}'
 `);
+
+defineKeyword<string>("https://example.com/keyword/startsWith", {
+  error: (prefix, localization) => localization.format("startsWith-message", { prefix }),
+  requirement: (prefix, localization) => localization.formatRequirement("startsWith", { prefix })
+});
 ```
 
-Every keyword needs a normalization handler. Keywords that aren't applicators
-don't have anything to evaluate.
+`error` is the message for each occurrence of the keyword that failed. It gets
+the keyword's value as compiled by its `@hyperjump/json-schema` definition and
+the value that failed.
+
+`requirement` describes what the keyword requires. It's used to explain failures
+caused by a subschema passing, such as with `not`. Then, it describes what would
+make the keyword fail instead, so `formatRequirement` picks the success or
+negated message. A keyword without a `requirement` can't be described, so
+messages for keywords like `not` and `oneOf` will be less specific.
+
+Keywords that are only annotations, like `title`, never fail and don't require
+anything.
 
 ```TypeScript
-import { setNormalizationHandler } from "@hyperjump/json-schema-errors";
+defineKeyword("https://example.com/keyword/note", { annotation: true });
+```
 
-const KEYWORD_URI = "https://example.com/keyword/startsWith";
+Simple applicator keywords that just evaluate subschemas and don't make any
+assertions of their own only need to evaluate their subschemas. Whether a
+keyword is a simple applicator comes from the `simpleApplicator` property of its
+`@hyperjump/json-schema` keyword definition. The results of its subschemas are
+treated as results of the parent schema. For example, support for the `allOf`
+keyword could look like the following.
 
-setNormalizationHandler(KEYWORD_URI, {
-  evaluate() {
-    // Only applicator keywords need to return a value
+```TypeScript
+import { defineKeyword, evaluateSchema } from "@hyperjump/json-schema-errors";
+
+defineKeyword<string[]>("https://json-schema.org/keyword/allOf", {
+  evaluate(allOf, instance, context) {
+    return allOf.map((schemaLocation) => evaluateSchema(schemaLocation, instance, context));
   }
 });
 ```
 
-An error handler turns the normalized results into messages. It's registered
-with a URI that identifies the handler. A handler can handle any number of
-keywords, so it gets the results of every keyword that applies to a location in
-the instance and picks out the ones it handles.
+### Error Handlers
 
-`error` describes keywords that failed. A result's `valid` is `false` if the
-keyword failed, `true` if it passed, and `undefined` if the result isn't known.
-Its `value` is the keyword's value as compiled by the keyword's
-`@hyperjump/json-schema` definition.
+Some keywords need more control over their messages, such as a keyword that
+combines its occurrences into one message, keywords that are described together,
+or an applicator that makes assertions of their own. These keywords are still
+defined with `defineKeyword`, but without `error` or `requirement`. Their
+messages come from an error handler instead.
 
-`success` describes what keywords require. It's used to explain failures caused
-by a subschema passing, such as with `not`. In a negated context, it describes
-what would make the keyword fail instead. `context.localization.formatRequirement`
-picks the success or negated message. A keyword without a `success` handler
-can't be described, so messages for keywords like `not` and `oneOf` will be less
-specific.
+An error handler, set with `setErrorHandler`, builds messages from the
+`NormalizedOutput` of a schema. A handler can handle any number of keywords, so
+it gets the results of every keyword that applies to a location in the instance
+and picks out the ones it handles. A result's `valid` is `false` if the keyword
+failed, `true` if it passed, and `undefined` if the result isn't known. Its
+`value` is the keyword's compiled value. `error` describes keywords that failed
+and `success` describes what keywords require. In a negated context, `success`
+describes what would make the keywords fail instead.
+
+The `startsWith` keyword from the previous section could also be written with an
+error handler.
 
 ```TypeScript
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
-import { setErrorHandler } from "@hyperjump/json-schema-errors";
+import { defineKeyword, setErrorHandler } from "@hyperjump/json-schema-errors";
 import type { ErrorObject } from "@hyperjump/json-schema-errors";
 
 const KEYWORD_URI = "https://example.com/keyword/startsWith";
+
+defineKeyword(KEYWORD_URI, {});
 
 setErrorHandler("https://example.com/error-handler/startsWith", {
   error: (normalizedErrors, instance, context) => {
@@ -263,26 +283,6 @@ setErrorHandler("https://example.com/error-handler/startsWith", {
     }
 
     return successes;
-  }
-});
-```
-
-Simple applicator keywords that just evaluate subschemas and don't make any
-assertions of their own don't need an error handler, only a normalization
-handler. Whether a keyword is a simple applicator comes from the
-`simpleApplicator` property of its `@hyperjump/json-schema` keyword definition.
-The results of its subschemas are flattened into the results of the parent
-schema before they're passed to error handlers.
-For example, support for the `allOf` keyword could look like the following.
-
-```TypeScript
-import { setNormalizationHandler, evaluateSchema } from "@hyperjump/json-schema-errors";
-
-const KEYWORD_URI = "https://json-schema.org/keyword/allOf";
-
-setNormalizationHandler(KEYWORD_URI, {
-  evaluate(allOf, instance, context) {
-    return allOf.map((schemaLocation) => evaluateSchema(schemaLocation, instance, context));
   }
 });
 ```

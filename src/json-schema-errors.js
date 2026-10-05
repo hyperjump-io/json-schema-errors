@@ -32,8 +32,8 @@ export const jsonSchemaErrors = async (errorOutput, schemaUri, instance, options
   return limitMessages(getErrors(normalizedErrors, rootInstance, context), context);
 };
 
-/** @type Record<string, API.NormalizationHandler> */
-const normalizationHandlers = {};
+/** @type Record<string, API.KeywordDefinition<any>> */
+const keywordDefinitions = {};
 
 /** @type (schemaLocation: string, ast: AST) => boolean */
 export const allowsAnyValue = (schemaLocation, ast) => {
@@ -42,12 +42,7 @@ export const allowsAnyValue = (schemaLocation, ast) => {
     return schemaNode;
   }
 
-  return schemaNode.every(([keywordUri]) => normalizationHandlers[toAbsoluteIri(keywordUri)]?.annotation);
-};
-
-/** @type API.setNormalizationHandler */
-export const setNormalizationHandler = (schemaUri, handler) => {
-  normalizationHandlers[schemaUri] = handler;
+  return schemaNode.every(([keywordUri]) => keywordDefinitions[toAbsoluteIri(keywordUri)]?.annotation);
 };
 
 /** @type (outputUnit: API.OutputUnit, schema: Browser<SchemaDocument>, errorIndex?: API.ErrorIndex) => Promise<API.ErrorIndex> */
@@ -137,10 +132,10 @@ export const evaluateSchema = (schemaLocation, instance, context) => {
       const [keywordUri, keywordLocation, keywordValue] = node;
       const normalizedKeywordUri = toAbsoluteIri(keywordUri);
 
-      if (!(normalizedKeywordUri in normalizationHandlers)) {
-        throw Error(`Encountered unsupported keyword ${keywordUri}. Use the 'setNormalizationHandler' function to add support for this keyword.`);
+      if (!(normalizedKeywordUri in keywordDefinitions)) {
+        throw Error(`Encountered unsupported keyword ${keywordUri}. Use the 'defineKeyword' function to add support for this keyword.`);
       }
-      const keyword = normalizationHandlers[normalizedKeywordUri];
+      const keyword = keywordDefinitions[normalizedKeywordUri];
 
       const validationKeyword = getKeyword(keywordUri);
 
@@ -161,7 +156,7 @@ export const evaluateSchema = (schemaLocation, instance, context) => {
         plugin.beforeKeyword?.(node, instance, keywordContext, context, validationKeyword);
       }
 
-      const keywordOutput = keyword.evaluate(keywordValue, instance, keywordContext);
+      const keywordOutput = keyword.evaluate?.(keywordValue, instance, keywordContext);
 
       const isReported = context.errorIndex[keywordLocation]?.[keywordInstanceLocation] !== undefined;
       if (validationKeyword.simpleApplicator && !isReported && keywordOutput?.some((suboutput) => getValidity(suboutput) === false)) {
@@ -398,6 +393,44 @@ const relocate = (errorObject, from, to) => {
 /** @type Record<string, API.ErrorHandler> */
 const errorHandlers = {};
 
+/** @type API.defineKeyword */
+export const defineKeyword = (keywordUri, definition) => {
+  keywordDefinitions[keywordUri] = definition;
+
+  const { error, requirement } = definition;
+  if (!error && !requirement) {
+    removeErrorHandler(keywordUri);
+    return;
+  }
+
+  setErrorHandler(keywordUri, {
+    // Each occurrence of the keyword that failed gets its own message
+    error: error && ((normalizedErrors, instance, context) => {
+      /** @type API.ErrorObject[] */
+      const errors = [];
+
+      for (const schemaLocation in normalizedErrors[keywordUri]) {
+        const { valid, value } = normalizedErrors[keywordUri][schemaLocation];
+        if (valid === false) {
+          errors.push({
+            message: error(/** @type any */ (value), context.localization, instance),
+            instanceLocation: Instance.uri(instance),
+            schemaLocations: [schemaLocation]
+          });
+        }
+      }
+
+      return errors;
+    }),
+
+    success: requirement && ((normalizedOutput, instance, context) => {
+      return describeKeyword(normalizedOutput, keywordUri, instance, (value) => {
+        return requirement(/** @type any */ (value), context.localization);
+      });
+    })
+  });
+};
+
 /** @type API.setErrorHandler */
 export const setErrorHandler = (errorHandlerUri, errorHandler) => {
   errorHandlers[errorHandlerUri] = errorHandler;
@@ -474,7 +507,7 @@ const isApplied = () => true;
  *
  * @type (keywordUri: string) => boolean
  */
-const isRequired = (keywordUri) => !normalizationHandlers[toAbsoluteIri(keywordUri)]?.conditional;
+const isRequired = (keywordUri) => !keywordDefinitions[toAbsoluteIri(keywordUri)]?.conditional;
 
 /** @type API.getSuccesses */
 export const getSuccesses = (subschema, rootInstance, context) => {

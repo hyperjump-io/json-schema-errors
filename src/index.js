@@ -1,64 +1,30 @@
-import { setErrorHandler, setNormalizationHandler } from "./json-schema-errors.js";
+import { defineKeyword, setErrorHandler } from "./json-schema-errors.js";
 
-// Normalization Handlers
-import additionalItemsNormalizationHandler from "./normalization-handlers/draft-04/additionalItems.js";
-import additionalPropertiesNormalizationHandler from "./normalization-handlers/additionalProperties.js";
-import allOfNormalizationHandler from "./normalization-handlers/allOf.js";
-import anyOfNormalizationHandler from "./normalization-handlers/anyOf.js";
-import commentNormalizationHandler from "./normalization-handlers/comment.js";
-import constNormalizationHandler from "./normalization-handlers/const.js";
-import containsNormalizationHandler from "./normalization-handlers/contains.js";
-import containsDraft06NormalizationHandler from "./normalization-handlers/draft-06/contains.js";
-import definitionsNormalizationHandler from "./normalization-handlers/definitions.js";
-import defaultNormalizationHandler from "./normalization-handlers/default.js";
-import dependenciesNormalizationHandler from "./normalization-handlers/draft-04/dependencies.js";
-import dependentRequiredNormalizationHandler from "./normalization-handlers/dependentRequired.js";
-import dependentSchemasNormalizationHandler from "./normalization-handlers/dependentSchemas.js";
-import deprecatedNormalizationHandler from "./normalization-handlers/deprecated.js";
-import descriptionNormalizationHandler from "./normalization-handlers/description.js";
-import dynamicRefNormalizationHandler from "./normalization-handlers/dynamicRef.js";
-import elseNormalizationHandler from "./normalization-handlers/else.js";
-import enumNormalizationHandler from "./normalization-handlers/enum.js";
-import examplesNormalizationHandler from "./normalization-handlers/examples.js";
-import exclusiveMaximumDraft04NormalizationHandler from "./normalization-handlers/draft-04/exclusiveMaximum.js";
-import exclusiveMaximumNormalizationHandler from "./normalization-handlers/exclusiveMaximum.js";
-import exclusiveMinimumDraft04NormalizationHandler from "./normalization-handlers/draft-04/exclusiveMinimum.js";
-import exclusiveMinimumNormalizationHandler from "./normalization-handlers/exclusiveMinimum.js";
-import formatNormalizationHandler from "./normalization-handlers/format.js";
-import ifNormalizationHandler from "./normalization-handlers/if.js";
-import itemsDraft04NormalizationHandler from "./normalization-handlers/draft-04/items.js";
-import itemsNormalizationHandler from "./normalization-handlers/items.js";
-import maximumDraft04NormalizationHandler from "./normalization-handlers/draft-04/maximum.js";
-import maximumNormalizationHandler from "./normalization-handlers/maximum.js";
-import maxContainsNormalizationHandler from "./normalization-handlers/maxContains.js";
-import maxItemsNormalizationHandler from "./normalization-handlers/maxItems.js";
-import maxLengthNormalizationHandler from "./normalization-handlers/maxLength.js";
-import maxPropertiesNormalizationHandler from "./normalization-handlers/maxProperties.js";
-import minimumDraft04NormalizationHandler from "./normalization-handlers/draft-04/minimum.js";
-import minimumNormalizationHandler from "./normalization-handlers/minimum.js";
-import minContainsNormalizationHandler from "./normalization-handlers/minContains.js";
-import minItemsNormalizationHandler from "./normalization-handlers/minItems.js";
-import minLengthNormalizationHandler from "./normalization-handlers/minLength.js";
-import minPropertiesNormalizationHandler from "./normalization-handlers/minProperties.js";
-import multipleOfNormalizationHandler from "./normalization-handlers/multipleOf.js";
-import notNormalizationHandler from "./normalization-handlers/not.js";
-import oneOfNormalizationHandler from "./normalization-handlers/oneOf.js";
-import patternNormalizationHandler from "./normalization-handlers/pattern.js";
-import patternPropertiesNormalizationHandler from "./normalization-handlers/patternProperties.js";
-import prefixItemsNormalizationHandler from "./normalization-handlers/prefixItems.js";
-import propertiesNormalizationHandler from "./normalization-handlers/properties.js";
-import propertyNamesNormalizationHandler from "./normalization-handlers/propertyNames.js";
-import readOnlyNormalizationHandler from "./normalization-handlers/readOnly.js";
-import refNormalizationHandler from "./normalization-handlers/ref.js";
-import requiredNormalizationHandler from "./normalization-handlers/required.js";
-import titleNormalizationHandler from "./normalization-handlers/title.js";
-import thenNormalizationHandler from "./normalization-handlers/then.js";
-import typeNormalizationHandler from "./normalization-handlers/type.js";
-import unevaluatedItemsNormalizationHandler from "./normalization-handlers/unevaluatedItems.js";
-import unevaluatedPropertiesNormalizationHandler from "./normalization-handlers/unevaluatedProperties.js";
-import uniqueItemsNormalizationHandler from "./normalization-handlers/uniqueItems.js";
-import unknownNormalizationHandler from "./normalization-handlers/unknown.js";
-import writeOnlyNormalizationHandler from "./normalization-handlers/writeOnly.js";
+// Keywords
+import additionalItemsKeyword from "./keywords/draft-04/additionalItems.js";
+import additionalPropertiesKeyword from "./keywords/additionalProperties.js";
+import allOfKeyword from "./keywords/allOf.js";
+import anyOfKeyword from "./keywords/anyOf.js";
+import containsKeyword from "./keywords/contains.js";
+import containsDraft06Keyword from "./keywords/draft-06/contains.js";
+import dependenciesKeyword from "./keywords/draft-04/dependencies.js";
+import dependentSchemasKeyword from "./keywords/dependentSchemas.js";
+import dynamicRefKeyword from "./keywords/dynamicRef.js";
+import elseKeyword from "./keywords/else.js";
+import ifKeyword from "./keywords/if.js";
+import itemsDraft04Keyword from "./keywords/draft-04/items.js";
+import itemsKeyword from "./keywords/items.js";
+import notKeyword from "./keywords/not.js";
+import oneOfKeyword from "./keywords/oneOf.js";
+import patternKeyword from "./keywords/pattern.js";
+import patternPropertiesKeyword from "./keywords/patternProperties.js";
+import prefixItemsKeyword from "./keywords/prefixItems.js";
+import propertiesKeyword from "./keywords/properties.js";
+import propertyNamesKeyword from "./keywords/propertyNames.js";
+import refKeyword from "./keywords/ref.js";
+import thenKeyword from "./keywords/then.js";
+import unevaluatedItemsKeyword from "./keywords/unevaluatedItems.js";
+import unevaluatedPropertiesKeyword from "./keywords/unevaluatedProperties.js";
 
 // Error Handlers
 import anyOfErrorHandler from "./error-handlers/anyOf.js";
@@ -83,80 +49,14 @@ import notErrorHandler from "./error-handlers/not.js";
 import oneOfErrorHandler from "./error-handlers/oneOf.js";
 import prefixItemsErrorHandler from "./error-handlers/prefixItems.js";
 import propertiesErrorHandler from "./error-handlers/properties.js";
-import patternErrorHandler from "./error-handlers/pattern.js";
 import requiredErrorHandler from "./error-handlers/required.js";
 import typeConstEnumErrorHandler from "./error-handlers/typeConstEnum.js";
 import uniqueItemsErrorHandler from "./error-handlers/uniqueItems.js";
 import unknownErrorHandler from "./error-handlers/unknown.js";
 
-setNormalizationHandler("https://json-schema.org/keyword/draft-04/additionalItems", additionalItemsNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/additionalProperties", additionalPropertiesNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/allOf", allOfNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/anyOf", anyOfNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/comment", commentNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/const", constNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/contains", containsNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/draft-06/contains", containsDraft06NormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/default", defaultNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/definitions", definitionsNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/draft-04/dependencies", dependenciesNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/dependentRequired", dependentRequiredNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/dependentSchemas", dependentSchemasNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/deprecated", deprecatedNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/description", descriptionNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/draft-2020-12/dynamicRef", dynamicRefNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/else", elseNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/enum", enumNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/examples", examplesNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/format", formatNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/draft-2020-12/format", formatNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/draft-2020-12/format-assertion", formatNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/draft-2019-09/format", formatNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/draft-2019-09/format-assertion", formatNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/draft-07/format", formatNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/draft-06/format", formatNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/draft-04/format", formatNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/if", ifNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/draft-04/items", itemsDraft04NormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/items", itemsNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/draft-04/exclusiveMaximum", exclusiveMaximumDraft04NormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/exclusiveMaximum", exclusiveMaximumNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/draft-04/exclusiveMinimum", exclusiveMinimumDraft04NormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/exclusiveMinimum", exclusiveMinimumNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/draft-04/maximum", maximumDraft04NormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/maximum", maximumNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/maxContains", maxContainsNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/maxItems", maxItemsNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/maxLength", maxLengthNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/maxProperties", maxPropertiesNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/draft-04/minimum", minimumDraft04NormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/minimum", minimumNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/minContains", minContainsNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/minItems", minItemsNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/minLength", minLengthNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/minProperties", minPropertiesNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/multipleOf", multipleOfNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/not", notNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/oneOf", oneOfNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/pattern", patternNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/patternProperties", patternPropertiesNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/prefixItems", prefixItemsNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/properties", propertiesNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/propertyNames", propertyNamesNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/readOnly", readOnlyNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/ref", refNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/required", requiredNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/title", titleNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/then", thenNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/type", typeNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/unevaluatedItems", unevaluatedItemsNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/unevaluatedProperties", unevaluatedPropertiesNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/uniqueItems", uniqueItemsNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/unknown", unknownNormalizationHandler);
-setNormalizationHandler("https://json-schema.org/keyword/writeOnly", writeOnlyNormalizationHandler);
-
 // Registration order determines message order. Type comes first because it's the
-// most fundamental thing to know about a value.
+// most fundamental thing to know about a value. Keywords with their own messages
+// are defined after the error handlers, so their messages come last.
 setErrorHandler("https://hyperjump.io/error-handler/typeConstEnum", typeConstEnumErrorHandler);
 setErrorHandler("https://hyperjump.io/error-handler/anyOf", anyOfErrorHandler);
 setErrorHandler("https://hyperjump.io/error-handler/boolean-schema", booleanSchemaErrorHandler);
@@ -180,14 +80,80 @@ setErrorHandler("https://hyperjump.io/error-handler/not", notErrorHandler);
 setErrorHandler("https://hyperjump.io/error-handler/oneOf", oneOfErrorHandler);
 setErrorHandler("https://hyperjump.io/error-handler/prefixItems", prefixItemsErrorHandler);
 setErrorHandler("https://hyperjump.io/error-handler/properties", propertiesErrorHandler);
-setErrorHandler("https://hyperjump.io/error-handler/pattern", patternErrorHandler);
 setErrorHandler("https://hyperjump.io/error-handler/required", requiredErrorHandler);
 setErrorHandler("https://hyperjump.io/error-handler/uniqueItems", uniqueItemsErrorHandler);
 setErrorHandler("https://hyperjump.io/error-handler/unknown", unknownErrorHandler);
 
+defineKeyword("https://json-schema.org/keyword/draft-04/additionalItems", additionalItemsKeyword);
+defineKeyword("https://json-schema.org/keyword/additionalProperties", additionalPropertiesKeyword);
+defineKeyword("https://json-schema.org/keyword/allOf", allOfKeyword);
+defineKeyword("https://json-schema.org/keyword/anyOf", anyOfKeyword);
+defineKeyword("https://json-schema.org/keyword/comment", { annotation: true });
+defineKeyword("https://json-schema.org/keyword/const", {});
+defineKeyword("https://json-schema.org/keyword/contains", containsKeyword);
+defineKeyword("https://json-schema.org/keyword/draft-06/contains", containsDraft06Keyword);
+defineKeyword("https://json-schema.org/keyword/default", { annotation: true });
+defineKeyword("https://json-schema.org/keyword/definitions", { annotation: true });
+defineKeyword("https://json-schema.org/keyword/draft-04/dependencies", dependenciesKeyword);
+defineKeyword("https://json-schema.org/keyword/dependentRequired", {});
+defineKeyword("https://json-schema.org/keyword/dependentSchemas", dependentSchemasKeyword);
+defineKeyword("https://json-schema.org/keyword/deprecated", { annotation: true });
+defineKeyword("https://json-schema.org/keyword/description", { annotation: true });
+defineKeyword("https://json-schema.org/keyword/draft-2020-12/dynamicRef", dynamicRefKeyword);
+defineKeyword("https://json-schema.org/keyword/else", elseKeyword);
+defineKeyword("https://json-schema.org/keyword/enum", {});
+defineKeyword("https://json-schema.org/keyword/examples", { annotation: true });
+defineKeyword("https://json-schema.org/keyword/format", {});
+defineKeyword("https://json-schema.org/keyword/draft-2020-12/format", {});
+defineKeyword("https://json-schema.org/keyword/draft-2020-12/format-assertion", {});
+defineKeyword("https://json-schema.org/keyword/draft-2019-09/format", {});
+defineKeyword("https://json-schema.org/keyword/draft-2019-09/format-assertion", {});
+defineKeyword("https://json-schema.org/keyword/draft-07/format", {});
+defineKeyword("https://json-schema.org/keyword/draft-06/format", {});
+defineKeyword("https://json-schema.org/keyword/draft-04/format", {});
+defineKeyword("https://json-schema.org/keyword/if", ifKeyword);
+defineKeyword("https://json-schema.org/keyword/draft-04/items", itemsDraft04Keyword);
+defineKeyword("https://json-schema.org/keyword/items", itemsKeyword);
+defineKeyword("https://json-schema.org/keyword/draft-04/exclusiveMaximum", {});
+defineKeyword("https://json-schema.org/keyword/exclusiveMaximum", {});
+defineKeyword("https://json-schema.org/keyword/draft-04/exclusiveMinimum", {});
+defineKeyword("https://json-schema.org/keyword/exclusiveMinimum", {});
+defineKeyword("https://json-schema.org/keyword/draft-04/maximum", {});
+defineKeyword("https://json-schema.org/keyword/maximum", {});
+defineKeyword("https://json-schema.org/keyword/maxContains", {});
+defineKeyword("https://json-schema.org/keyword/maxItems", {});
+defineKeyword("https://json-schema.org/keyword/maxLength", {});
+defineKeyword("https://json-schema.org/keyword/maxProperties", {});
+defineKeyword("https://json-schema.org/keyword/draft-04/minimum", {});
+defineKeyword("https://json-schema.org/keyword/minimum", {});
+defineKeyword("https://json-schema.org/keyword/minContains", {});
+defineKeyword("https://json-schema.org/keyword/minItems", {});
+defineKeyword("https://json-schema.org/keyword/minLength", {});
+defineKeyword("https://json-schema.org/keyword/minProperties", {});
+defineKeyword("https://json-schema.org/keyword/multipleOf", {});
+defineKeyword("https://json-schema.org/keyword/not", notKeyword);
+defineKeyword("https://json-schema.org/keyword/oneOf", oneOfKeyword);
+defineKeyword("https://json-schema.org/keyword/pattern", patternKeyword);
+defineKeyword("https://json-schema.org/keyword/patternProperties", patternPropertiesKeyword);
+defineKeyword("https://json-schema.org/keyword/prefixItems", prefixItemsKeyword);
+defineKeyword("https://json-schema.org/keyword/properties", propertiesKeyword);
+defineKeyword("https://json-schema.org/keyword/propertyNames", propertyNamesKeyword);
+defineKeyword("https://json-schema.org/keyword/readOnly", { annotation: true });
+defineKeyword("https://json-schema.org/keyword/ref", refKeyword);
+defineKeyword("https://json-schema.org/keyword/required", {});
+defineKeyword("https://json-schema.org/keyword/title", { annotation: true });
+defineKeyword("https://json-schema.org/keyword/then", thenKeyword);
+defineKeyword("https://json-schema.org/keyword/type", {});
+defineKeyword("https://json-schema.org/keyword/unevaluatedItems", unevaluatedItemsKeyword);
+defineKeyword("https://json-schema.org/keyword/unevaluatedProperties", unevaluatedPropertiesKeyword);
+defineKeyword("https://json-schema.org/keyword/uniqueItems", {});
+defineKeyword("https://json-schema.org/keyword/unknown", { annotation: true });
+defineKeyword("https://json-schema.org/keyword/writeOnly", { annotation: true });
+
 export {
   allTrue,
   countTrue,
+  defineKeyword,
   describeConditional,
   describeScope,
   evaluateSchema,
@@ -200,7 +166,6 @@ export {
   negate,
   removeErrorHandler,
   setErrorHandler,
-  setNormalizationHandler,
   someTrue
 } from "./json-schema-errors.js";
 export { addTranslation } from "./localization.js";
