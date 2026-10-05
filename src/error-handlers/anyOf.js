@@ -1,6 +1,6 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
 import * as Pact from "@hyperjump/pact";
-import { allTrue, getErrors, getSuccesses, isFailing, isPassing, someTrue } from "../json-schema-errors.js";
+import { allTrue, getErrors, getSuccesses, someTrue } from "../json-schema-errors.js";
 
 /**
  * @import { ErrorHandler, ErrorObject, InstanceOutput } from "../index.d.ts"
@@ -108,11 +108,10 @@ const anyOfErrorHandler = {
           successes.push(...allTrue(requirements, instance, schemaLocation, localization));
         }
       } else {
-        // If we know which alternatives matched, describe those. Otherwise, all we
-        // know is that at least one of the ones not known to fail did.
-        const matching = alternatives.filter(isPassing);
-        const notFailing = alternatives.filter((alternative) => !isFailing(alternative));
-        const descriptions = (matching.length > 0 ? matching : notFailing).map((alternative) => {
+        // Passes if at least one alternative passes. All of them are described,
+        // even if we know which ones match, because these descriptions tell the
+        // user what would need to change to make 'anyOf' fail.
+        const descriptions = alternatives.map((alternative) => {
           return getSuccesses(alternative, instance, localization, ast);
         });
 
