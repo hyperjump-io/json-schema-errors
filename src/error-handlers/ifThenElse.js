@@ -14,7 +14,7 @@ import {
 
 /** @type ErrorHandler */
 const ifThenElseErrorHandler = {
-  // Failures in 'then' and 'else' are merged into the parent schema's results,
+  // Failures in 'then' and 'else' are flattened into the parent schema's results,
   // so they're reported by the handlers for the keywords that failed
 
   success: (normalizedOutput, instance, localization, context) => {

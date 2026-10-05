@@ -189,7 +189,8 @@ Simple applicator keywords that just evaluate subschemas and don't make any
 assertions of their own don't need an error handler, only a normalization
 handler. Whether a keyword is a simple applicator comes from the
 `simpleApplicator` property of its `@hyperjump/json-schema` keyword definition.
-The results of its subschemas are merged into the results of the parent schema.
+The results of its subschemas are flattened into the results of the parent
+schema before they're passed to error handlers.
 For example, support for the `allOf` keyword could look like the following.
 
 ```TypeScript

@@ -23,9 +23,6 @@ describe("JSON Schema Errors Output Format", () => {
 
       expect(outputPlugin.output).to.eql({
         "#": {
-          "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/$defs/string/type`]: { valid: false }
-          },
           "https://json-schema.org/keyword/ref": {
             [`${schemaUri}#/$ref`]: {
               valid: false,
@@ -59,9 +56,6 @@ describe("JSON Schema Errors Output Format", () => {
 
       expect(outputPlugin.output).to.eql({
         "#": {
-          "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/$defs/string/type`]: { valid: true }
-          },
           "https://json-schema.org/keyword/ref": {
             [`${schemaUri}#/$ref`]: {
               valid: true,
@@ -91,11 +85,6 @@ describe("JSON Schema Errors Output Format", () => {
       await validate(schemaUri, { foo: 42 }, { plugins: [outputPlugin] });
 
       expect(outputPlugin.output).to.eql({
-        "#/foo": {
-          "https://json-schema.org/validation": {
-            [`${schemaUri}#/additionalProperties`]: { valid: false }
-          }
-        },
         "#": {
           "https://json-schema.org/keyword/additionalProperties": {
             [`${schemaUri}#/additionalProperties`]: {
@@ -121,16 +110,6 @@ describe("JSON Schema Errors Output Format", () => {
       await validate(schemaUri, { foo: 42, bar: 24 }, { plugins: [outputPlugin] });
 
       expect(outputPlugin.output).to.eql({
-        "#/foo": {
-          "https://json-schema.org/validation": {
-            [`${schemaUri}#/additionalProperties`]: { valid: false }
-          }
-        },
-        "#/bar": {
-          "https://json-schema.org/validation": {
-            [`${schemaUri}#/additionalProperties`]: { valid: false }
-          }
-        },
         "#": {
           "https://json-schema.org/keyword/additionalProperties": {
             [`${schemaUri}#/additionalProperties`]: {
@@ -165,11 +144,6 @@ describe("JSON Schema Errors Output Format", () => {
       await validate(schemaUri, { foo: 42 }, { plugins: [outputPlugin] });
 
       expect(outputPlugin.output).to.eql({
-        "#/foo": {
-          "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/additionalProperties/type`]: { valid: false }
-          }
-        },
         "#": {
           "https://json-schema.org/keyword/additionalProperties": {
             [`${schemaUri}#/additionalProperties`]: {
@@ -217,12 +191,6 @@ describe("JSON Schema Errors Output Format", () => {
 
       expect(outputPlugin.output).to.eql({
         "#": {
-          "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/allOf/0/type`]: { valid: true }
-          },
-          "https://json-schema.org/keyword/maximum": {
-            [`${schemaUri}#/allOf/1/maximum`]: { valid: false }
-          },
           "https://json-schema.org/keyword/allOf": {
             [`${schemaUri}#/allOf`]: {
               valid: false,
@@ -264,10 +232,6 @@ describe("JSON Schema Errors Output Format", () => {
           "https://json-schema.org/keyword/type": {
             [`${schemaUri}#/type`]: { valid: true }
           },
-          "https://json-schema.org/keyword/maximum": {
-            [`${schemaUri}#/allOf/0/maximum`]: { valid: false },
-            [`${schemaUri}#/allOf/1/maximum`]: { valid: false }
-          },
           "https://json-schema.org/keyword/allOf": {
             [`${schemaUri}#/allOf`]: {
               valid: false,
@@ -305,12 +269,6 @@ describe("JSON Schema Errors Output Format", () => {
 
       expect(outputPlugin.output).to.eql({
         "#": {
-          "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/allOf/0/type`]: { valid: true }
-          },
-          "https://json-schema.org/keyword/maximum": {
-            [`${schemaUri}#/allOf/1/maximum`]: { valid: true }
-          },
           "https://json-schema.org/keyword/allOf": {
             [`${schemaUri}#/allOf`]: {
               valid: true,
@@ -627,9 +585,6 @@ describe("JSON Schema Errors Output Format", () => {
 
       expect(outputPlugin.output).to.eql({
         "#": {
-          "https://json-schema.org/keyword/required": {
-            [`${schemaUri}#/dependentSchemas/foo/required`]: { valid: false }
-          },
           "https://json-schema.org/keyword/dependentSchemas": {
             [`${schemaUri}#/dependentSchemas`]: {
               valid: false,
@@ -660,10 +615,6 @@ describe("JSON Schema Errors Output Format", () => {
 
       expect(outputPlugin.output).to.eql({
         "#": {
-          "https://json-schema.org/keyword/required": {
-            [`${schemaUri}#/dependentSchemas/foo/required`]: { valid: false },
-            [`${schemaUri}#/dependentSchemas/bar/required`]: { valid: false }
-          },
           "https://json-schema.org/keyword/dependentSchemas": {
             [`${schemaUri}#/dependentSchemas`]: {
               valid: false,
@@ -700,9 +651,6 @@ describe("JSON Schema Errors Output Format", () => {
 
       expect(outputPlugin.output).to.eql({
         "#": {
-          "https://json-schema.org/keyword/required": {
-            [`${schemaUri}#/dependentSchemas/foo/required`]: { valid: true }
-          },
           "https://json-schema.org/keyword/dependentSchemas": {
             [`${schemaUri}#/dependentSchemas`]: {
               valid: true,
@@ -747,9 +695,6 @@ describe("JSON Schema Errors Output Format", () => {
               ]
             }
           },
-          "https://json-schema.org/keyword/minLength": {
-            [`${schemaUri}#/then/minLength`]: { valid: false }
-          },
           "https://json-schema.org/keyword/then": {
             [`${schemaUri}#/then`]: {
               valid: false,
@@ -791,9 +736,6 @@ describe("JSON Schema Errors Output Format", () => {
                 }
               ]
             }
-          },
-          "https://json-schema.org/keyword/minLength": {
-            [`${schemaUri}#/then/minLength`]: { valid: true }
           },
           "https://json-schema.org/keyword/then": {
             [`${schemaUri}#/then`]: {
@@ -843,9 +785,6 @@ describe("JSON Schema Errors Output Format", () => {
               ]
             }
           },
-          "https://json-schema.org/keyword/minimum": {
-            [`${schemaUri}#/else/minimum`]: { valid: false }
-          },
           "https://json-schema.org/keyword/else": {
             [`${schemaUri}#/else`]: {
               valid: false,
@@ -892,9 +831,6 @@ describe("JSON Schema Errors Output Format", () => {
               ]
             }
           },
-          "https://json-schema.org/keyword/minimum": {
-            [`${schemaUri}#/else/minimum`]: { valid: true }
-          },
           "https://json-schema.org/keyword/else": {
             [`${schemaUri}#/else`]: {
               valid: true,
@@ -923,16 +859,6 @@ describe("JSON Schema Errors Output Format", () => {
       await validate(schemaUri, [42, 24], { plugins: [outputPlugin] });
 
       expect(outputPlugin.output).to.eql({
-        "#/0": {
-          "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/items/type`]: { valid: false }
-          }
-        },
-        "#/1": {
-          "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/items/type`]: { valid: false }
-          }
-        },
         "#": {
           "https://json-schema.org/keyword/items": {
             [`${schemaUri}#/items`]: {
@@ -967,11 +893,6 @@ describe("JSON Schema Errors Output Format", () => {
       await validate(schemaUri, ["foo"], { plugins: [outputPlugin] });
 
       expect(outputPlugin.output).to.eql({
-        "#/0": {
-          "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/items/type`]: { valid: true }
-          }
-        },
         "#": {
           "https://json-schema.org/keyword/items": {
             [`${schemaUri}#/items`]: {
@@ -1004,16 +925,6 @@ describe("JSON Schema Errors Output Format", () => {
       await validate(schemaUri, { foo: 42, bar: true }, { plugins: [outputPlugin] });
 
       expect(outputPlugin.output).to.eql({
-        "#/foo": {
-          "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/patternProperties/%5Ef/type`]: { valid: false }
-          }
-        },
-        "#/bar": {
-          "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/patternProperties/%5Eb/type`]: { valid: false }
-          }
-        },
         "#": {
           "https://json-schema.org/keyword/patternProperties": {
             [`${schemaUri}#/patternProperties`]: {
@@ -1051,16 +962,6 @@ describe("JSON Schema Errors Output Format", () => {
       await validate(schemaUri, { foo: "a", bar: 42 }, { plugins: [outputPlugin] });
 
       expect(outputPlugin.output).to.eql({
-        "#/foo": {
-          "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/patternProperties/%5Ef/type`]: { valid: true }
-          }
-        },
-        "#/bar": {
-          "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/patternProperties/%5Eb/type`]: { valid: true }
-          }
-        },
         "#": {
           "https://json-schema.org/keyword/patternProperties": {
             [`${schemaUri}#/patternProperties`]: {
@@ -1100,16 +1001,6 @@ describe("JSON Schema Errors Output Format", () => {
       await validate(schemaUri, [42, "foo"], { plugins: [outputPlugin] });
 
       expect(outputPlugin.output).to.eql({
-        "#/0": {
-          "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/prefixItems/0/type`]: { valid: false }
-          }
-        },
-        "#/1": {
-          "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/prefixItems/1/type`]: { valid: false }
-          }
-        },
         "#": {
           "https://json-schema.org/keyword/prefixItems": {
             [`${schemaUri}#/prefixItems`]: {
@@ -1147,16 +1038,6 @@ describe("JSON Schema Errors Output Format", () => {
       await validate(schemaUri, ["foo", 42], { plugins: [outputPlugin] });
 
       expect(outputPlugin.output).to.eql({
-        "#/0": {
-          "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/prefixItems/0/type`]: { valid: true }
-          }
-        },
-        "#/1": {
-          "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/prefixItems/1/type`]: { valid: true }
-          }
-        },
         "#": {
           "https://json-schema.org/keyword/prefixItems": {
             [`${schemaUri}#/prefixItems`]: {
@@ -1196,16 +1077,6 @@ describe("JSON Schema Errors Output Format", () => {
       await validate(schemaUri, { foo: 42, bar: true }, { plugins: [outputPlugin] });
 
       expect(outputPlugin.output).to.eql({
-        "#/foo": {
-          "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/properties/foo/type`]: { valid: false }
-          }
-        },
-        "#/bar": {
-          "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/properties/bar/type`]: { valid: false }
-          }
-        },
         "#": {
           "https://json-schema.org/keyword/properties": {
             [`${schemaUri}#/properties`]: {
@@ -1243,16 +1114,6 @@ describe("JSON Schema Errors Output Format", () => {
       await validate(schemaUri, { foo: "a", bar: 42 }, { plugins: [outputPlugin] });
 
       expect(outputPlugin.output).to.eql({
-        "#/foo": {
-          "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/properties/foo/type`]: { valid: true }
-          }
-        },
-        "#/bar": {
-          "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/properties/bar/type`]: { valid: true }
-          }
-        },
         "#": {
           "https://json-schema.org/keyword/properties": {
             [`${schemaUri}#/properties`]: {
@@ -1289,16 +1150,6 @@ describe("JSON Schema Errors Output Format", () => {
       await validate(schemaUri, { banana: true, pear: false }, { plugins: [outputPlugin] });
 
       expect(outputPlugin.output).to.eql({
-        "#*/banana": {
-          "https://json-schema.org/keyword/pattern": {
-            [`${schemaUri}#/propertyNames/pattern`]: { valid: false }
-          }
-        },
-        "#*/pear": {
-          "https://json-schema.org/keyword/pattern": {
-            [`${schemaUri}#/propertyNames/pattern`]: { valid: false }
-          }
-        },
         "#": {
           "https://json-schema.org/keyword/propertyNames": {
             [`${schemaUri}#/propertyNames`]: {
@@ -1333,11 +1184,6 @@ describe("JSON Schema Errors Output Format", () => {
       await validate(schemaUri, { apple: true }, { plugins: [outputPlugin] });
 
       expect(outputPlugin.output).to.eql({
-        "#*/apple": {
-          "https://json-schema.org/keyword/pattern": {
-            [`${schemaUri}#/propertyNames/pattern`]: { valid: true }
-          }
-        },
         "#": {
           "https://json-schema.org/keyword/propertyNames": {
             [`${schemaUri}#/propertyNames`]: {
@@ -1365,11 +1211,6 @@ describe("JSON Schema Errors Output Format", () => {
       await validate(schemaUri, { foo: 42 }, { plugins: [outputPlugin] });
 
       expect(outputPlugin.output).to.eql({
-        "#/foo": {
-          "https://json-schema.org/validation": {
-            [`${schemaUri}#/unevaluatedProperties`]: { valid: false }
-          }
-        },
         "#": {
           "https://json-schema.org/keyword/unevaluatedProperties": {
             [`${schemaUri}#/unevaluatedProperties`]: {
@@ -1401,11 +1242,6 @@ describe("JSON Schema Errors Output Format", () => {
       await validate(schemaUri, { foo: 42, bar: true, baz: null }, { plugins: [outputPlugin] });
 
       expect(outputPlugin.output).to.eql({
-        "#/bar": {
-          "https://json-schema.org/validation": {
-            [`${schemaUri}#/properties/bar`]: { valid: false }
-          }
-        },
         "#": {
           "https://json-schema.org/keyword/properties": {
             [`${schemaUri}#/properties`]: {
@@ -1437,11 +1273,6 @@ describe("JSON Schema Errors Output Format", () => {
               ]
             }
           }
-        },
-        "#/baz": {
-          "https://json-schema.org/validation": {
-            [`${schemaUri}#/unevaluatedProperties`]: { valid: false }
-          }
         }
       });
     });
@@ -1454,11 +1285,6 @@ describe("JSON Schema Errors Output Format", () => {
       await validate(schemaUri, { foo: 42 }, { plugins: [outputPlugin] });
 
       expect(outputPlugin.output).to.eql({
-        "#/foo": {
-          "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/unevaluatedProperties/type`]: { valid: false }
-          }
-        },
         "#": {
           "https://json-schema.org/keyword/unevaluatedProperties": {
             [`${schemaUri}#/unevaluatedProperties`]: {
@@ -1500,11 +1326,6 @@ describe("JSON Schema Errors Output Format", () => {
       await validate(schemaUri, [42], { plugins: [outputPlugin] });
 
       expect(outputPlugin.output).to.eql({
-        "#/0": {
-          "https://json-schema.org/validation": {
-            [`${schemaUri}#/unevaluatedItems`]: { valid: false }
-          }
-        },
         "#": {
           "https://json-schema.org/keyword/unevaluatedItems": {
             [`${schemaUri}#/unevaluatedItems`]: {
@@ -1532,11 +1353,6 @@ describe("JSON Schema Errors Output Format", () => {
       await validate(schemaUri, [42], { plugins: [outputPlugin] });
 
       expect(outputPlugin.output).to.eql({
-        "#/0": {
-          "https://json-schema.org/keyword/type": {
-            [`${schemaUri}#/unevaluatedItems/type`]: { valid: false }
-          }
-        },
         "#": {
           "https://json-schema.org/keyword/unevaluatedItems": {
             [`${schemaUri}#/unevaluatedItems`]: {
@@ -1565,11 +1381,6 @@ describe("JSON Schema Errors Output Format", () => {
       await validate(schemaUri, [42, true, null], { plugins: [outputPlugin] });
 
       expect(outputPlugin.output).to.eql({
-        "#/1": {
-          "https://json-schema.org/validation": {
-            [`${schemaUri}#/prefixItems/1`]: { valid: false }
-          }
-        },
         "#": {
           "https://json-schema.org/keyword/prefixItems": {
             [`${schemaUri}#/prefixItems`]: {
@@ -1600,11 +1411,6 @@ describe("JSON Schema Errors Output Format", () => {
                 }
               ]
             }
-          }
-        },
-        "#/2": {
-          "https://json-schema.org/validation": {
-            [`${schemaUri}#/unevaluatedItems`]: { valid: false }
           }
         }
       });
@@ -2232,11 +2038,6 @@ describe("JSON Schema Errors Output Format", () => {
     await validate(schemaUri, { foo: 42 }, { plugins: [outputPlugin] });
 
     expect(outputPlugin.output).to.eql({
-      "#/foo": {
-        "https://json-schema.org/keyword/type": {
-          [`${schemaUri}#/properties/foo/type`]: { valid: false }
-        }
-      },
       "#": {
         "https://json-schema.org/keyword/properties": {
           [`${schemaUri}#/properties`]: {
@@ -2273,38 +2074,12 @@ describe("JSON Schema Errors Output Format", () => {
     await validate(schemaUri, { foo: { bar: 42 } }, { plugins: [outputPlugin] });
 
     expect(outputPlugin.output).to.eql({
-      "#/foo/bar": {
-        "https://json-schema.org/keyword/type": {
-          [`${schemaUri}#/properties/foo/properties/bar/type`]: { valid: false }
-        }
-      },
-      "#/foo": {
-        "https://json-schema.org/keyword/properties": {
-          [`${schemaUri}#/properties/foo/properties`]: {
-            valid: false,
-            outputs: [
-              {
-                "#/foo/bar": {
-                  "https://json-schema.org/keyword/type": {
-                    [`${schemaUri}#/properties/foo/properties/bar/type`]: { valid: false }
-                  }
-                }
-              }
-            ]
-          }
-        }
-      },
       "#": {
         "https://json-schema.org/keyword/properties": {
           [`${schemaUri}#/properties`]: {
             valid: false,
             outputs: [
               {
-                "#/foo/bar": {
-                  "https://json-schema.org/keyword/type": {
-                    [`${schemaUri}#/properties/foo/properties/bar/type`]: { valid: false }
-                  }
-                },
                 "#/foo": {
                   "https://json-schema.org/keyword/properties": {
                     [`${schemaUri}#/properties/foo/properties`]: {

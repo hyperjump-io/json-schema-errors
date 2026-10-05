@@ -101,7 +101,7 @@ export type NormalizationHandler<KeywordValue = unknown, Context extends Evaluat
    * applicators whose subschemas only apply when a condition holds. Whether a
    * keyword is a simple applicator comes from its `@hyperjump/json-schema`
    * keyword definition. The results of a simple applicator's subschemas are
-   * merged into the results of its parent schema, but the merged results of a
+   * flattened into the results of its parent schema, but the results of a
    * conditional applicator are left out when describing the parent schema
    * because its error handler describes them along with the condition.
    */
@@ -140,7 +140,9 @@ export type ErrorIndex = {
 
 /**
  * The result of a keyword. `valid` is `undefined` if the result isn't known. For
- * applicators, `outputs` has the normalized output of each subschema.
+ * applicators, `outputs` has the normalized output of each subschema. The
+ * results of a simple applicator's subschemas are only in its `outputs`. Use
+ * `flattenOutput` to include them in the results of the parent schema.
  */
 export type KeywordOutput = {
   valid?: boolean;
@@ -214,6 +216,15 @@ export type ErrorHandlerContext = {
    */
   isFormatAsserted: (keywordUri: string, format: string) => boolean | undefined;
 };
+
+/**
+ * The results of a simple applicator's subschemas are results of its parent
+ * schema, but they're kept with the applicator in its `outputs`. `getErrors`
+ * and `getSuccesses` flatten them for error handlers. Use this to get the
+ * flattened results of a subschema's output, such as an alternative of an
+ * applicator, to inspect them directly.
+ */
+export const flattenOutput: (normalizedOutput: NormalizedOutput) => NormalizedOutput;
 
 /**
  * Converts the normalized error format to human readable errors. It's used to

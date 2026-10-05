@@ -170,12 +170,6 @@ export const evaluateSchema = (schemaLocation, instance, context) => {
         valid = false;
       }
 
-      if (validationKeyword.simpleApplicator) {
-        for (const suboutput of keywordOutput ?? []) {
-          mergeOutput(output, suboutput);
-        }
-      }
-
       output[instanceLocation] ??= {};
       output[instanceLocation][normalizedKeywordUri] ??= {};
       output[instanceLocation][normalizedKeywordUri][keywordLocation] = keywordOutput
@@ -405,18 +399,6 @@ const relocate = (errorObject, from, to) => {
   return relocated;
 };
 
-/** @type (a: API.NormalizedOutput, b: API.NormalizedOutput) => void */
-const mergeOutput = (a, b) => {
-  for (const instanceLocation in b) {
-    a[instanceLocation] ??= {};
-    for (const keywordUri in b[instanceLocation]) {
-      a[instanceLocation][keywordUri] ??= {};
-
-      Object.assign(a[instanceLocation][keywordUri], b[instanceLocation][keywordUri]);
-    }
-  }
-};
-
 /** @type Record<string, API.ErrorHandler> */
 const errorHandlers = {};
 
@@ -435,10 +417,11 @@ export const getErrors = (normalizedErrors, rootInstance, localization, context)
   /** @type API.ErrorObject[] */
   const errors = [];
 
-  for (const instanceLocation in normalizedErrors) {
+  const reportedOutput = flattenOutput(normalizedErrors);
+  for (const instanceLocation in reportedOutput) {
     const instance = /** @type JsonNode */ (Instance.get(instanceLocation, rootInstance));
     for (const errorHandlerUri in errorHandlers) {
-      const errorObjects = errorHandlers[errorHandlerUri].error?.(normalizedErrors[instanceLocation], instance, localization, context) ?? [];
+      const errorObjects = errorHandlers[errorHandlerUri].error?.(reportedOutput[instanceLocation], instance, localization, context) ?? [];
       errors.push(...errorObjects);
     }
   }
@@ -446,53 +429,32 @@ export const getErrors = (normalizedErrors, rootInstance, localization, context)
   return errors;
 };
 
+/** @type API.flattenOutput */
+export const flattenOutput = (normalizedOutput) => flatten(normalizedOutput, isApplied);
+
 /**
- * The results of a conditional keyword's subschemas are merged into the results
- * of its parent schema like any simple applicator, but they only apply when the
- * condition holds. The conditional keyword's handler describes them along with
- * the condition, so they aren't described again as requirements of the parent.
+ * The results of a simple applicator's subschemas are results of its parent
+ * schema. The results are kept with the applicator that produced them and
+ * flattened into the parent's results when they're used. `shouldFlatten`
+ * decides which simple applicators' results are included.
  *
- * @type (normalizedOutput: API.NormalizedOutput) => API.NormalizedOutput
+ * @type (normalizedOutput: API.NormalizedOutput, shouldFlatten: (keywordUri: string) => boolean, result?: API.NormalizedOutput) => API.NormalizedOutput
  */
-const withoutConditionalResults = (normalizedOutput) => {
-  /** @type Set<string> */
-  const conditionalResults = new Set();
+const flatten = (normalizedOutput, shouldFlatten, result = {}) => {
   for (const instanceLocation in normalizedOutput) {
     for (const keywordUri in normalizedOutput[instanceLocation]) {
-      if (!normalizationHandlers[toAbsoluteIri(keywordUri)]?.conditional) {
-        continue;
-      }
-
+      const isFlattened = getKeyword(keywordUri)?.simpleApplicator && shouldFlatten(keywordUri);
       for (const keywordLocation in normalizedOutput[instanceLocation][keywordUri]) {
-        for (const output of normalizedOutput[instanceLocation][keywordUri][keywordLocation].outputs ?? []) {
-          for (const subInstanceLocation in output) {
-            for (const subKeywordUri in output[subInstanceLocation]) {
-              for (const subKeywordLocation in output[subInstanceLocation][subKeywordUri]) {
-                conditionalResults.add(resultKey(subInstanceLocation, subKeywordUri, subKeywordLocation));
-              }
-            }
+        const keywordOutput = normalizedOutput[instanceLocation][keywordUri][keywordLocation];
+        if (isFlattened) {
+          for (const output of keywordOutput.outputs ?? []) {
+            flatten(output, shouldFlatten, result);
           }
-        }
-      }
-    }
-  }
-
-  if (conditionalResults.size === 0) {
-    return normalizedOutput;
-  }
-
-  /** @type API.NormalizedOutput */
-  const result = {};
-  for (const instanceLocation in normalizedOutput) {
-    for (const keywordUri in normalizedOutput[instanceLocation]) {
-      for (const keywordLocation in normalizedOutput[instanceLocation][keywordUri]) {
-        if (conditionalResults.has(resultKey(instanceLocation, keywordUri, keywordLocation))) {
-          continue;
         }
 
         result[instanceLocation] ??= {};
         result[instanceLocation][keywordUri] ??= {};
-        result[instanceLocation][keywordUri][keywordLocation] = normalizedOutput[instanceLocation][keywordUri][keywordLocation];
+        result[instanceLocation][keywordUri][keywordLocation] = keywordOutput;
       }
     }
   }
@@ -500,8 +462,23 @@ const withoutConditionalResults = (normalizedOutput) => {
   return result;
 };
 
-/** @type (instanceLocation: string, keywordUri: string, keywordLocation: string) => string */
-const resultKey = (instanceLocation, keywordUri, keywordLocation) => JSON.stringify([instanceLocation, keywordUri, keywordLocation]);
+/**
+ * The results of every simple applicator's subschemas apply to the parent
+ * schema when they were evaluated, including conditional ones, because a
+ * conditional subschema is only evaluated if its condition holds.
+ *
+ * @type (keywordUri: string) => boolean
+ */
+const isApplied = () => true;
+
+/**
+ * A conditional keyword's subschemas only apply when the condition holds. The
+ * conditional keyword's handler describes them along with the condition, so
+ * they aren't described as requirements of the parent schema.
+ *
+ * @type (keywordUri: string) => boolean
+ */
+const isRequired = (keywordUri) => !normalizationHandlers[toAbsoluteIri(keywordUri)]?.conditional;
 
 /** @type API.getSuccesses */
 export const getSuccesses = (normalizedOutput, rootInstance, localization, context) => {
@@ -521,7 +498,7 @@ export const getSuccesses = (normalizedOutput, rootInstance, localization, conte
   /** @type API.ErrorObject[] */
   const successes = [];
 
-  const describedOutput = withoutConditionalResults(normalizedOutput);
+  const describedOutput = flatten(normalizedOutput, isRequired);
 
   descriptionDepth++;
   try {
@@ -630,10 +607,11 @@ const sizeOf = (errorObjects) => errorObjects.reduce((size, errorObject) => {
 
 /** @type (normalizedOutput: API.NormalizedOutput) => boolean */
 export const isPassing = (normalizedOutput) => {
-  for (const instanceLocation in normalizedOutput) {
-    for (const keywordUri in normalizedOutput[instanceLocation]) {
-      for (const schemaLocation in normalizedOutput[instanceLocation][keywordUri]) {
-        if (normalizedOutput[instanceLocation][keywordUri][schemaLocation].valid !== true) {
+  const results = flattenOutput(normalizedOutput);
+  for (const instanceLocation in results) {
+    for (const keywordUri in results[instanceLocation]) {
+      for (const schemaLocation in results[instanceLocation][keywordUri]) {
+        if (results[instanceLocation][keywordUri][schemaLocation].valid !== true) {
           return false;
         }
       }
@@ -645,10 +623,11 @@ export const isPassing = (normalizedOutput) => {
 
 /** @type (normalizedOutput: API.NormalizedOutput) => boolean */
 export const isFailing = (normalizedOutput) => {
-  for (const instanceLocation in normalizedOutput) {
-    for (const keywordUri in normalizedOutput[instanceLocation]) {
-      for (const schemaLocation in normalizedOutput[instanceLocation][keywordUri]) {
-        if (normalizedOutput[instanceLocation][keywordUri][schemaLocation].valid === false) {
+  const results = flattenOutput(normalizedOutput);
+  for (const instanceLocation in results) {
+    for (const keywordUri in results[instanceLocation]) {
+      for (const schemaLocation in results[instanceLocation][keywordUri]) {
+        if (results[instanceLocation][keywordUri][schemaLocation].valid === false) {
           return true;
         }
       }
