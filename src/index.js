@@ -108,6 +108,7 @@ setNormalizationHandler("https://json-schema.org/keyword/draft-2020-12/dynamicRe
 setNormalizationHandler("https://json-schema.org/keyword/else", elseNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/enum", enumNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/examples", examplesNormalizationHandler);
+setNormalizationHandler("https://json-schema.org/keyword/format", formatNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/draft-2020-12/format", formatNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/draft-2020-12/format-assertion", formatNormalizationHandler);
 setNormalizationHandler("https://json-schema.org/keyword/draft-2019-09/format", formatNormalizationHandler);

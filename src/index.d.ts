@@ -57,6 +57,14 @@ export type JsonSchemaErrorsOptions = {
    * @example "en-US"
    */
   locale?: string;
+
+  /**
+   * Whether the validator treated the `format` keyword as an assertion rather
+   * than an annotation. Validators often only validate `format` if they're
+   * configured to. If this isn't given, messages that describe `format` say
+   * that it only applies if formats are validated.
+   */
+  isFormatAsserted?: boolean;
 };
 
 /**
@@ -198,6 +206,13 @@ export type ErrorHandler = {
  */
 export type ErrorHandlerContext = {
   ast: AST;
+
+  /**
+   * Whether the validator treated a `format` keyword as an assertion rather
+   * than an annotation. It can depend on the dialect, given by the keyword
+   * URI, and on the format. `undefined` if it's not known.
+   */
+  isFormatAsserted: (keywordUri: string, format: string) => boolean | undefined;
 };
 
 /**

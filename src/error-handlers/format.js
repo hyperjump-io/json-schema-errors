@@ -6,6 +6,7 @@ import { describeKeyword, getCompiledKeywordValue } from "../json-schema-errors.
  */
 
 const keywordUris = [
+  "https://json-schema.org/keyword/format",
   "https://json-schema.org/keyword/draft-2020-12/format",
   "https://json-schema.org/keyword/draft-2020-12/format-assertion",
   "https://json-schema.org/keyword/draft-2019-09/format",
@@ -41,13 +42,18 @@ const formatErrorHandler = {
   },
 
   success: (normalizedOutput, instance, localization, context) => {
-    // Whether 'format' is an assertion depends on how the validator is
-    // configured, which we don't know, so the messages say that it only applies
-    // if formats are validated. That includes 'format-assertion' because some
-    // validators can be configured not to validate it either.
+    // A 'format' that's only an annotation doesn't require anything. If it's
+    // not known, the message says that it only applies if formats are validated.
     return keywordUris.flatMap((keywordUri) => {
       return describeKeyword(normalizedOutput, keywordUri, instance, context.ast, (/** @type string */ format) => {
-        return localization.getFormatSuccessMessage(format);
+        switch (context.isFormatAsserted(keywordUri, format)) {
+          case true:
+            return localization.getFormatSuccessMessage(format);
+          case false:
+            return undefined;
+          default:
+            return localization.getFormatIfValidatedSuccessMessage(format);
+        }
       });
     });
   }

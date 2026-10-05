@@ -351,6 +351,11 @@ export class Localization {
     return this.#formatSuccessMessage("format", { format });
   }
 
+  /** @type (format: string) => string */
+  getFormatIfValidatedSuccessMessage(format) {
+    return this.#formatSuccessMessage("formatIfValidated", { format });
+  }
+
   /** @type (maxItems: number) => string */
   getMaxItemsSuccessMessage(maxItems) {
     return this.#formatSuccessMessage("maxItems", { maxItems });

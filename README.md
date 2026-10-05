@@ -119,6 +119,16 @@ console.log(errors);
 // ]
 ```
 
+Validators often only validate the `format` keyword if they're configured to.
+Use the `isFormatAsserted` option to say whether the validator validated
+formats. If it isn't given, messages that describe `format` say that it only
+applies if formats are validated. The `JSE` output format works this out from
+`@hyperjump/json-schema`'s configuration and each dialect's default.
+
+```TypeScript
+const errors = await jsonSchemaErrors(output, schemaUri, instance, { isFormatAsserted: true });
+```
+
 ## API
 
 https://json-schema-errors.hyperjump.io
