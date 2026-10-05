@@ -24,7 +24,8 @@ const prefixItemsNormalizationHandler = {
 
     return outputs;
   },
-  simpleApplicator: true
+  simpleApplicator: true,
+  recordResult: true
 };
 
 export default prefixItemsNormalizationHandler;

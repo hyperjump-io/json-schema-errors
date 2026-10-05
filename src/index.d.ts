@@ -106,6 +106,14 @@ export type NormalizationHandler<KeywordValue = unknown, Context extends Evaluat
   validityFromSubschemas?: true;
 
   /**
+   * Simple applicators don't record a result for themselves because their
+   * subschema results are merged into their parent. This records one anyway so
+   * the keyword can be described when its subschemas don't apply to the value.
+   * Its validity comes from its subschemas.
+   */
+  recordResult?: true;
+
+  /**
    * Annotations, such as `title` and `description`, never affect validation. A
    * schema that only has annotations allows any value.
    */

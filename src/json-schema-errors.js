@@ -1,7 +1,7 @@
 import { compile, getKeyword, getSchema, Validation } from "@hyperjump/json-schema/experimental";
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
 import * as Schema from "@hyperjump/browser";
-import { pointerSegments } from "@hyperjump/json-pointer";
+import * as JsonPointer from "@hyperjump/json-pointer";
 import { toAbsoluteIri } from "@hyperjump/uri";
 import { Localization } from "./localization.js";
 import { JsonSchemaErrorsOutputPlugin } from "./output-plugin.js";
@@ -39,6 +39,11 @@ export const allowsAnyValue = (schemaLocation, ast) => {
   }
 
   return schemaNode.every(([keywordUri]) => normalizationHandlers[toAbsoluteIri(keywordUri)]?.annotation);
+};
+
+/** @type (keywordUri: string) => boolean */
+export const isRecordingResult = (keywordUri) => {
+  return normalizationHandlers[toAbsoluteIri(keywordUri)]?.recordResult ?? false;
 };
 
 /** @type (keywordUri: string) => boolean */
@@ -103,7 +108,7 @@ async function toAbsoluteKeywordLocation(schema, keywordLocation) {
     keywordLocation = keywordLocation.slice(1);
   }
 
-  for (const segment of pointerSegments(keywordLocation)) {
+  for (const segment of JsonPointer.pointerSegments(keywordLocation)) {
     schema = await Schema.step(segment, schema);
   }
 
@@ -165,7 +170,8 @@ export const evaluateSchema = (schemaLocation, instance, context) => {
       const keywordOutput = keyword.evaluate(keywordValue, instance, keywordContext);
 
       const isReported = context.errorIndex[keywordLocation]?.[keywordInstanceLocation] !== undefined;
-      if (keyword.validityFromSubschemas && !isReported && keywordOutput?.some(isFailing)) {
+      const isValidityFromSubschemas = keyword.validityFromSubschemas || keyword.recordResult;
+      if (isValidityFromSubschemas && !isReported && keywordOutput?.some(isFailing)) {
         isKeywordValid = false;
       }
 
@@ -176,6 +182,12 @@ export const evaluateSchema = (schemaLocation, instance, context) => {
       if (keyword.simpleApplicator) {
         for (const suboutput of /** @type API.NormalizedOutput[] */ (keywordOutput)) {
           mergeOutput(output, suboutput);
+        }
+
+        if (keyword.recordResult) {
+          output[instanceLocation] ??= {};
+          output[instanceLocation][normalizedKeywordUri] ??= {};
+          output[instanceLocation][normalizedKeywordUri][keywordLocation] = { valid: isKeywordValid };
         }
       } else {
         output[instanceLocation] ??= {};
@@ -211,6 +223,26 @@ const getValidity = (schemaLocation, instanceLocation, context) => {
   } else {
     return !isError;
   }
+};
+
+/**
+ * A placeholder stands in for a value that doesn't exist, such as a property
+ * that isn't present, so it can be described what that value would need to be.
+ *
+ * @type (parent: JsonNode, segment: string) => JsonNode
+ */
+export const getPlaceholder = (parent, segment) => {
+  const pointer = JsonPointer.append(segment, parent.pointer);
+  return Instance.cons(parent.baseUri, pointer, undefined, /** @type JsonNode["type"] */ ("undefined"), [], parent);
+};
+
+/** @type (node: JsonNode) => boolean */
+export const isPlaceholder = (node) => /** @type string */ (Instance.typeOf(node)) === "undefined";
+
+/** @type (instanceLocation: string, rootInstance: JsonNode) => JsonNode */
+const toPlaceholder = (instanceLocation, rootInstance) => {
+  const pointer = decodeURI(instanceLocation.slice(instanceLocation.indexOf("#") + 1));
+  return Instance.cons(rootInstance.baseUri, pointer, undefined, /** @type JsonNode["type"] */ ("undefined"), [], undefined);
 };
 
 /**
@@ -286,7 +318,9 @@ export const getSuccesses = (normalizedOutput, rootInstance, localization, ast) 
   const successes = [];
 
   for (const instanceLocation in normalizedOutput) {
-    const instance = /** @type JsonNode */ (Instance.get(instanceLocation, rootInstance));
+    // Descriptions can be about values that don't exist yet
+    const instance = Instance.get(instanceLocation, rootInstance)
+      ?? toPlaceholder(instanceLocation, rootInstance);
     for (const errorHandlerUri in errorHandlers) {
       const successObjects = errorHandlers[errorHandlerUri].success?.(normalizedOutput[instanceLocation], instance, localization, ast) ?? [];
       successes.push(...successObjects);

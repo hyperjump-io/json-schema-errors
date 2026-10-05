@@ -343,13 +343,332 @@
       ]
     },
     {
-      "description": "oneOf more than one match with a match that can't be described",
+      "description": "oneOf more than one match with properties on a non-object",
       "schema": {
         "oneOf": [
           { "type": "number" },
           {
             "properties": {
               "a": { "type": "string" }
+            }
+          }
+        ]
+      },
+      "instance": 1,
+      "errors": [
+        {
+          "messageId": "oneOf-multiple-matches-message",
+          "alternatives": [
+            [
+              {
+                "messageId": "type-success-message",
+                "messageParams": {
+                  "count": 1,
+                  "type": "number",
+                  "types": { "or": ["number"] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/0/type"]
+              }
+            ],
+            [
+              {
+                "messageId": "count-true-message",
+                "messageParams": {
+                  "kind": "atLeast",
+                  "min": 1
+                },
+                "alternatives": [
+                  [
+                    {
+                      "messageId": "hasProperty-negated-message",
+                      "messageParams": {
+                        "count": 1,
+                        "properties": { "and": ["a"] }
+                      },
+                      "instanceLocation": "#",
+                      "schemaLocations": ["#/oneOf/1/properties"]
+                    }
+                  ],
+                  [
+                    {
+                      "messageId": "type-success-message",
+                      "messageParams": {
+                        "count": 1,
+                        "type": "string",
+                        "types": { "or": ["string"] }
+                      },
+                      "instanceLocation": "#/a",
+                      "schemaLocations": ["#/oneOf/1/properties/a/type"]
+                    }
+                  ]
+                ],
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/1/properties"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/oneOf"]
+        }
+      ]
+    },
+    {
+      "description": "oneOf more than one match with properties that aren't present",
+      "schema": {
+        "oneOf": [
+          { "type": "object" },
+          {
+            "properties": {
+              "a": { "type": "string" },
+              "b": { "type": "number" }
+            }
+          }
+        ]
+      },
+      "instance": {},
+      "errors": [
+        {
+          "messageId": "oneOf-multiple-matches-message",
+          "alternatives": [
+            [
+              {
+                "messageId": "type-success-message",
+                "messageParams": {
+                  "count": 1,
+                  "type": "object",
+                  "types": { "or": ["object"] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/0/type"]
+              }
+            ],
+            [
+              {
+                "messageId": "count-true-message",
+                "messageParams": {
+                  "kind": "atLeast",
+                  "min": 1
+                },
+                "alternatives": [
+                  [
+                    {
+                      "messageId": "hasProperty-negated-message",
+                      "messageParams": {
+                        "count": 1,
+                        "properties": { "and": ["a"] }
+                      },
+                      "instanceLocation": "#",
+                      "schemaLocations": ["#/oneOf/1/properties"]
+                    }
+                  ],
+                  [
+                    {
+                      "messageId": "type-success-message",
+                      "messageParams": {
+                        "count": 1,
+                        "type": "string",
+                        "types": { "or": ["string"] }
+                      },
+                      "instanceLocation": "#/a",
+                      "schemaLocations": ["#/oneOf/1/properties/a/type"]
+                    }
+                  ]
+                ],
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/1/properties"]
+              },
+              {
+                "messageId": "count-true-message",
+                "messageParams": {
+                  "kind": "atLeast",
+                  "min": 1
+                },
+                "alternatives": [
+                  [
+                    {
+                      "messageId": "hasProperty-negated-message",
+                      "messageParams": {
+                        "count": 1,
+                        "properties": { "and": ["b"] }
+                      },
+                      "instanceLocation": "#",
+                      "schemaLocations": ["#/oneOf/1/properties"]
+                    }
+                  ],
+                  [
+                    {
+                      "messageId": "type-success-message",
+                      "messageParams": {
+                        "count": 1,
+                        "type": "number",
+                        "types": { "or": ["number"] }
+                      },
+                      "instanceLocation": "#/b",
+                      "schemaLocations": ["#/oneOf/1/properties/b/type"]
+                    }
+                  ]
+                ],
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/1/properties"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/oneOf"]
+        }
+      ]
+    },
+    {
+      "description": "oneOf more than one match with prefixItems on a non-array",
+      "compatibility": "2020",
+      "schema": {
+        "oneOf": [
+          { "type": "number" },
+          {
+            "prefixItems": [
+              { "type": "string" }
+            ]
+          }
+        ]
+      },
+      "instance": 1,
+      "errors": [
+        {
+          "messageId": "oneOf-multiple-matches-message",
+          "alternatives": [
+            [
+              {
+                "messageId": "type-success-message",
+                "messageParams": {
+                  "count": 1,
+                  "type": "number",
+                  "types": { "or": ["number"] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/0/type"]
+              }
+            ],
+            [
+              {
+                "messageId": "count-true-message",
+                "messageParams": {
+                  "kind": "atLeast",
+                  "min": 1
+                },
+                "alternatives": [
+                  [
+                    {
+                      "messageId": "maxItems-success-message",
+                      "messageParams": {
+                        "maxItems": 0
+                      },
+                      "instanceLocation": "#",
+                      "schemaLocations": ["#/oneOf/1/prefixItems"]
+                    }
+                  ],
+                  [
+                    {
+                      "messageId": "type-success-message",
+                      "messageParams": {
+                        "count": 1,
+                        "type": "string",
+                        "types": { "or": ["string"] }
+                      },
+                      "instanceLocation": "#/0",
+                      "schemaLocations": ["#/oneOf/1/prefixItems/0/type"]
+                    }
+                  ]
+                ],
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/1/prefixItems"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/oneOf"]
+        }
+      ]
+    },
+    {
+      "description": "oneOf more than one match with prefixItems that aren't present",
+      "compatibility": "2020",
+      "schema": {
+        "oneOf": [
+          { "type": "array" },
+          {
+            "prefixItems": [
+              { "type": "string" }
+            ]
+          }
+        ]
+      },
+      "instance": [],
+      "errors": [
+        {
+          "messageId": "oneOf-multiple-matches-message",
+          "alternatives": [
+            [
+              {
+                "messageId": "type-success-message",
+                "messageParams": {
+                  "count": 1,
+                  "type": "array",
+                  "types": { "or": ["array"] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/0/type"]
+              }
+            ],
+            [
+              {
+                "messageId": "count-true-message",
+                "messageParams": {
+                  "kind": "atLeast",
+                  "min": 1
+                },
+                "alternatives": [
+                  [
+                    {
+                      "messageId": "maxItems-success-message",
+                      "messageParams": {
+                        "maxItems": 0
+                      },
+                      "instanceLocation": "#",
+                      "schemaLocations": ["#/oneOf/1/prefixItems"]
+                    }
+                  ],
+                  [
+                    {
+                      "messageId": "type-success-message",
+                      "messageParams": {
+                        "count": 1,
+                        "type": "string",
+                        "types": { "or": ["string"] }
+                      },
+                      "instanceLocation": "#/0",
+                      "schemaLocations": ["#/oneOf/1/prefixItems/0/type"]
+                    }
+                  ]
+                ],
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/1/prefixItems"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/oneOf"]
+        }
+      ]
+    },
+    {
+      "description": "oneOf more than one match with a match that can't be described",
+      "schema": {
+        "oneOf": [
+          { "type": "number" },
+          {
+            "patternProperties": {
+              "^a": { "type": "string" }
             }
           }
         ]
@@ -1684,7 +2003,8 @@
               {
                 "messageId": "hasProperty-negated-message",
                 "messageParams": {
-                  "property": "a"
+                  "count": 1,
+                  "properties": { "and": ["a"] }
                 },
                 "instanceLocation": "#",
                 "schemaLocations": ["#/oneOf/0/dependentSchemas/a"]

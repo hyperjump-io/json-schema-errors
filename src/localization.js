@@ -226,9 +226,12 @@ export class Localization {
     }
   }
 
-  /** @type (property: string) => string */
-  getHasPropertySuccessMessage(property) {
-    return this.#formatSuccessMessage("hasProperty", { property });
+  /** @type (properties: string[]) => string */
+  getHasPropertySuccessMessage(properties) {
+    return this.#formatSuccessMessage("hasProperty", {
+      properties: this.isNegated ? this.conjunction.format(properties) : this.disjunction.format(properties),
+      count: properties.length
+    });
   }
 
   /** @type (property: string, required: string[]) => string */

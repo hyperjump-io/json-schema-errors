@@ -70,7 +70,7 @@ export const describeSchemaDependencies = (dependencies, outputs, instance, loca
 
     /** @type (localization: Localization) => ErrorObject */
     const hasProperty = (localization) => ({
-      message: localization.getHasPropertySuccessMessage(propertyName),
+      message: localization.getHasPropertySuccessMessage([propertyName]),
       instanceLocation: Instance.uri(instance),
       schemaLocations: [dependencyLocation]
     });

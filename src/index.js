@@ -79,6 +79,8 @@ import minPropertiesErrorHandler from "./error-handlers/minProperties.js";
 import multipleOfErrorHandler from "./error-handlers/multipleOf.js";
 import notErrorHandler from "./error-handlers/not.js";
 import oneOfErrorHandler from "./error-handlers/oneOf.js";
+import prefixItemsErrorHandler from "./error-handlers/prefixItems.js";
+import propertiesErrorHandler from "./error-handlers/properties.js";
 import patternErrorHandler from "./error-handlers/pattern.js";
 import requiredErrorHandler from "./error-handlers/required.js";
 import typeConstEnumErrorHandler from "./error-handlers/typeConstEnum.js";
@@ -171,6 +173,8 @@ setErrorHandler("https://hyperjump.io/error-handler/minProperties", minPropertie
 setErrorHandler("https://hyperjump.io/error-handler/multipleOf", multipleOfErrorHandler);
 setErrorHandler("https://hyperjump.io/error-handler/not", notErrorHandler);
 setErrorHandler("https://hyperjump.io/error-handler/oneOf", oneOfErrorHandler);
+setErrorHandler("https://hyperjump.io/error-handler/prefixItems", prefixItemsErrorHandler);
+setErrorHandler("https://hyperjump.io/error-handler/properties", propertiesErrorHandler);
 setErrorHandler("https://hyperjump.io/error-handler/pattern", patternErrorHandler);
 setErrorHandler("https://hyperjump.io/error-handler/required", requiredErrorHandler);
 setErrorHandler("https://hyperjump.io/error-handler/uniqueItems", uniqueItemsErrorHandler);
