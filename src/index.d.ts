@@ -20,10 +20,65 @@ export const jsonSchemaErrors: (
 ) => Promise<JsonSchemaErrors>;
 
 /**
- * Sets a normalization handler for a specific keyword URI. Normalization handlers
- * process keyword values during schema validation to produce normalized output.
+ * Adds support for a keyword. The keyword itself needs to be defined with
+ * `@hyperjump/json-schema`'s `addKeyword`. Every keyword the validator uses
+ * needs to be defined. Each occurrence of the keyword that fails gets its own
+ * message from `error`, and `requirement` describes what each occurrence
+ * requires. Use `setErrorHandler` instead for keywords that need to combine
+ * occurrences into one message, keywords that are described together, or
+ * applicators that make assertions of their own.
+ *
+ * Defining a keyword again replaces its definition.
+ *
+ * @param keywordUri - The keyword's id in its `@hyperjump/json-schema` definition
+ * @param definition
  */
-export const setNormalizationHandler: (keywordUri: string, handler: NormalizationHandler) => void;
+export const defineKeyword: <Value>(keywordUri: string, definition: KeywordDefinition<Value>) => void;
+
+export type KeywordDefinition<Value = unknown, Context extends EvaluationContext = EvaluationContext> = {
+  /**
+   * Applicators call `evaluateSchema` on each subschema and return an array
+   * with each result. Other keywords don't need this.
+   */
+  evaluate?(value: Value, instance: JsonNode, context: Context): NormalizedOutput[] | void;
+
+  /**
+   * Conditional applicators, like `then` and `dependentSchemas`, are simple
+   * applicators whose subschemas only apply when a condition holds. Whether a
+   * keyword is a simple applicator comes from its `@hyperjump/json-schema`
+   * keyword definition. The results of a simple applicator's subschemas are
+   * flattened into the results of its parent schema, but the results of a
+   * conditional applicator are left out when describing the parent schema
+   * because its error handler describes them along with the condition.
+   */
+  conditional?: true;
+
+  /**
+   * Annotations, such as `title` and `description`, never affect validation. A
+   * schema that only has annotations allows any value.
+   */
+  annotation?: true;
+
+  /**
+   * The message for an occurrence of the keyword that failed.
+   *
+   * @param value - The keyword's value as compiled by its `@hyperjump/json-schema` definition
+   * @param localization
+   * @param instance - The value that failed
+   */
+  error?: (value: Value, localization: Localization, instance: JsonNode) => string;
+
+  /**
+   * What the keyword requires, or in a negated localization, what would make
+   * it fail. Use `localization.formatRequirement` to pick the message. Return
+   * `undefined` if the keyword doesn't require anything. It's used to explain
+   * failures caused by a subschema passing, such as with `not`.
+   *
+   * @param value - The keyword's value as compiled by its `@hyperjump/json-schema` definition
+   * @param localization
+   */
+  requirement?: (value: Value, localization: Localization) => string | undefined;
+};
 
 /**
  * The standard JSON Schema output format. Supports the "basic", "detailed", and
@@ -81,37 +136,6 @@ export type ErrorObject = {
   alternatives?: ErrorObject[][];
   instanceLocation: string;
   schemaLocations: string[];
-};
-
-/**
- * Used to convert a specific keyword to the normalized format used by the error
- * handlers.
- */
-export type NormalizationHandler<KeywordValue = unknown, Context extends EvaluationContext = EvaluationContext> = {
-  /**
-   * For non-applicator keywords, this doesn't need to do anything. Just return void.
-   *
-   * For applicator keywords, it should call `evaluateSchema` on each subschema and
-   * return an array with each result.
-   */
-  evaluate(value: KeywordValue, instance: JsonNode, context: Context): NormalizedOutput[] | void;
-
-  /**
-   * Conditional applicators, like `then` and `dependentSchemas`, are simple
-   * applicators whose subschemas only apply when a condition holds. Whether a
-   * keyword is a simple applicator comes from its `@hyperjump/json-schema`
-   * keyword definition. The results of a simple applicator's subschemas are
-   * flattened into the results of its parent schema, but the results of a
-   * conditional applicator are left out when describing the parent schema
-   * because its error handler describes them along with the condition.
-   */
-  conditional?: true;
-
-  /**
-   * Annotations, such as `title` and `description`, never affect validation. A
-   * schema that only has annotations allows any value.
-   */
-  annotation?: true;
 };
 
 export type EvaluationContext = {
