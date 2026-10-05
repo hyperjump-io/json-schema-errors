@@ -1,5 +1,5 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
-import { isSimpleApplicator } from "./json-schema-errors.js";
+import { isRecordingResult, isSimpleApplicator } from "./json-schema-errors.js";
 
 /**
  * @import { EvaluationPlugin, ValidationContext } from "@hyperjump/json-schema/experimental"
@@ -40,6 +40,12 @@ export class JsonSchemaErrorsOutputPlugin {
     if (isSimpleApplicator(keywordUri)) {
       for (const subSchemaOutput of context.subSchemaOutput ?? []) {
         mergeOutput(schemaContext.output, subSchemaOutput);
+      }
+
+      if (isRecordingResult(keywordUri)) {
+        schemaContext.output[Instance.uri(instance)] ??= {};
+        schemaContext.output[Instance.uri(instance)][keywordUri] ??= {};
+        schemaContext.output[Instance.uri(instance)][keywordUri][schemaLocation] = { valid };
       }
     } else {
       schemaContext.output[Instance.uri(instance)] ??= {};

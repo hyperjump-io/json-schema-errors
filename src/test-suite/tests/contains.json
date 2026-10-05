@@ -425,8 +425,8 @@
       "compatibility": "2019",
       "schema": {
         "contains": {
-          "properties": {
-            "a": { "type": "string" }
+          "patternProperties": {
+            "^a": { "type": "string" }
           }
         },
         "maxContains": 1
