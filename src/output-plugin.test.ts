@@ -759,6 +759,11 @@ describe("JSON Schema Errors Output Format", () => {
           "https://json-schema.org/keyword/type": {
             [`${schemaUri}#/items/type`]: { valid: false }
           }
+        },
+        "#": {
+          "https://json-schema.org/keyword/items": {
+            [`${schemaUri}#/items`]: { valid: false }
+          }
         }
       });
     });
@@ -774,6 +779,11 @@ describe("JSON Schema Errors Output Format", () => {
         "#/0": {
           "https://json-schema.org/keyword/type": {
             [`${schemaUri}#/items/type`]: { valid: true }
+          }
+        },
+        "#": {
+          "https://json-schema.org/keyword/items": {
+            [`${schemaUri}#/items`]: { valid: true }
           }
         }
       });

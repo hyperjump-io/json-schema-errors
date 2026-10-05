@@ -68,6 +68,7 @@ import dependenciesErrorHandler from "./error-handlers/draft-04/dependencies.js"
 import dependentSchemasErrorHandler from "./error-handlers/dependentSchemas.js";
 import formatErrorHandler from "./error-handlers/format.js";
 import ifThenElseErrorHandler from "./error-handlers/ifThenElse.js";
+import itemsErrorHandler from "./error-handlers/items.js";
 import maximumErrorHandler from "./error-handlers/maximum.js";
 import maxItemsErrorHandler from "./error-handlers/maxItems.js";
 import maxLengthErrorHandler from "./error-handlers/maxLength.js";
@@ -162,6 +163,7 @@ setErrorHandler("https://hyperjump.io/error-handler/dependencies", dependenciesE
 setErrorHandler("https://hyperjump.io/error-handler/dependentSchemas", dependentSchemasErrorHandler);
 setErrorHandler("https://hyperjump.io/error-handler/format", formatErrorHandler);
 setErrorHandler("https://hyperjump.io/error-handler/ifThenElse", ifThenElseErrorHandler);
+setErrorHandler("https://hyperjump.io/error-handler/items", itemsErrorHandler);
 setErrorHandler("https://hyperjump.io/error-handler/maximum", maximumErrorHandler);
 setErrorHandler("https://hyperjump.io/error-handler/maxItems", maxItemsErrorHandler);
 setErrorHandler("https://hyperjump.io/error-handler/maxLength", maxLengthErrorHandler);

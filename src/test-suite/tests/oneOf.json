@@ -2051,6 +2051,63 @@
           "schemaLocations": ["#/oneOf"]
         }
       ]
+    },
+    {
+      "description": "oneOf more than one match with items that aren't present",
+      "schema": {
+        "oneOf": [
+          { "type": "array" },
+          {
+            "items": { "type": "string" }
+          }
+        ]
+      },
+      "instance": [],
+      "errors": [
+        {
+          "messageId": "oneOf-multiple-matches-message",
+          "alternatives": [
+            [
+              {
+                "messageId": "type-success-message",
+                "messageParams": {
+                  "count": 1,
+                  "type": "array",
+                  "types": { "or": ["array"] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/0/type"]
+              }
+            ],
+            [
+              {
+                "messageId": "eachItem-success-message",
+                "messageParams": {
+                  "index": 0
+                },
+                "alternatives": [
+                  [
+                    {
+                      "messageId": "type-success-message",
+                      "messageParams": {
+                        "count": 1,
+                        "type": "string",
+                        "types": { "or": ["string"] }
+                      },
+                      "instanceLocation": "#",
+                      "schemaLocations": ["#/oneOf/1/items/type"]
+                    }
+                  ]
+                ],
+                "instanceLocation": "#",
+                "schemaLocations": ["#/oneOf/1/items"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/oneOf"]
+        }
+      ]
     }
   ]
 }

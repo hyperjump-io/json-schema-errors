@@ -227,6 +227,11 @@ export class Localization {
   }
 
   /** @type (index: number) => string */
+  getEachItemSuccessMessage(index) {
+    return this.#formatSuccessMessage("eachItem", { index });
+  }
+
+  /** @type (index: number) => string */
   getHasItemSuccessMessage(index) {
     return this.#formatSuccessMessage("hasItem", { index });
   }
