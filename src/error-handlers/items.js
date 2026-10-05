@@ -1,5 +1,5 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
-import { describeEach, getCompiledKeywordValue, getPlaceholder, isPlaceholder } from "../json-schema-errors.js";
+import { describeScope, getCompiledKeywordValue, getPlaceholder, isPlaceholder } from "../json-schema-errors.js";
 
 /**
  * @import { AST } from "@hyperjump/json-schema/experimental"
@@ -27,31 +27,14 @@ const itemsErrorHandler = {
     }
 
     for (const [schemaLocation, startIndex, itemsLocation] of getItemsKeywords(normalizedOutput, ast)) {
-      // No items are allowed
-      if (ast[itemsLocation] === false) {
-        successes.push({
-          message: localization.getMaxItemsSuccessMessage(startIndex),
-          instanceLocation: Instance.uri(instance),
-          schemaLocations: [schemaLocation]
-        });
-        continue;
-      }
-
       // An item that doesn't exist stands in for any item
       const length = Instance.typeOf(instance) === "array" ? Instance.length(instance) : 0;
-      const item = getPlaceholder(instance, String(Math.max(startIndex, length)));
-      const description = describeEach(itemsLocation, item, instance, localization, ast);
-      if (description.length === 0) {
-        continue;
-      }
-
-      successes.push({
-        message: localization.getEachItemSuccessMessage(startIndex),
-        // Each item satisfies all of them or there's an item that satisfies at least one
-        alternatives: localization.isNegated ? description.map((option) => [option]) : [description],
-        instanceLocation: Instance.uri(instance),
-        schemaLocations: [schemaLocation]
-      });
+      successes.push(...describeScope({
+        subschemaLocation: itemsLocation,
+        placeholder: getPlaceholder(instance, String(Math.max(startIndex, length))),
+        each: (localization) => localization.getEachItemSuccessMessage(startIndex),
+        none: (localization) => localization.getMaxItemsSuccessMessage(startIndex)
+      }, instance, schemaLocation, localization, ast));
     }
 
     return successes;

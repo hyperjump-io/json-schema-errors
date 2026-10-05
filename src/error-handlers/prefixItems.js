@@ -1,16 +1,15 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
 import {
-  allTrue,
+  describeConditional,
   evaluateRequirements,
   getCompiledKeywordValue,
   getPlaceholder,
   getSuccesses,
-  isPlaceholder,
-  someTrue
+  isPlaceholder
 } from "../json-schema-errors.js";
 
 /**
- * @import { ErrorHandler, ErrorObject, Localization } from "../index.d.ts"
+ * @import { ErrorHandler, ErrorObject } from "../index.d.ts"
  */
 
 /**
@@ -43,35 +42,20 @@ const prefixItemsErrorHandler = {
         // A single schema for all items applies to items that can't be named
         continue;
       }
+
       const length = Instance.typeOf(instance) === "array" ? Instance.length(instance) : 0;
-
-      /** @type (localization: Localization, index: number) => ErrorObject */
-      const hasItem = (localization, index) => ({
-        message: localization.getHasItemSuccessMessage(index),
-        instanceLocation: Instance.uri(instance),
-        schemaLocations: [schemaLocation]
-      });
-
       for (let index = length; index < prefixItems.length; index++) {
+        // The item's subschema only applies if there's an item at that index
         const item = getPlaceholder(instance, String(index));
         const output = evaluateRequirements(prefixItems[index], item, ast);
-        const itemDescription = getSuccesses(output, instance, localization, ast);
-        if (itemDescription.length === 0) {
-          continue;
-        }
-
-        if (localization.isNegated) {
-          // Fails if the value is an array with the item and the item fails
-          const requirements = [
-            hasItem(localization.negated(), index),
-            ...someTrue(itemDescription.map((option) => [option]), instance, schemaLocation, localization)
-          ];
-          successes.push(...allTrue(requirements, instance, schemaLocation, localization));
-        } else {
-          // Passes if the item isn't there or the item passes
-          const options = [[hasItem(localization.negated(), index)], itemDescription];
-          successes.push(...someTrue(options, instance, schemaLocation, localization));
-        }
+        successes.push(...describeConditional({
+          condition: (localization) => [{
+            message: localization.getHasItemSuccessMessage(index),
+            instanceLocation: Instance.uri(instance),
+            schemaLocations: [schemaLocation]
+          }],
+          then: (localization) => getSuccesses(output, instance, localization, ast)
+        }, instance, schemaLocation, localization));
       }
     }
 

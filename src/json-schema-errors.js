@@ -232,8 +232,21 @@ const getValidity = (schemaLocation, instanceLocation, context) => {
  * @type (parent: JsonNode, segment: string) => JsonNode
  */
 export const getPlaceholder = (parent, segment) => {
-  const pointer = JsonPointer.append(segment, parent.pointer);
-  return Instance.cons(parent.baseUri, pointer, undefined, /** @type JsonNode["type"] */ ("undefined"), [], parent);
+  return createPlaceholder(parent.baseUri, JsonPointer.append(segment, parent.pointer), parent);
+};
+
+/**
+ * A placeholder for the name of a property that doesn't exist.
+ *
+ * @type (parent: JsonNode, propertyName: string) => JsonNode
+ */
+export const getPropertyNamePlaceholder = (parent, propertyName) => {
+  return createPlaceholder(parent.baseUri, "*" + JsonPointer.append(propertyName, parent.pointer), parent);
+};
+
+/** @type (baseUri: string, pointer: string, parent: JsonNode | undefined) => JsonNode */
+const createPlaceholder = (baseUri, pointer, parent) => {
+  return Instance.cons(baseUri, pointer, undefined, /** @type JsonNode["type"] */ ("undefined"), [], parent);
 };
 
 /** @type (node: JsonNode) => boolean */
@@ -256,7 +269,7 @@ const getInstance = (instanceLocation, rootInstance) => {
 /** @type (instanceLocation: string, rootInstance: JsonNode) => JsonNode */
 const toPlaceholder = (instanceLocation, rootInstance) => {
   const pointer = decodeURI(instanceLocation.slice(instanceLocation.indexOf("#") + 1));
-  return Instance.cons(rootInstance.baseUri, pointer, undefined, /** @type JsonNode["type"] */ ("undefined"), [], undefined);
+  return createPlaceholder(rootInstance.baseUri, pointer, undefined);
 };
 
 /**
@@ -287,6 +300,105 @@ export const describeEach = (subschemaLocation, placeholder, parent, localizatio
   const output = evaluateRequirements(subschemaLocation, placeholder, ast);
   return getSuccesses(output, parent, localization, ast)
     .map((success) => relocate(success, Instance.uri(placeholder), Instance.uri(parent)));
+};
+
+/**
+ * @typedef {{
+ *   subschemaLocation: string;
+ *   placeholder: JsonNode;
+ *   each: (localization: Localization) => string;
+ *   none: (localization: Localization) => string;
+ * }} Scope
+ */
+
+/**
+ * Describes a subschema that applies to every location in some scope, such as
+ * every item in an array, including locations that could be added. The
+ * placeholder stands in for any of those locations. `each` is the message for
+ * the group of what each location requires and `none` describes the scope
+ * being empty, which is what the subschema requires if it's `false`.
+ *
+ * @type (scope: Scope, instance: JsonNode, schemaLocation: string, localization: Localization, ast: AST) => API.ErrorObject[]
+ */
+export const describeScope = ({ subschemaLocation, placeholder, each, none }, instance, schemaLocation, localization, ast) => {
+  if (ast[subschemaLocation] === false) {
+    return [{
+      message: none(localization),
+      instanceLocation: Instance.uri(instance),
+      schemaLocations: [schemaLocation]
+    }];
+  }
+
+  const description = describeEach(subschemaLocation, placeholder, instance, localization, ast);
+  if (description.length === 0) {
+    return [];
+  }
+
+  return [{
+    message: each(localization),
+    // Every location satisfies all of them or there's one that satisfies at least one
+    alternatives: localization.isNegated ? description.map((option) => [option]) : [description],
+    instanceLocation: Instance.uri(instance),
+    schemaLocations: [schemaLocation]
+  }];
+};
+
+/**
+ * @typedef {{
+ *   condition: (localization: Localization) => API.ErrorObject[];
+ *   then?: (localization: Localization) => API.ErrorObject[];
+ *   else?: (localization: Localization) => API.ErrorObject[];
+ * }} Conditional
+ */
+
+/**
+ * Describes subschemas that only apply under some condition, such as a
+ * property's subschema only applying if the property is present. Each function
+ * describes its part using the given localization, so `condition` describes the
+ * condition holding, or with a negated localization, not holding.
+ *
+ * @type (conditional: Conditional, instance: JsonNode, schemaLocation: string, localization: Localization) => API.ErrorObject[]
+ */
+export const describeConditional = (conditional, instance, schemaLocation, localization) => {
+  const positive = localization.isNegated ? localization.negated() : localization;
+  const negated = positive.negated();
+
+  /** @type (descriptions: API.ErrorObject[]) => API.ErrorObject[] */
+  const asOptions = (descriptions) => someTrue(descriptions.map((option) => [option]), instance, schemaLocation, localization);
+
+  if (localization.isNegated) {
+    // Fails if the condition holds and 'then' fails or if the condition doesn't
+    // hold and 'else' fails
+    /** @type API.ErrorObject[] */
+    const options = [];
+
+    const thenOptions = conditional.then?.(localization) ?? [];
+    if (thenOptions.length > 0) {
+      const requirements = [...conditional.condition(positive), ...asOptions(thenOptions)];
+      options.push(...allTrue(requirements, instance, schemaLocation, localization));
+    }
+
+    const elseOptions = conditional.else?.(localization) ?? [];
+    if (elseOptions.length > 0) {
+      const requirements = [...conditional.condition(negated), ...asOptions(elseOptions)];
+      options.push(...allTrue(requirements, instance, schemaLocation, localization));
+    }
+
+    return options;
+  } else if (conditional.else) {
+    // Passes if the condition holds and 'then' passes or if it doesn't and 'else' passes
+    const thenOption = [...conditional.condition(positive), ...conditional.then?.(localization) ?? []];
+    const elseOption = [...conditional.condition(negated), ...conditional.else(localization)];
+    return someTrue([thenOption, elseOption], instance, schemaLocation, localization);
+  } else {
+    // Passes if the condition doesn't hold or 'then' passes
+    const description = conditional.then?.(localization) ?? [];
+    if (description.length === 0) {
+      return [];
+    }
+
+    return someTrue([conditional.condition(negated), description], instance, schemaLocation, localization);
+  }
 };
 
 /** @type (errorObject: API.ErrorObject, from: string, to: string) => API.ErrorObject */
