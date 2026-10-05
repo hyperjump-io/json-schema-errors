@@ -334,4 +334,11 @@ count-true-message = {$kind ->
   } true
 }
 all-true-message = All of the following are true
+
+// Descriptions that are too big to show
+not-shown-message = {$count ->
+  [one] One more isn't shown
+ *[other] {$count} more aren't shown
+}
+details-not-shown-message = Further details aren't shown
 `;

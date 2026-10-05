@@ -2657,6 +2657,170 @@
           "schemaLocations": ["#/not"]
         }
       ]
+    },
+    {
+      "description": "not with descriptions nested too deeply to show",
+      "schema": {
+        "not": {
+          "anyOf": [
+            { "type": "string" },
+            {
+              "anyOf": [
+                { "type": "number" },
+                {
+                  "anyOf": [
+                    { "type": "boolean" },
+                    {
+                      "anyOf": [
+                        { "type": "null" },
+                        { "type": "array" }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "instance": 42,
+      "errors": [
+        {
+          "messageId": "not-message",
+          "messageParams": {
+            "quantifier": "all"
+          },
+          "alternatives": [
+            [
+              {
+                "messageId": "type-negated-message",
+                "messageParams": {
+                  "count": 1,
+                  "type": "string",
+                  "types": { "or": ["string"] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/anyOf/0/type"]
+              },
+              {
+                "messageId": "all-true-message",
+                "alternatives": [
+                  [
+                    {
+                      "messageId": "type-negated-message",
+                      "messageParams": {
+                        "count": 1,
+                        "type": "number",
+                        "types": { "or": ["number"] }
+                      },
+                      "instanceLocation": "#",
+                      "schemaLocations": ["#/not/anyOf/1/anyOf/0/type"]
+                    },
+                    {
+                      "messageId": "details-not-shown-message",
+                      "instanceLocation": "#",
+                      "schemaLocations": []
+                    }
+                  ]
+                ],
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/anyOf/1/anyOf"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/not"]
+        }
+      ]
+    },
+    {
+      "description": "not with more options than are shown",
+      "compatibility": "6",
+      "schema": {
+        "not": {
+          "type": "string",
+          "const": "a",
+          "enum": ["a", "b"],
+          "maxLength": 10,
+          "minLength": 1,
+          "pattern": "^a"
+        }
+      },
+      "instance": "a",
+      "errors": [
+        {
+          "messageId": "not-message",
+          "messageParams": {
+            "quantifier": "some"
+          },
+          "alternatives": [
+            [
+              {
+                "messageId": "type-negated-message",
+                "messageParams": {
+                  "count": 1,
+                  "type": "string",
+                  "types": { "or": ["string"] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/type"]
+              }
+            ],
+            [
+              {
+                "messageId": "const-negated-message",
+                "messageParams": {
+                  "expected": "\"a\""
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/const"]
+              }
+            ],
+            [
+              {
+                "messageId": "enum-negated-message",
+                "messageParams": {
+                  "expected": { "or": ["\"a\"", "\"b\""] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/enum"]
+              }
+            ],
+            [
+              {
+                "messageId": "maxLength-negated-message",
+                "messageParams": {
+                  "maxLength": 10
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/maxLength"]
+              }
+            ],
+            [
+              {
+                "messageId": "minLength-negated-message",
+                "messageParams": {
+                  "minLength": 1
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/not/minLength"]
+              }
+            ],
+            [
+              {
+                "messageId": "not-shown-message",
+                "messageParams": {
+                  "count": 1
+                },
+                "instanceLocation": "#",
+                "schemaLocations": []
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/not"]
+        }
+      ]
     }
   ]
 }

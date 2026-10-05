@@ -326,7 +326,9 @@ export const describeScope = ({ subschemaLocation, placeholder, each, none }, in
   return [{
     message: each(localization, description.length),
     // Every location satisfies all of them or there's one that satisfies at least one
-    alternatives: localization.isNegated ? description.map((option) => [option]) : [description],
+    alternatives: localization.isNegated
+      ? limitOptions(description.map((option) => [option]), instance, localization)
+      : [limitItems(description, instance, localization)],
     instanceLocation: Instance.uri(instance),
     schemaLocations: [schemaLocation]
   }];
@@ -460,21 +462,126 @@ export const getErrors = (normalizedErrors, rootInstance, localization, ast) => 
 
 /** @type API.getSuccesses */
 export const getSuccesses = (normalizedOutput, rootInstance, localization, ast) => {
+  // Descriptions of nested subschemas can get very large, so stop describing
+  // past some depth and say that there's more
+  if (descriptionDepth >= MAX_DESCRIPTION_DEPTH) {
+    /** @type API.ErrorObject */
+    const detailsNotShown = {
+      message: localization.getDetailsNotShownMessage(),
+      instanceLocation: Instance.uri(rootInstance),
+      schemaLocations: []
+    };
+    detailsNotShownMarkers.add(detailsNotShown);
+    return [detailsNotShown];
+  }
+
   /** @type API.ErrorObject[] */
   const successes = [];
 
-  for (const instanceLocation in normalizedOutput) {
-    // Descriptions can be about values that don't exist yet
-    const instance = getInstance(instanceLocation, rootInstance)
-      ?? toPlaceholder(instanceLocation, rootInstance);
-    for (const errorHandlerUri in errorHandlers) {
-      const successObjects = errorHandlers[errorHandlerUri].success?.(normalizedOutput[instanceLocation], instance, localization, ast) ?? [];
-      successes.push(...successObjects);
+  descriptionDepth++;
+  try {
+    for (const instanceLocation in normalizedOutput) {
+      // Descriptions can be about values that don't exist yet
+      const instance = getInstance(instanceLocation, rootInstance)
+        ?? toPlaceholder(instanceLocation, rootInstance);
+      for (const errorHandlerUri in errorHandlers) {
+        const successObjects = errorHandlers[errorHandlerUri].success?.(normalizedOutput[instanceLocation], instance, localization, ast) ?? [];
+        successes.push(...successObjects);
+      }
     }
+  } finally {
+    descriptionDepth--;
   }
 
   return successes;
 };
+
+const MAX_DESCRIPTION_DEPTH = 3;
+let descriptionDepth = 0;
+
+/** @type WeakSet<API.ErrorObject> */
+const detailsNotShownMarkers = new WeakSet();
+
+/**
+ * Saying that details aren't shown more than once in a list doesn't add
+ * anything, and neither does a group with nothing else in it.
+ *
+ * @type (items: API.ErrorObject[]) => API.ErrorObject[]
+ */
+const collapseDetailsNotShown = (items) => {
+  let hasMarker = false;
+  return items.flatMap((item) => {
+    const isEmptyGroup = item.alternatives?.every((alternative) => {
+      return alternative.every((entry) => detailsNotShownMarkers.has(entry));
+    });
+    const marker = detailsNotShownMarkers.has(item) ? item : isEmptyGroup ? item.alternatives?.[0][0] : undefined;
+    if (!marker) {
+      return [item];
+    } else if (hasMarker) {
+      return [];
+    } else {
+      hasMarker = true;
+      return [marker];
+    }
+  });
+};
+
+const MAX_ENTRIES = 5;
+
+/**
+ * A group of things that all need to be true shows only the first few. The
+ * rest are summarized so it's clear that the list isn't complete.
+ *
+ * @type (allItems: API.ErrorObject[], instance: JsonNode, localization: Localization) => API.ErrorObject[]
+ */
+export const limitItems = (allItems, instance, localization) => {
+  const items = collapseDetailsNotShown(allItems);
+  if (items.length <= MAX_ENTRIES) {
+    return items;
+  }
+
+  return [...items.slice(0, MAX_ENTRIES), notShown(items.length - MAX_ENTRIES, instance, localization)];
+};
+
+/**
+ * A choice of options shows only the first few. By default, the smallest ones
+ * are shown first so the simplest options are the ones that are shown. The
+ * order of options doesn't change what they mean.
+ *
+ * @type (allOptions: API.ErrorObject[][], instance: JsonNode, localization: Localization, isSorted?: boolean) => API.ErrorObject[][]
+ */
+export const limitOptions = (allOptions, instance, localization, isSorted = true) => {
+  // Only one option that's just "details aren't shown" is needed
+  let hasDetailsNotShown = false;
+  const options = allOptions.map(collapseDetailsNotShown).filter((option) => {
+    const isDetailsNotShown = option.length === 1 && detailsNotShownMarkers.has(option[0]);
+    if (isDetailsNotShown && hasDetailsNotShown) {
+      return false;
+    }
+    hasDetailsNotShown ||= isDetailsNotShown;
+    return true;
+  });
+  const sorted = isSorted ? [...options].sort((a, b) => sizeOf(a) - sizeOf(b)) : options;
+  if (sorted.length <= MAX_ENTRIES) {
+    return sorted;
+  }
+
+  return [...sorted.slice(0, MAX_ENTRIES), [notShown(sorted.length - MAX_ENTRIES, instance, localization)]];
+};
+
+/** @type (count: number, instance: JsonNode, localization: Localization) => API.ErrorObject */
+const notShown = (count, instance, localization) => ({
+  message: localization.getNotShownMessage(count),
+  instanceLocation: Instance.uri(instance),
+  schemaLocations: []
+});
+
+/** @type (errorObjects: API.ErrorObject[]) => number */
+const sizeOf = (errorObjects) => errorObjects.reduce((size, errorObject) => {
+  return size + 1 + (errorObject.alternatives ?? []).reduce((alternativesSize, alternative) => {
+    return alternativesSize + sizeOf(alternative);
+  }, 0);
+}, 0);
 
 /** @type (normalizedOutput: API.NormalizedOutput) => boolean */
 export const isPassing = (normalizedOutput) => {
@@ -524,12 +631,12 @@ export const countTrue = (options, { min = 0, max = Infinity }, instance, schema
     return [];
   } else if (min === options.length) {
     // All of the options are true
-    return options.flat();
+    return limitItems(options.flat(), instance, localization);
   }
 
   return [{
     message: localization.getCountTrueMessage(min, max === options.length ? Infinity : max),
-    alternatives: options,
+    alternatives: limitOptions(options.map((option) => limitItems(option, instance, localization)), instance, localization),
     instanceLocation: Instance.uri(instance),
     schemaLocations: [schemaLocation]
   }];
@@ -554,7 +661,7 @@ export const allTrue = (items, instance, schemaLocation, localization) => {
   /** @type API.ErrorObject */
   const group = {
     message: localization.getAllTrueMessage(),
-    alternatives: [items],
+    alternatives: [limitItems(items, instance, localization)],
     instanceLocation: Instance.uri(instance),
     schemaLocations: [schemaLocation]
   };
