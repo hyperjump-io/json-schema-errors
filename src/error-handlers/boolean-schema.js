@@ -6,7 +6,7 @@ import * as Instance from "@hyperjump/json-schema/instance/experimental";
 
 /** @type ErrorHandler */
 const booleanSchemaErrorHandler = {
-  error: (normalizedErrors, instance, localization) => {
+  error: (normalizedErrors, instance, context) => {
     /** @type ErrorObject[] */
     const errors = [];
 
@@ -16,7 +16,7 @@ const booleanSchemaErrorHandler = {
       }
 
       errors.push({
-        message: localization.getBooleanSchemaErrorMessage(),
+        message: context.localization.getBooleanSchemaErrorMessage(),
         instanceLocation: Instance.uri(instance),
         schemaLocations: [schemaLocation]
       });

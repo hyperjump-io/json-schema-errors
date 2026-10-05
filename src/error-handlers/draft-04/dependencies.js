@@ -7,7 +7,7 @@ import { describeSchemaDependencies } from "../dependentSchemas.js";
 
 /** @type ErrorHandler */
 const dependenciesErrorHandler = {
-  error: (normalizedErrors, instance, localization, context) => {
+  error: (normalizedErrors, instance, context) => {
     /** @type ErrorObject[] */
     const errors = [];
 
@@ -18,7 +18,7 @@ const dependenciesErrorHandler = {
 
       const dependentSchemaOutputs = normalizedErrors["https://json-schema.org/keyword/draft-04/dependencies"][schemaLocation].outputs ?? [];
       for (const dependentSchemaOutput of dependentSchemaOutputs) {
-        const dependentSchemaErrors = getErrors(dependentSchemaOutput, instance, localization, context);
+        const dependentSchemaErrors = getErrors(dependentSchemaOutput, instance, context);
         errors.push(...dependentSchemaErrors);
       }
     }
@@ -26,7 +26,7 @@ const dependenciesErrorHandler = {
     return errors;
   },
 
-  success: (normalizedOutput, instance, localization, context) => {
+  success: (normalizedOutput, instance, context) => {
     /** @type ErrorObject[] */
     const successes = [];
 
@@ -35,7 +35,7 @@ const dependenciesErrorHandler = {
       const dependencies = /** @type [string, string | string[]][] */ (getCompiledKeywordValue(context.ast, schemaLocation));
       const schemaDependencies = /** @type [string, string][] */ (dependencies.filter(([, dependency]) => typeof dependency === "string"));
       const outputs = normalizedOutput["https://json-schema.org/keyword/draft-04/dependencies"][schemaLocation].outputs ?? [];
-      successes.push(...describeSchemaDependencies(schemaDependencies, outputs, instance, localization, context));
+      successes.push(...describeSchemaDependencies(schemaDependencies, outputs, instance, context));
     }
 
     return successes;

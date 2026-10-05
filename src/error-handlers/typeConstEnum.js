@@ -9,7 +9,7 @@ const ALL_TYPES = new Set(["null", "boolean", "number", "string", "array", "obje
 
 /** @type {ErrorHandler} */
 const typeConstEnumErrorHandler = {
-  error: (normalizedErrors, instance, localization, context) => {
+  error: (normalizedErrors, instance, context) => {
     let allowedTypes = new Set(ALL_TYPES);
     /** @type {string[]} */
     const failedTypeLocations = [];
@@ -88,7 +88,7 @@ const typeConstEnumErrorHandler = {
       return [];
     } else if (allowedTypes.size === 0 || allowedJson?.size === 0) {
       return [{
-        message: localization.getBooleanSchemaErrorMessage(),
+        message: context.localization.getBooleanSchemaErrorMessage(),
         instanceLocation: Instance.uri(instance),
         schemaLocations: [...failedTypeLocations, ...constEnumLocations]
       }];
@@ -97,7 +97,7 @@ const typeConstEnumErrorHandler = {
       const allowedValues = [...allowedJson ?? []].map((json) => JSON.parse(json));
 
       return [{
-        message: localization.getEnumErrorMessage(allowedValues),
+        message: context.localization.getEnumErrorMessage(allowedValues),
         instanceLocation: Instance.uri(instance),
         schemaLocations: typeFiltered
           ? [...failedTypeLocations, ...constEnumLocations]
@@ -105,23 +105,23 @@ const typeConstEnumErrorHandler = {
       }];
     } else {
       return [{
-        message: localization.getTypeErrorMessage([...allowedTypes]),
+        message: context.localization.getTypeErrorMessage([...allowedTypes]),
         instanceLocation: Instance.uri(instance),
         schemaLocations: failedTypeLocations
       }];
     }
   },
 
-  success: (normalizedOutput, instance, localization, context) => {
+  success: (normalizedOutput, instance, context) => {
     return [
       ...describeKeyword(normalizedOutput, "https://json-schema.org/keyword/type", instance, context.ast, (/** @type string | string[] */ type) => {
-        return localization.getTypeSuccessMessage(Array.isArray(type) ? type : [type]);
+        return context.localization.getTypeSuccessMessage(Array.isArray(type) ? type : [type]);
       }),
       ...describeKeyword(normalizedOutput, "https://json-schema.org/keyword/const", instance, context.ast, (/** @type string */ constJson) => {
-        return localization.getEnumSuccessMessage([JSON.parse(constJson)]);
+        return context.localization.getEnumSuccessMessage([JSON.parse(constJson)]);
       }),
       ...describeKeyword(normalizedOutput, "https://json-schema.org/keyword/enum", instance, context.ast, (/** @type string[] */ enumJson) => {
-        return localization.getEnumSuccessMessage(enumJson.map((json) => JSON.parse(json)));
+        return context.localization.getEnumSuccessMessage(enumJson.map((json) => JSON.parse(json)));
       })
     ];
   }

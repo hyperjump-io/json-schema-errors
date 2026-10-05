@@ -7,7 +7,7 @@ import { describeKeyword, getCompiledKeywordValue, getSiblingKeywordLocation } f
 
 /** @type ErrorHandler */
 const minimumErrorHandler = {
-  error: (normalizedErrors, instance, localization, context) => {
+  error: (normalizedErrors, instance, context) => {
     let highestMinimum = -Infinity;
     let isExclusive = false;
     /** @type string[] */
@@ -61,29 +61,29 @@ const minimumErrorHandler = {
       return [];
     } else if (isExclusive) {
       return [{
-        message: localization.getExclusiveMinimumErrorMessage(highestMinimum),
+        message: context.localization.getExclusiveMinimumErrorMessage(highestMinimum),
         instanceLocation: Instance.uri(instance),
         schemaLocations: schemaLocations
       }];
     } else {
       return [{
-        message: localization.getMinimumErrorMessage(highestMinimum),
+        message: context.localization.getMinimumErrorMessage(highestMinimum),
         instanceLocation: Instance.uri(instance),
         schemaLocations: schemaLocations
       }];
     }
   },
 
-  success: (normalizedOutput, instance, localization, context) => {
+  success: (normalizedOutput, instance, context) => {
     /** @type ErrorObject[] */
     const successes = [];
 
     successes.push(...describeKeyword(normalizedOutput, "https://json-schema.org/keyword/minimum", instance, context.ast, (/** @type number */ minimum) => {
-      return localization.getMinimumSuccessMessage(minimum);
+      return context.localization.getMinimumSuccessMessage(minimum);
     }));
 
     successes.push(...describeKeyword(normalizedOutput, "https://json-schema.org/keyword/exclusiveMinimum", instance, context.ast, (/** @type number */ exclusiveMinimum) => {
-      return localization.getExclusiveMinimumSuccessMessage(exclusiveMinimum);
+      return context.localization.getExclusiveMinimumSuccessMessage(exclusiveMinimum);
     }));
 
     // Draft-04 has a boolean 'exclusiveMinimum' keyword that modifies 'minimum'
@@ -92,13 +92,13 @@ const minimumErrorHandler = {
       if (exclusive) {
         const exclusiveLocation = getSiblingKeywordLocation(context.ast, schemaLocation, "https://json-schema.org/keyword/draft-04/exclusiveMinimum");
         successes.push({
-          message: localization.getExclusiveMinimumSuccessMessage(minimum),
+          message: context.localization.getExclusiveMinimumSuccessMessage(minimum),
           instanceLocation: Instance.uri(instance),
           schemaLocations: [schemaLocation, exclusiveLocation]
         });
       } else {
         successes.push({
-          message: localization.getMinimumSuccessMessage(minimum),
+          message: context.localization.getMinimumSuccessMessage(minimum),
           instanceLocation: Instance.uri(instance),
           schemaLocations: [schemaLocation]
         });

@@ -173,8 +173,8 @@ the instance and picks out the ones it handles.
 keyword failed, `true` if it passed, and `undefined` if the result isn't known.
 
 `success` describes what keywords require. It's used to explain failures caused
-by a subschema passing, such as with `not`. When `localization.isNegated` is
-`true`, it describes what would make the keyword fail instead. A keyword without
+by a subschema passing, such as with `not`. When `context.localization.isNegated`
+is `true`, it describes what would make the keyword fail instead. A keyword without
 a `success` handler can't be described, so messages for keywords like `not` and
 `oneOf` will be less specific.
 
@@ -186,7 +186,7 @@ import type { ErrorObject } from "@hyperjump/json-schema-errors";
 const KEYWORD_URI = "https://example.com/keyword/startsWith";
 
 setErrorHandler("https://example.com/error-handler/startsWith", {
-  error: (normalizedErrors, instance, localization, context) => {
+  error: (normalizedErrors, instance, context) => {
     const errors: ErrorObject[] = [];
 
     for (const schemaLocation in normalizedErrors[KEYWORD_URI]) {
@@ -205,13 +205,13 @@ setErrorHandler("https://example.com/error-handler/startsWith", {
     return errors;
   },
 
-  success: (normalizedOutput, instance, localization, context) => {
+  success: (normalizedOutput, instance, context) => {
     const successes: ErrorObject[] = [];
 
     for (const schemaLocation in normalizedOutput[KEYWORD_URI]) {
       const startsWith = getCompiledKeywordValue(context.ast, schemaLocation) as string;
       successes.push({
-        message: localization.isNegated
+        message: context.localization.isNegated
           ? `The value is a string that doesn't start with '${startsWith}'`
           : `The value is either not a string or starts with '${startsWith}'`,
         instanceLocation: Instance.uri(instance),

@@ -23,7 +23,7 @@ import {
  * @type ErrorHandler
  */
 const eachPropertyErrorHandler = {
-  success: (normalizedOutput, instance, localization, context) => {
+  success: (normalizedOutput, instance, context) => {
     /** @type ErrorObject[] */
     const successes = [];
 
@@ -44,7 +44,7 @@ const eachPropertyErrorHandler = {
           placeholder: property,
           each: (localization, count) => localization.getEachMatchingPropertySuccessMessage(pattern.source, count),
           none: (localization) => localization.getNoMatchingPropertySuccessMessage(pattern.source)
-        }, instance, schemaLocation, localization, context));
+        }, instance, schemaLocation, context));
       }
     }
 
@@ -61,7 +61,7 @@ const eachPropertyErrorHandler = {
         placeholder: property,
         each: (localization, count) => localization.getEachAdditionalPropertySuccessMessage(properties, patterns, count),
         none: (localization) => localization.getNoAdditionalPropertySuccessMessage(properties, patterns)
-      }, instance, schemaLocation, localization, context));
+      }, instance, schemaLocation, context));
     }
 
     // Property names are at a different location than property values
@@ -73,7 +73,7 @@ const eachPropertyErrorHandler = {
         placeholder: propertyName,
         each: (localization, count) => localization.getEachPropertyNameSuccessMessage(count),
         none: (localization) => localization.getMaxPropertiesSuccessMessage(0)
-      }, instance, schemaLocation, localization, context));
+      }, instance, schemaLocation, context));
     }
 
     return successes;

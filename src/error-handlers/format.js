@@ -18,7 +18,7 @@ const keywordUris = [
 
 /** @type ErrorHandler */
 const formatErrorHandler = {
-  error: (normalizedErrors, instance, localization, context) => {
+  error: (normalizedErrors, instance, context) => {
     /** @type ErrorObject[] */
     const errors = [];
 
@@ -31,7 +31,7 @@ const formatErrorHandler = {
         const format = /** @type string */ (getCompiledKeywordValue(context.ast, schemaLocation));
 
         errors.push({
-          message: localization.getFormatErrorMessage(format),
+          message: context.localization.getFormatErrorMessage(format),
           instanceLocation: Instance.uri(instance),
           schemaLocations: [schemaLocation]
         });
@@ -41,18 +41,18 @@ const formatErrorHandler = {
     return errors;
   },
 
-  success: (normalizedOutput, instance, localization, context) => {
+  success: (normalizedOutput, instance, context) => {
     // A 'format' that's only an annotation doesn't require anything. If it's
     // not known, the message says that it only applies if formats are validated.
     return keywordUris.flatMap((keywordUri) => {
       return describeKeyword(normalizedOutput, keywordUri, instance, context.ast, (/** @type string */ format) => {
         switch (context.isFormatAsserted(keywordUri, format)) {
           case true:
-            return localization.getFormatSuccessMessage(format);
+            return context.localization.getFormatSuccessMessage(format);
           case false:
             return undefined;
           default:
-            return localization.getFormatIfValidatedSuccessMessage(format);
+            return context.localization.getFormatIfValidatedSuccessMessage(format);
         }
       });
     });

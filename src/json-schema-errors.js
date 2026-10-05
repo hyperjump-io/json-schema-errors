@@ -23,9 +23,9 @@ export const jsonSchemaErrors = async (errorOutput, schemaUri, instance, options
     errorIndex,
     plugins: [...ast.plugins]
   });
-  const localization = Localization.forLocale(options.locale ?? "en-US");
-  return getErrors(normalizedErrors, rootInstance, localization, {
+  return getErrors(normalizedErrors, rootInstance, {
     ast,
+    localization: Localization.forLocale(options.locale ?? "en-US"),
     isFormatAsserted: () => options.isFormatAsserted
   });
 };
@@ -267,17 +267,20 @@ export const evaluateRequirements = (schemaLocation, instance, ast) => {
   });
 };
 
+/** @type API.negate */
+export const negate = (context) => ({ ...context, localization: context.localization.negated() });
+
 /**
  * Describes a subschema that applies to every location in some scope, such as
  * every item in an array. The subschema is described at a placeholder that
  * stands in for any of those locations and then the description is moved to
  * the parent because it applies to all of them.
  *
- * @type (subschemaLocation: string, placeholder: JsonNode, parent: JsonNode, localization: Localization, context: API.ErrorHandlerContext) => API.ErrorObject[]
+ * @type (subschemaLocation: string, placeholder: JsonNode, parent: JsonNode, context: API.ErrorHandlerContext) => API.ErrorObject[]
  */
-export const describeEach = (subschemaLocation, placeholder, parent, localization, context) => {
+export const describeEach = (subschemaLocation, placeholder, parent, context) => {
   const output = evaluateRequirements(subschemaLocation, placeholder, context.ast);
-  return getSuccesses(output, parent, localization, context)
+  return getSuccesses(output, parent, context)
     .map((success) => relocate(success, Instance.uri(placeholder), Instance.uri(parent)));
 };
 
@@ -297,28 +300,28 @@ export const describeEach = (subschemaLocation, placeholder, parent, localizatio
  * the group of what each location requires, given how many things are in it, and `none` describes the scope
  * being empty, which is what the subschema requires if it's `false`.
  *
- * @type (scope: Scope, instance: JsonNode, schemaLocation: string, localization: Localization, context: API.ErrorHandlerContext) => API.ErrorObject[]
+ * @type (scope: Scope, instance: JsonNode, schemaLocation: string, context: API.ErrorHandlerContext) => API.ErrorObject[]
  */
-export const describeScope = ({ subschemaLocation, placeholder, each, none }, instance, schemaLocation, localization, context) => {
+export const describeScope = ({ subschemaLocation, placeholder, each, none }, instance, schemaLocation, context) => {
   if (context.ast[subschemaLocation] === false) {
     return [{
-      message: none(localization),
+      message: none(context.localization),
       instanceLocation: Instance.uri(instance),
       schemaLocations: [schemaLocation]
     }];
   }
 
-  const description = describeEach(subschemaLocation, placeholder, instance, localization, context);
+  const description = describeEach(subschemaLocation, placeholder, instance, context);
   if (description.length === 0) {
     return [];
   }
 
   return [{
-    message: each(localization, description.length),
+    message: each(context.localization, description.length),
     // Every location satisfies all of them or there's one that satisfies at least one
-    alternatives: localization.isNegated
-      ? limitOptions(description.map((option) => [option]), instance, localization)
-      : [limitItems(description, instance, localization)],
+    alternatives: context.localization.isNegated
+      ? limitOptions(description.map((option) => [option]), instance, context)
+      : [limitItems(description, instance, context)],
     instanceLocation: Instance.uri(instance),
     schemaLocations: [schemaLocation]
   }];
@@ -326,59 +329,59 @@ export const describeScope = ({ subschemaLocation, placeholder, each, none }, in
 
 /**
  * @typedef {{
- *   condition: (localization: Localization) => API.ErrorObject[];
- *   then?: (localization: Localization) => API.ErrorObject[];
- *   else?: (localization: Localization) => API.ErrorObject[];
+ *   condition: (context: API.ErrorHandlerContext) => API.ErrorObject[];
+ *   then?: (context: API.ErrorHandlerContext) => API.ErrorObject[];
+ *   else?: (context: API.ErrorHandlerContext) => API.ErrorObject[];
  * }} Conditional
  */
 
 /**
  * Describes subschemas that only apply under some condition, such as a
  * property's subschema only applying if the property is present. Each function
- * describes its part using the given localization, so `condition` describes the
- * condition holding, or with a negated localization, not holding.
+ * describes its part using the given context, so `condition` describes the
+ * condition holding, or with a negated context, not holding.
  *
- * @type (conditional: Conditional, instance: JsonNode, schemaLocation: string, localization: Localization) => API.ErrorObject[]
+ * @type (conditional: Conditional, instance: JsonNode, schemaLocation: string, context: API.ErrorHandlerContext) => API.ErrorObject[]
  */
-export const describeConditional = (conditional, instance, schemaLocation, localization) => {
-  const positive = localization.isNegated ? localization.negated() : localization;
-  const negated = positive.negated();
+export const describeConditional = (conditional, instance, schemaLocation, context) => {
+  const positive = context.localization.isNegated ? negate(context) : context;
+  const negated = negate(positive);
 
   /** @type (descriptions: API.ErrorObject[]) => API.ErrorObject[] */
-  const asOptions = (descriptions) => someTrue(descriptions.map((option) => [option]), instance, schemaLocation, localization);
+  const asOptions = (descriptions) => someTrue(descriptions.map((option) => [option]), instance, schemaLocation, context);
 
-  if (localization.isNegated) {
+  if (context.localization.isNegated) {
     // Fails if the condition holds and 'then' fails or if the condition doesn't
     // hold and 'else' fails
     /** @type API.ErrorObject[] */
     const options = [];
 
-    const thenOptions = conditional.then?.(localization) ?? [];
+    const thenOptions = conditional.then?.(context) ?? [];
     if (thenOptions.length > 0) {
       const requirements = [...conditional.condition(positive), ...asOptions(thenOptions)];
-      options.push(...allTrue(requirements, instance, schemaLocation, localization));
+      options.push(...allTrue(requirements, instance, schemaLocation, context));
     }
 
-    const elseOptions = conditional.else?.(localization) ?? [];
+    const elseOptions = conditional.else?.(context) ?? [];
     if (elseOptions.length > 0) {
       const requirements = [...conditional.condition(negated), ...asOptions(elseOptions)];
-      options.push(...allTrue(requirements, instance, schemaLocation, localization));
+      options.push(...allTrue(requirements, instance, schemaLocation, context));
     }
 
     return options;
   } else if (conditional.else) {
     // Passes if the condition holds and 'then' passes or if it doesn't and 'else' passes
-    const thenOption = [...conditional.condition(positive), ...conditional.then?.(localization) ?? []];
-    const elseOption = [...conditional.condition(negated), ...conditional.else(localization)];
-    return someTrue([thenOption, elseOption], instance, schemaLocation, localization);
+    const thenOption = [...conditional.condition(positive), ...conditional.then?.(context) ?? []];
+    const elseOption = [...conditional.condition(negated), ...conditional.else(context)];
+    return someTrue([thenOption, elseOption], instance, schemaLocation, context);
   } else {
     // Passes if the condition doesn't hold or 'then' passes
-    const description = conditional.then?.(localization) ?? [];
+    const description = conditional.then?.(context) ?? [];
     if (description.length === 0) {
       return [];
     }
 
-    return someTrue([conditional.condition(negated), description], instance, schemaLocation, localization);
+    return someTrue([conditional.condition(negated), description], instance, schemaLocation, context);
   }
 };
 
@@ -413,7 +416,7 @@ export const removeErrorHandler = (errorHandlerUri) => {
 };
 
 /** @type API.getErrors */
-export const getErrors = (normalizedErrors, rootInstance, localization, context) => {
+export const getErrors = (normalizedErrors, rootInstance, context) => {
   /** @type API.ErrorObject[] */
   const errors = [];
 
@@ -421,7 +424,7 @@ export const getErrors = (normalizedErrors, rootInstance, localization, context)
   for (const instanceLocation in reportedOutput) {
     const instance = /** @type JsonNode */ (Instance.get(instanceLocation, rootInstance));
     for (const errorHandlerUri in errorHandlers) {
-      const errorObjects = errorHandlers[errorHandlerUri].error?.(reportedOutput[instanceLocation], instance, localization, context) ?? [];
+      const errorObjects = errorHandlers[errorHandlerUri].error?.(reportedOutput[instanceLocation], instance, context) ?? [];
       errors.push(...errorObjects);
     }
   }
@@ -481,13 +484,13 @@ const isApplied = () => true;
 const isRequired = (keywordUri) => !normalizationHandlers[toAbsoluteIri(keywordUri)]?.conditional;
 
 /** @type API.getSuccesses */
-export const getSuccesses = (normalizedOutput, rootInstance, localization, context) => {
+export const getSuccesses = (normalizedOutput, rootInstance, context) => {
   // Descriptions of nested subschemas can get very large, so stop describing
   // past some depth and say that there's more
   if (descriptionDepth >= MAX_DESCRIPTION_DEPTH) {
     /** @type API.ErrorObject */
     const detailsNotShown = {
-      message: localization.getDetailsNotShownMessage(),
+      message: context.localization.getDetailsNotShownMessage(),
       instanceLocation: Instance.uri(rootInstance),
       schemaLocations: []
     };
@@ -507,7 +510,7 @@ export const getSuccesses = (normalizedOutput, rootInstance, localization, conte
       const instance = getInstance(instanceLocation, rootInstance)
         ?? toPlaceholder(instanceLocation, rootInstance);
       for (const errorHandlerUri in errorHandlers) {
-        const successObjects = errorHandlers[errorHandlerUri].success?.(describedOutput[instanceLocation], instance, localization, context) ?? [];
+        const successObjects = errorHandlers[errorHandlerUri].success?.(describedOutput[instanceLocation], instance, context) ?? [];
         successes.push(...successObjects);
       }
     }
@@ -554,15 +557,15 @@ const MAX_ENTRIES = 5;
  * A group of things that all need to be true shows only the first few. The
  * rest are summarized so it's clear that the list isn't complete.
  *
- * @type (allItems: API.ErrorObject[], instance: JsonNode, localization: Localization) => API.ErrorObject[]
+ * @type (allItems: API.ErrorObject[], instance: JsonNode, context: API.ErrorHandlerContext) => API.ErrorObject[]
  */
-export const limitItems = (allItems, instance, localization) => {
+export const limitItems = (allItems, instance, context) => {
   const items = collapseDetailsNotShown(allItems);
   if (items.length <= MAX_ENTRIES) {
     return items;
   }
 
-  return [...items.slice(0, MAX_ENTRIES), notShown(items.length - MAX_ENTRIES, instance, localization)];
+  return [...items.slice(0, MAX_ENTRIES), notShown(items.length - MAX_ENTRIES, instance, context)];
 };
 
 /**
@@ -570,9 +573,9 @@ export const limitItems = (allItems, instance, localization) => {
  * are shown first so the simplest options are the ones that are shown. The
  * order of options doesn't change what they mean.
  *
- * @type (allOptions: API.ErrorObject[][], instance: JsonNode, localization: Localization, isSorted?: boolean) => API.ErrorObject[][]
+ * @type (allOptions: API.ErrorObject[][], instance: JsonNode, context: API.ErrorHandlerContext, isSorted?: boolean) => API.ErrorObject[][]
  */
-export const limitOptions = (allOptions, instance, localization, isSorted = true) => {
+export const limitOptions = (allOptions, instance, context, isSorted = true) => {
   // Only one option that's just "details aren't shown" is needed
   let hasDetailsNotShown = false;
   const options = allOptions.map(collapseDetailsNotShown).filter((option) => {
@@ -588,12 +591,12 @@ export const limitOptions = (allOptions, instance, localization, isSorted = true
     return sorted;
   }
 
-  return [...sorted.slice(0, MAX_ENTRIES), [notShown(sorted.length - MAX_ENTRIES, instance, localization)]];
+  return [...sorted.slice(0, MAX_ENTRIES), [notShown(sorted.length - MAX_ENTRIES, instance, context)]];
 };
 
-/** @type (count: number, instance: JsonNode, localization: Localization) => API.ErrorObject */
-const notShown = (count, instance, localization) => ({
-  message: localization.getNotShownMessage(count),
+/** @type (count: number, instance: JsonNode, context: API.ErrorHandlerContext) => API.ErrorObject */
+const notShown = (count, instance, context) => ({
+  message: context.localization.getNotShownMessage(count),
   instanceLocation: Instance.uri(instance),
   schemaLocations: []
 });
@@ -645,9 +648,9 @@ const allTrueGroups = new WeakSet();
  * are described by a choice of options. Present the options as a group that
  * says how many of the options are true.
  *
- * @type (options: API.ErrorObject[][], range: { min?: number, max?: number }, instance: JsonNode, schemaLocation: string, localization: Localization) => API.ErrorObject[]
+ * @type (options: API.ErrorObject[][], range: { min?: number, max?: number }, instance: JsonNode, schemaLocation: string, context: API.ErrorHandlerContext) => API.ErrorObject[]
  */
-export const countTrue = (options, { min = 0, max = Infinity }, instance, schemaLocation, localization) => {
+export const countTrue = (options, { min = 0, max = Infinity }, instance, schemaLocation, context) => {
   max = Math.min(max, options.length);
 
   if (options.length === 0 || (min <= 0 && max === options.length)) {
@@ -655,37 +658,37 @@ export const countTrue = (options, { min = 0, max = Infinity }, instance, schema
     return [];
   } else if (min === options.length) {
     // All of the options are true
-    return limitItems(options.flat(), instance, localization);
+    return limitItems(options.flat(), instance, context);
   }
 
   return [{
-    message: localization.getCountTrueMessage(min, max === options.length ? Infinity : max),
-    alternatives: limitOptions(options.map((option) => limitItems(option, instance, localization)), instance, localization),
+    message: context.localization.getCountTrueMessage(min, max === options.length ? Infinity : max),
+    alternatives: limitOptions(options.map((option) => limitItems(option, instance, context)), instance, context),
     instanceLocation: Instance.uri(instance),
     schemaLocations: [schemaLocation]
   }];
 };
 
-/** @type (options: API.ErrorObject[][], instance: JsonNode, schemaLocation: string, localization: Localization) => API.ErrorObject[] */
-export const someTrue = (options, instance, schemaLocation, localization) => {
-  return countTrue(options, { min: 1 }, instance, schemaLocation, localization);
+/** @type (options: API.ErrorObject[][], instance: JsonNode, schemaLocation: string, context: API.ErrorHandlerContext) => API.ErrorObject[] */
+export const someTrue = (options, instance, schemaLocation, context) => {
+  return countTrue(options, { min: 1 }, instance, schemaLocation, context);
 };
 
 /**
  * Negated success messages are a list of things where at least one is true, but
  * some keywords need several things to be true. Present those as a group.
  *
- * @type (items: API.ErrorObject[], instance: JsonNode, schemaLocation: string, localization: Localization) => API.ErrorObject[]
+ * @type (items: API.ErrorObject[], instance: JsonNode, schemaLocation: string, context: API.ErrorHandlerContext) => API.ErrorObject[]
  */
-export const allTrue = (items, instance, schemaLocation, localization) => {
+export const allTrue = (items, instance, schemaLocation, context) => {
   if (items.length <= 1) {
     return items;
   }
 
   /** @type API.ErrorObject */
   const group = {
-    message: localization.getAllTrueMessage(),
-    alternatives: [limitItems(items, instance, localization)],
+    message: context.localization.getAllTrueMessage(),
+    alternatives: [limitItems(items, instance, context)],
     instanceLocation: Instance.uri(instance),
     schemaLocations: [schemaLocation]
   };

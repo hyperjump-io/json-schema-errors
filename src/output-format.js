@@ -16,9 +16,9 @@ const jseOutputFormatHandler = (options) => {
   return {
     plugin,
     getErrors: (instance, context) => {
-      const localization = Localization.forLocale(options.locale ?? "en-US");
-      return getErrors(plugin.output, instance, localization, {
+      return getErrors(plugin.output, instance, {
         ast: context.ast,
+        localization: Localization.forLocale(options.locale ?? "en-US"),
         isFormatAsserted
       });
     }

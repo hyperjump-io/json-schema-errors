@@ -8,7 +8,7 @@ import jsonStringify from "json-stringify-deterministic";
 
 /** @type ErrorHandler */
 const uniqueItemsErrorHandler = {
-  error: (normalizedErrors, instance, localization) => {
+  error: (normalizedErrors, instance, context) => {
     /** @type ErrorObject[] */
     const errors = [];
 
@@ -30,7 +30,7 @@ const uniqueItemsErrorHandler = {
         if (itemCounts[key].count > 1) {
           for (const instanceLocation of itemCounts[key].instanceLocations) {
             errors.push({
-              message: localization.getUniqueItemsErrorMessage(),
+              message: context.localization.getUniqueItemsErrorMessage(),
               instanceLocation: instanceLocation,
               schemaLocations: [schemaLocation]
             });
@@ -42,10 +42,10 @@ const uniqueItemsErrorHandler = {
     return errors;
   },
 
-  success: (normalizedOutput, instance, localization, context) => {
+  success: (normalizedOutput, instance, context) => {
     // 'uniqueItems: false' allows anything, so there's nothing to say
     return describeKeyword(normalizedOutput, "https://json-schema.org/keyword/uniqueItems", instance, context.ast, (/** @type boolean */ uniqueItems) => {
-      return uniqueItems ? localization.getUniqueItemsSuccessMessage() : undefined;
+      return uniqueItems ? context.localization.getUniqueItemsSuccessMessage() : undefined;
     });
   }
 };

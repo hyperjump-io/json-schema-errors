@@ -7,7 +7,7 @@ import { describeKeyword, getCompiledKeywordValue } from "../json-schema-errors.
 
 /** @type ErrorHandler */
 const maxPropertiesErrorHandler = {
-  error: (normalizedErrors, instance, localization, context) => {
+  error: (normalizedErrors, instance, context) => {
     /** @type ErrorObject[] */
     const errors = [];
     let lowestMaxProperties = Infinity;
@@ -26,7 +26,7 @@ const maxPropertiesErrorHandler = {
     }
     if (mostConstrainingLocation !== null) {
       errors.push({
-        message: localization.getMaxPropertiesErrorMessage(lowestMaxProperties),
+        message: context.localization.getMaxPropertiesErrorMessage(lowestMaxProperties),
         instanceLocation: Instance.uri(instance),
         schemaLocations: [mostConstrainingLocation]
       });
@@ -35,9 +35,9 @@ const maxPropertiesErrorHandler = {
     return errors;
   },
 
-  success: (normalizedOutput, instance, localization, context) => {
+  success: (normalizedOutput, instance, context) => {
     return describeKeyword(normalizedOutput, "https://json-schema.org/keyword/maxProperties", instance, context.ast, (/** @type number */ maxProperties) => {
-      return localization.getMaxPropertiesSuccessMessage(maxProperties);
+      return context.localization.getMaxPropertiesSuccessMessage(maxProperties);
     });
   }
 };

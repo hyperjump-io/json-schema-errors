@@ -20,7 +20,7 @@ import {
  * @type ErrorHandler
  */
 const prefixItemsErrorHandler = {
-  success: (normalizedOutput, instance, localization, context) => {
+  success: (normalizedOutput, instance, context) => {
     /** @type ErrorObject[] */
     const successes = [];
 
@@ -47,13 +47,13 @@ const prefixItemsErrorHandler = {
         const item = getPlaceholder(instance, String(index));
         const output = evaluateRequirements(prefixItems[index], item, context.ast);
         successes.push(...describeConditional({
-          condition: (localization) => [{
-            message: localization.getHasItemSuccessMessage(index),
+          condition: (context) => [{
+            message: context.localization.getHasItemSuccessMessage(index),
             instanceLocation: Instance.uri(instance),
             schemaLocations: [schemaLocation]
           }],
-          then: (localization) => getSuccesses(output, instance, localization, context)
-        }, instance, schemaLocation, localization));
+          then: (context) => getSuccesses(output, instance, context)
+        }, instance, schemaLocation, context));
       }
     }
 

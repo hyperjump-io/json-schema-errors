@@ -8,7 +8,7 @@ import { allTrue, flattenOutput, getErrors, getSuccesses, someTrue } from "../js
 
 /** @type ErrorHandler */
 const anyOfErrorHandler = {
-  error: (normalizedErrors, instance, localization, context) => {
+  error: (normalizedErrors, instance, context) => {
     /** @type ErrorObject[] */
     const errors = [];
 
@@ -56,13 +56,13 @@ const anyOfErrorHandler = {
         }
 
         // The alternative passed all the filters
-        alternatives.push(getErrors(alternative, instance, localization, context));
+        alternatives.push(getErrors(alternative, instance, context));
       }
 
       // If all alternatives were filtered out, default to returning all of them
       if (alternatives.length === 0) {
         for (const alternative of anyOf) {
-          alternatives.push(getErrors(alternative, instance, localization, context));
+          alternatives.push(getErrors(alternative, instance, context));
         }
       }
 
@@ -70,7 +70,7 @@ const anyOfErrorHandler = {
         errors.push(...alternatives[0]);
       } else {
         errors.push({
-          message: localization.getAnyOfErrorMessage(),
+          message: context.localization.getAnyOfErrorMessage(),
           alternatives,
           instanceLocation,
           schemaLocations: [schemaLocation]
@@ -81,20 +81,20 @@ const anyOfErrorHandler = {
     return errors;
   },
 
-  success: (normalizedOutput, instance, localization, context) => {
+  success: (normalizedOutput, instance, context) => {
     /** @type ErrorObject[] */
     const successes = [];
 
     for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/anyOf"]) {
       const alternatives = normalizedOutput["https://json-schema.org/keyword/anyOf"][schemaLocation].outputs ?? [];
 
-      if (localization.isNegated) {
+      if (context.localization.isNegated) {
         // 'anyOf' fails if all of its alternatives fail. An alternative fails if
         // at least one of its keywords fails. Changing the value to make one
         // alternative fail could make another one pass, so all of them need to
         // be described even if some of them fail now.
         const alternativeOptions = alternatives.map((alternative) => {
-          return getSuccesses(alternative, instance, localization, context);
+          return getSuccesses(alternative, instance, context);
         });
 
         // An alternative that can't be described means we can't say how to make it fail
@@ -106,23 +106,23 @@ const anyOfErrorHandler = {
           successes.push(...alternativeOptions[0]);
         } else {
           const requirements = alternativeOptions.flatMap((options) => {
-            return someTrue(options.map((option) => [option]), instance, schemaLocation, localization);
+            return someTrue(options.map((option) => [option]), instance, schemaLocation, context);
           });
-          successes.push(...allTrue(requirements, instance, schemaLocation, localization));
+          successes.push(...allTrue(requirements, instance, schemaLocation, context));
         }
       } else {
         // Passes if at least one alternative passes. All of them are described,
         // even if we know which ones match, because these descriptions tell the
         // user what would need to change to make 'anyOf' fail.
         const descriptions = alternatives.map((alternative) => {
-          return getSuccesses(alternative, instance, localization, context);
+          return getSuccesses(alternative, instance, context);
         });
 
         if (descriptions.some((description) => description.length === 0)) {
           continue;
         }
 
-        successes.push(...someTrue(descriptions, instance, schemaLocation, localization));
+        successes.push(...someTrue(descriptions, instance, schemaLocation, context));
       }
     }
 

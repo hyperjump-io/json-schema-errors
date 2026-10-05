@@ -1,15 +1,15 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
 import * as Pact from "@hyperjump/pact";
-import { allowsAnyValue, allTrue, countTrue, flattenOutput, getCompiledKeywordValue, getErrors, getSuccesses, isPassing, limitItems, limitOptions, someTrue } from "../json-schema-errors.js";
+import { allowsAnyValue, allTrue, countTrue, flattenOutput, getCompiledKeywordValue, getErrors, getSuccesses, isPassing, limitItems, limitOptions, negate, someTrue } from "../json-schema-errors.js";
 
 /**
  * @import { JsonNode } from "@hyperjump/json-schema/instance/experimental"
- * @import { ErrorHandler, ErrorHandlerContext, ErrorObject, InstanceOutput, Localization, NormalizedOutput } from "../index.d.ts"
+ * @import { ErrorHandler, ErrorHandlerContext, ErrorObject, InstanceOutput, NormalizedOutput } from "../index.d.ts"
  */
 
 /** @type ErrorHandler */
 const oneOfErrorHandler = {
-  error: (normalizedErrors, instance, localization, context) => {
+  error: (normalizedErrors, instance, context) => {
     /** @type ErrorObject[] */
     const errors = [];
 
@@ -25,7 +25,7 @@ const oneOfErrorHandler = {
         return isPassing(oneOf[index]) ? [{ alternativeLocation, output: oneOf[index] }] : [];
       });
       if (matches.length > 1) {
-        errors.push(multipleMatchesError(matches, schemaLocation, instance, localization, context));
+        errors.push(multipleMatchesError(matches, schemaLocation, instance, context));
         continue;
       }
 
@@ -65,7 +65,7 @@ const oneOfErrorHandler = {
         }
 
         // The alternative passed all the filters
-        const alternativeErrors = getErrors(alternative, instance, localization, context);
+        const alternativeErrors = getErrors(alternative, instance, context);
         if (alternativeErrors.length) {
           alternatives.push(alternativeErrors);
         }
@@ -74,7 +74,7 @@ const oneOfErrorHandler = {
       // If all alternatives were filtered out, default to returning all of them
       if (alternatives.length === 0) {
         for (const alternative of oneOf) {
-          const alternativeErrors = getErrors(alternative, instance, localization, context);
+          const alternativeErrors = getErrors(alternative, instance, context);
           if (alternativeErrors.length) {
             alternatives.push(alternativeErrors);
           }
@@ -86,7 +86,7 @@ const oneOfErrorHandler = {
       } else {
         /** @type ErrorObject */
         const alternativeErrors = {
-          message: localization.getOneOfErrorMessage(),
+          message: context.localization.getOneOfErrorMessage(),
           instanceLocation: Instance.uri(instance),
           schemaLocations: [schemaLocation]
         };
@@ -100,40 +100,40 @@ const oneOfErrorHandler = {
     return errors;
   },
 
-  success: (normalizedOutput, instance, localization, context) => {
+  success: (normalizedOutput, instance, context) => {
     /** @type ErrorObject[] */
     const successes = [];
 
     for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/oneOf"]) {
       const alternatives = normalizedOutput["https://json-schema.org/keyword/oneOf"][schemaLocation].outputs ?? [];
 
-      if (localization.isNegated) {
+      if (context.localization.isNegated) {
         // 'oneOf' fails if no alternatives match or more than one matches. Changing
         // the value could change which alternatives match, so all of them need to
         // be described even if we know which one matches now.
 
         // Make all alternatives fail
-        const alternativeOptions = alternatives.map((alternative) => getSuccesses(alternative, instance, localization, context));
+        const alternativeOptions = alternatives.map((alternative) => getSuccesses(alternative, instance, context));
         if (alternativeOptions.every((alternativeOption) => alternativeOption.length > 0)) {
           const requirements = alternativeOptions.flatMap((alternativeOption) => {
-            return someTrue(alternativeOption.map((option) => [option]), instance, schemaLocation, localization);
+            return someTrue(alternativeOption.map((option) => [option]), instance, schemaLocation, context);
           });
-          successes.push(...allTrue(requirements, instance, schemaLocation, localization));
+          successes.push(...allTrue(requirements, instance, schemaLocation, context));
         }
 
         // Make at least two alternatives match
-        const descriptions = alternatives.map((alternative) => getSuccesses(alternative, instance, localization.negated(), context));
+        const descriptions = alternatives.map((alternative) => getSuccesses(alternative, instance, negate(context)));
         if (descriptions.every((description) => description.length > 0)) {
-          const requirements = countTrue(descriptions, { min: 2 }, instance, schemaLocation, localization.negated());
-          successes.push(...allTrue(requirements, instance, schemaLocation, localization));
+          const requirements = countTrue(descriptions, { min: 2 }, instance, schemaLocation, negate(context));
+          successes.push(...allTrue(requirements, instance, schemaLocation, context));
         }
       } else {
         // Passes if exactly one alternative passes. All of them are described, even
         // if we know which one matches, because these descriptions tell the user
         // what would need to change to make 'oneOf' fail.
-        const descriptions = alternatives.map((alternative) => getSuccesses(alternative, instance, localization, context));
+        const descriptions = alternatives.map((alternative) => getSuccesses(alternative, instance, context));
         if (descriptions.every((description) => description.length > 0)) {
-          successes.push(...countTrue(descriptions, { min: 1, max: 1 }, instance, schemaLocation, localization));
+          successes.push(...countTrue(descriptions, { min: 1, max: 1 }, instance, schemaLocation, context));
         }
       }
     }
@@ -146,14 +146,14 @@ const oneOfErrorHandler = {
  * More than one alternative passed. Describe how the instance satisfied each
  * matching alternative so the user knows what needs to change.
  *
- * @type (matches: { alternativeLocation: string, output: NormalizedOutput }[], schemaLocation: string, instance: JsonNode, localization: Localization, context: ErrorHandlerContext) => ErrorObject
+ * @type (matches: { alternativeLocation: string, output: NormalizedOutput }[], schemaLocation: string, instance: JsonNode, context: ErrorHandlerContext) => ErrorObject
  */
-const multipleMatchesError = (matches, schemaLocation, instance, localization, context) => {
+const multipleMatchesError = (matches, schemaLocation, instance, context) => {
   const alternatives = matches.map(({ alternativeLocation, output }) => {
-    const description = getSuccesses(output, instance, localization, context);
+    const description = getSuccesses(output, instance, context);
     if (description.length === 0 && allowsAnyValue(alternativeLocation, context.ast)) {
       return [{
-        message: localization.getAnyValueMessage(),
+        message: context.localization.getAnyValueMessage(),
         instanceLocation: Instance.uri(instance),
         schemaLocations: [alternativeLocation]
       }];
@@ -165,18 +165,18 @@ const multipleMatchesError = (matches, schemaLocation, instance, localization, c
   // If any match can't be described, the alternatives would be misleading
   if (alternatives.some((alternative) => alternative.length === 0)) {
     return {
-      message: localization.getOneOfTooManyErrorMessage(),
+      message: context.localization.getOneOfTooManyErrorMessage(),
       instanceLocation: Instance.uri(instance),
       schemaLocations: [schemaLocation]
     };
   }
 
   return {
-    message: localization.getOneOfMultipleMatchesErrorMessage(),
+    message: context.localization.getOneOfMultipleMatchesErrorMessage(),
     // Options are shown in the same order as the alternatives
     alternatives: limitOptions(removeCommonSuccesses(alternatives).map((alternative) => {
-      return limitItems(alternative, instance, localization);
-    }), instance, localization, false),
+      return limitItems(alternative, instance, context);
+    }), instance, context, false),
     instanceLocation: Instance.uri(instance),
     schemaLocations: [schemaLocation]
   };

@@ -8,7 +8,7 @@ import { getCompiledKeywordValue } from "../json-schema-errors.js";
 
 /** @type ErrorHandler */
 const requiredErrorHandler = {
-  error: (normalizedErrors, instance, localization, context) => {
+  error: (normalizedErrors, instance, context) => {
     /** @type {Set<string>} */
     const allMissingRequired = new Set();
     const allSchemaLocations = [];
@@ -68,13 +68,13 @@ const requiredErrorHandler = {
     }
 
     return [{
-      message: localization.getRequiredErrorMessage([...allMissingRequired]),
+      message: context.localization.getRequiredErrorMessage([...allMissingRequired]),
       instanceLocation: Instance.uri(instance),
       schemaLocations: /** @type {string[]} */ ([...allSchemaLocations])
     }];
   },
 
-  success: (normalizedOutput, instance, localization, context) => {
+  success: (normalizedOutput, instance, context) => {
     /** @type ErrorObject[] */
     const successes = [];
 
@@ -91,7 +91,7 @@ const requiredErrorHandler = {
 
     if (allRequired.size > 0) {
       successes.push({
-        message: localization.getRequiredSuccessMessage([...allRequired]),
+        message: context.localization.getRequiredSuccessMessage([...allRequired]),
         instanceLocation: Instance.uri(instance),
         schemaLocations: requiredSchemaLocations
       });
@@ -102,7 +102,7 @@ const requiredErrorHandler = {
       for (const [propertyName, requiredProperties] of dependencies) {
         if (requiredProperties.length > 0) {
           successes.push({
-            message: localization.getDependentRequiredSuccessMessage(propertyName, requiredProperties),
+            message: context.localization.getDependentRequiredSuccessMessage(propertyName, requiredProperties),
             instanceLocation: Instance.uri(instance),
             schemaLocations: [schemaLocation]
           });
@@ -115,7 +115,7 @@ const requiredErrorHandler = {
       for (const [propertyName, dependency] of dependencies) {
         if (Array.isArray(dependency) && dependency.length > 0) {
           successes.push({
-            message: localization.getDependentRequiredSuccessMessage(propertyName, /** @type {string[]} */ (dependency)),
+            message: context.localization.getDependentRequiredSuccessMessage(propertyName, /** @type {string[]} */ (dependency)),
             instanceLocation: Instance.uri(instance),
             schemaLocations: [schemaLocation]
           });
