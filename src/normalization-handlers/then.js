@@ -9,7 +9,7 @@ const thenNormalizationHandler = {
   evaluate([, then], instance, context) {
     return [evaluateSchema(then, instance, context)];
   },
-  validityFromSubschemas: true
+  conditional: true
 };
 
 export default thenNormalizationHandler;

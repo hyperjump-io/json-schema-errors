@@ -20,8 +20,7 @@ const unevaluatedItemsNormalizationHandler = {
     }
 
     return outputs;
-  },
-  simpleApplicator: true
+  }
 };
 
 export default unevaluatedItemsNormalizationHandler;

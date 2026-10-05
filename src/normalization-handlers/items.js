@@ -21,8 +21,7 @@ const itemsNormalizationHandler = {
     }
 
     return outputs;
-  },
-  simpleApplicator: true
+  }
 };
 
 export default itemsNormalizationHandler;

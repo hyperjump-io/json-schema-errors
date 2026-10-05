@@ -15,8 +15,7 @@ const allOfNormalizationHandler = {
     }
 
     return outputs;
-  },
-  simpleApplicator: true
+  }
 };
 
 export default allOfNormalizationHandler;

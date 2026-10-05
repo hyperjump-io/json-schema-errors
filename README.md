@@ -55,6 +55,38 @@ console.log(errors);
 // ]
 ```
 
+With `@hyperjump/json-schema`, you can also get error messages directly from
+validation. Importing this package adds a `JSE` output format to
+`@hyperjump/json-schema`. It uses the full results of evaluation rather than
+only what the standard output formats report. Use the `locale` option to choose
+the language of the messages. The default is `en-US`, which is currently the
+only locale available.
+
+```TypeScript
+import { registerSchema, validate } from "@hyperjump/json-schema/draft-2020-12";
+import { JSE } from "@hyperjump/json-schema-errors";
+
+const schemaUri = "https://example.com/schema/string";
+registerSchema({
+  $schema: "https://json-schema.org/draft/2020-12/schema",
+
+  type: "string"
+});
+
+const output = await validate(schemaUri, 42, { outputFormat: JSE, locale: "en-US" });
+console.log(output);
+// {
+//   valid: false,
+//   errors: [
+//     {
+//       message: "Expected a string",
+//       instanceLocation: "#",
+//       schemaLocations: ["https://example.com/schema/string#/type"]
+//     }
+//   ]
+// }
+```
+
 If using this package with the results from another validator, you still need to
 register the schema. Here's an example using `@cfworker/json-schema`.
 
@@ -145,8 +177,10 @@ addErrorHandler(async (normalizedErrors, instance, localization) => {
 
 Simple applicator keywords that just evaluate subschemas and don't make any
 assertions of their own don't need an error handler, only a normalization
-handler. For example, support for the `allOf` keyword could look like the
-following.
+handler. Whether a keyword is a simple applicator comes from the
+`simpleApplicator` property of its `@hyperjump/json-schema` keyword definition.
+The results of its subschemas are merged into the results of the parent schema.
+For example, support for the `allOf` keyword could look like the following.
 
 ```TypeScript
 import { setNormalizationHandler, evaluateSchema } from "@hyperjump/json-schema-errors";
@@ -156,8 +190,7 @@ const KEYWORD_URI = "https://json-schema.org/keyword/allOf";
 setNormalizationHandler(KEYWORD_URI, {
   evaluate(allOf, instance, context) {
     return allOf.map((schemaLocation) => evaluateSchema(schemaLocation, instance, context));
-  },
-  simpleApplicator: true
+  }
 });
 ```
 

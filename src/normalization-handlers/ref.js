@@ -8,8 +8,7 @@ import { evaluateSchema } from "../json-schema-errors.js";
 const refNormalizationHandler = {
   evaluate(ref, instance, context) {
     return [evaluateSchema(ref, instance, context)];
-  },
-  simpleApplicator: true
+  }
 };
 
 export default refNormalizationHandler;

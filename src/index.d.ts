@@ -1,4 +1,4 @@
-import { AST, CompiledSchema, EvaluationPlugin } from "@hyperjump/json-schema/experimental";
+import { AST, EvaluationPlugin } from "@hyperjump/json-schema/experimental";
 import { JsonNode } from "@hyperjump/json-schema/instance/experimental";
 import { Localization } from "./localization.js";
 
@@ -89,25 +89,15 @@ export type NormalizationHandler<KeywordValue = unknown, Context extends Evaluat
   evaluate(value: KeywordValue, instance: JsonNode, context: Context): NormalizedOutput[] | void;
 
   /**
-   * Simple applicators just apply subschemas and don't have any validation behavior
-   * of their own. For example, `allOf` and `properties` are simple applicators. They
-   * never fail. Only their subschema can fail. `anyOf` and `oneOf` are not simple
-   * applicators because they can fail independently of the validation result of
-   * their subschemas.
-   *
-   * The results of a simple applicator's subschemas are merged into the results
-   * of its parent schema. Its own result is recorded too so it can be described,
-   * and like `validityFromSubschemas`, it fails if any of its subschemas fail.
+   * Conditional applicators, like `then` and `dependentSchemas`, are simple
+   * applicators whose subschemas only apply when a condition holds. Whether a
+   * keyword is a simple applicator comes from its `@hyperjump/json-schema`
+   * keyword definition. The results of a simple applicator's subschemas are
+   * merged into the results of its parent schema, but the merged results of a
+   * conditional applicator are left out when describing the parent schema
+   * because its error handler describes them along with the condition.
    */
-  simpleApplicator?: true;
-
-  /**
-   * Some applicators, like `then` and `else`, only fail when their subschema
-   * fails. Validators often only report the subschema's errors and not the
-   * keyword itself, so this tells us to use the subschema's results when the
-   * validator's output doesn't include the keyword.
-   */
-  validityFromSubschemas?: true;
+  conditional?: true;
 
   /**
    * Annotations, such as `title` and `description`, never affect validation. A
@@ -224,39 +214,33 @@ export type ContainsRange = {
 };
 
 /**
- * Validate an instance against a schema and get error messages in one step instead
- * of getting output from validation and passing it to jsonSchemaErrors. The
- * function is curried so you can compile the schema one time and evaluate multiple
- * instances against the same compiled schema.
+ * An output format for `@hyperjump/json-schema` that returns human readable error
+ * messages. Importing this package registers it.
  *
- * Ideally, this function should be in @hyperjump/json-schema instead and this will
- * be removed in the future.
- *
- * @deprecated
+ * @example
+ * const output = await validate(schemaUri, instance, { outputFormat: JSE, locale: "en-US" });
  */
-export const validate: (
-  (schemaUri: string) => Promise<EvaluateInstance>
-) & (
-  (schemaUri: string, instance: Json, options?: ValidationOptions) => Promise<ValidationResult>
-);
+export const JSE: "JSE";
 
-export const evaluateCompiledSchema: (compiledSchema: CompiledSchema, instance: Json, options?: ValidationOptions) => ValidationResult;
-
-export type EvaluateInstance = (instance: Json, options?: ValidationOptions) => ValidationResult;
-
-export type ValidationOptions = {
-  /**
-   * A locale identifier in the form of "{language}-{region}".
-   *
-   * @example "en-US"
-   */
-  locale?: string;
-  plugins?: EvaluationPlugin[];
-};
-
-export type ValidationResult = {
+export type JSEOutput = {
   valid: true;
 } | {
   valid: false;
   errors: JsonSchemaErrors;
 };
+
+declare module "@hyperjump/json-schema" {
+  interface OutputFormats {
+    JSE: JSEOutput;
+  }
+
+  interface ValidationOptions<F extends OutputFormat = OutputFormat> {
+    /**
+     * A locale identifier in the form of "{language}-{region}" used for the
+     * messages of the JSE output format.
+     *
+     * @example "en-US"
+     */
+    locale?: string;
+  }
+}

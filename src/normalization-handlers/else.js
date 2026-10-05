@@ -9,7 +9,7 @@ const elseNormalizationHandler = {
   evaluate([, elseLocation], instance, context) {
     return [evaluateSchema(elseLocation, instance, context)];
   },
-  validityFromSubschemas: true
+  conditional: true
 };
 
 export default elseNormalizationHandler;
