@@ -226,6 +226,11 @@ export class Localization {
     }
   }
 
+  /** @type (index: number) => string */
+  getHasItemSuccessMessage(index) {
+    return this.#formatSuccessMessage("hasItem", { index });
+  }
+
   /** @type (properties: string[]) => string */
   getHasPropertySuccessMessage(properties) {
     return this.#formatSuccessMessage("hasProperty", {
