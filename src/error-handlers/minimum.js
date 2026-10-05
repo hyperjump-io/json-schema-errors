@@ -1,5 +1,5 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
-import { describeKeyword, getCompiledKeywordValue, getSiblingKeywordLocation } from "../json-schema-errors.js";
+import { describeKeyword, getSiblingKeywordLocation } from "../json-schema-errors.js";
 
 /**
  * @import { ErrorHandler, ErrorObject } from "../index.d.ts"
@@ -18,7 +18,7 @@ const minimumErrorHandler = {
         continue;
       }
 
-      const minimum = /** @type number */ (getCompiledKeywordValue(context.ast, schemaLocation));
+      const minimum = /** @type number */ (normalizedErrors["https://json-schema.org/keyword/minimum"][schemaLocation].value);
 
       if (minimum > highestMinimum) {
         highestMinimum = minimum;
@@ -31,7 +31,7 @@ const minimumErrorHandler = {
         continue;
       }
 
-      const exclusiveMinimum = /** @type number */ (getCompiledKeywordValue(context.ast, schemaLocation));
+      const exclusiveMinimum = /** @type number */ (normalizedErrors["https://json-schema.org/keyword/exclusiveMinimum"][schemaLocation].value);
 
       if (exclusiveMinimum > highestMinimum) {
         highestMinimum = exclusiveMinimum;
@@ -45,7 +45,7 @@ const minimumErrorHandler = {
         continue;
       }
 
-      const [minimum, exclusive] = /** @type [number, boolean] */ (getCompiledKeywordValue(context.ast, schemaLocation));
+      const [minimum, exclusive] = /** @type [number, boolean] */ (normalizedErrors["https://json-schema.org/keyword/draft-04/minimum"][schemaLocation].value);
       if (minimum > highestMinimum) {
         highestMinimum = minimum;
         isExclusive = exclusive;
@@ -78,17 +78,17 @@ const minimumErrorHandler = {
     /** @type ErrorObject[] */
     const successes = [];
 
-    successes.push(...describeKeyword(normalizedOutput, "https://json-schema.org/keyword/minimum", instance, context.ast, (/** @type number */ minimum) => {
+    successes.push(...describeKeyword(normalizedOutput, "https://json-schema.org/keyword/minimum", instance, (/** @type number */ minimum) => {
       return context.localization.getMinimumSuccessMessage(minimum);
     }));
 
-    successes.push(...describeKeyword(normalizedOutput, "https://json-schema.org/keyword/exclusiveMinimum", instance, context.ast, (/** @type number */ exclusiveMinimum) => {
+    successes.push(...describeKeyword(normalizedOutput, "https://json-schema.org/keyword/exclusiveMinimum", instance, (/** @type number */ exclusiveMinimum) => {
       return context.localization.getExclusiveMinimumSuccessMessage(exclusiveMinimum);
     }));
 
     // Draft-04 has a boolean 'exclusiveMinimum' keyword that modifies 'minimum'
     for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/draft-04/minimum"]) {
-      const [minimum, exclusive] = /** @type [number, boolean] */ (getCompiledKeywordValue(context.ast, schemaLocation));
+      const [minimum, exclusive] = /** @type [number, boolean] */ (normalizedOutput["https://json-schema.org/keyword/draft-04/minimum"][schemaLocation].value);
       if (exclusive) {
         const exclusiveLocation = getSiblingKeywordLocation(context.ast, schemaLocation, "https://json-schema.org/keyword/draft-04/exclusiveMinimum");
         successes.push({

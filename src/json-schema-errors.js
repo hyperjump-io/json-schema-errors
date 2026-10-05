@@ -23,11 +23,13 @@ export const jsonSchemaErrors = async (errorOutput, schemaUri, instance, options
     errorIndex,
     plugins: [...ast.plugins]
   });
-  return getErrors(normalizedErrors, rootInstance, {
+  /** @type API.ErrorHandlerContext */
+  const context = {
     ast,
     localization: Localization.forLocale(options.locale ?? "en-US"),
     isFormatAsserted: () => options.isFormatAsserted
-  });
+  };
+  return limitMessages(getErrors(normalizedErrors, rootInstance, context), context);
 };
 
 /** @type Record<string, API.NormalizationHandler> */
@@ -121,12 +123,12 @@ export const evaluateSchema = (schemaLocation, instance, context) => {
 
   const schemaNode = context.ast[schemaLocation];
   if (typeof schemaNode === "boolean") {
-    const isSchemaValid = getValidity(schemaLocation, instanceLocation, context);
+    const isSchemaValid = getReportedValidity(schemaLocation, instanceLocation, context);
     if (schemaNode === false && isSchemaValid !== true) {
       valid = false;
       output[instanceLocation] = {
         "https://json-schema.org/validation": {
-          [schemaLocation]: { valid: isSchemaValid }
+          [schemaLocation]: { valid: isSchemaValid, value: false }
         }
       };
     }
@@ -143,7 +145,7 @@ export const evaluateSchema = (schemaLocation, instance, context) => {
       const validationKeyword = getKeyword(keywordUri);
 
       const keywordInstanceLocation = instanceLocation.replace(/^#\*/, "#");
-      let isKeywordValid = getValidity(keywordLocation, keywordInstanceLocation, context);
+      let isKeywordValid = getReportedValidity(keywordLocation, keywordInstanceLocation, context);
 
       /** @type API.EvaluationContext */
       const keywordContext = {
@@ -162,7 +164,7 @@ export const evaluateSchema = (schemaLocation, instance, context) => {
       const keywordOutput = keyword.evaluate(keywordValue, instance, keywordContext);
 
       const isReported = context.errorIndex[keywordLocation]?.[keywordInstanceLocation] !== undefined;
-      if (validationKeyword.simpleApplicator && !isReported && keywordOutput?.some(isFailing)) {
+      if (validationKeyword.simpleApplicator && !isReported && keywordOutput?.some((suboutput) => getValidity(suboutput) === false)) {
         isKeywordValid = false;
       }
 
@@ -173,8 +175,8 @@ export const evaluateSchema = (schemaLocation, instance, context) => {
       output[instanceLocation] ??= {};
       output[instanceLocation][normalizedKeywordUri] ??= {};
       output[instanceLocation][normalizedKeywordUri][keywordLocation] = keywordOutput
-        ? { valid: isKeywordValid, outputs: keywordOutput }
-        : { valid: isKeywordValid };
+        ? { valid: isKeywordValid, value: keywordValue, outputs: keywordOutput }
+        : { valid: isKeywordValid, value: keywordValue };
 
       for (const plugin of context.plugins) {
         plugin.afterKeyword?.(node, instance, keywordContext, isKeywordValid !== false, context, validationKeyword);
@@ -195,7 +197,7 @@ export const evaluateSchema = (schemaLocation, instance, context) => {
  *
  * @type (schemaLocation: string, instanceLocation: string, context: API.EvaluationContext) => boolean | undefined
  */
-const getValidity = (schemaLocation, instanceLocation, context) => {
+const getReportedValidity = (schemaLocation, instanceLocation, context) => {
   const isError = context.errorIndex[schemaLocation]?.[instanceLocation];
   if (isError === undefined) {
     return context.isValidityUnknown ? undefined : true;
@@ -208,7 +210,7 @@ const getValidity = (schemaLocation, instanceLocation, context) => {
  * A placeholder stands in for a value that doesn't exist, such as a property
  * that isn't present, so it can be described what that value would need to be.
  *
- * @type (parent: JsonNode, segment: string) => JsonNode
+ * @type API.getPlaceholder
  */
 export const getPlaceholder = (parent, segment) => {
   return createPlaceholder(parent.baseUri, JsonPointer.append(segment, parent.pointer), parent);
@@ -228,7 +230,7 @@ const createPlaceholder = (baseUri, pointer, parent) => {
   return Instance.cons(baseUri, pointer, undefined, /** @type JsonNode["type"] */ ("undefined"), [], parent);
 };
 
-/** @type (node: JsonNode) => boolean */
+/** @type API.isPlaceholder */
 export const isPlaceholder = (node) => /** @type string */ (Instance.typeOf(node)) === "undefined";
 
 /**
@@ -285,22 +287,13 @@ export const describeEach = (subschemaLocation, placeholder, parent, context) =>
 };
 
 /**
- * @typedef {{
- *   subschemaLocation: string;
- *   placeholder: JsonNode;
- *   each: (localization: Localization, count: number) => string;
- *   none: (localization: Localization) => string;
- * }} Scope
- */
-
-/**
  * Describes a subschema that applies to every location in some scope, such as
  * every item in an array, including locations that could be added. The
  * placeholder stands in for any of those locations. `each` is the message for
  * the group of what each location requires, given how many things are in it, and `none` describes the scope
  * being empty, which is what the subschema requires if it's `false`.
  *
- * @type (scope: Scope, instance: JsonNode, schemaLocation: string, context: API.ErrorHandlerContext) => API.ErrorObject[]
+ * @type API.describeScope
  */
 export const describeScope = ({ subschemaLocation, placeholder, each, none }, instance, schemaLocation, context) => {
   if (context.ast[subschemaLocation] === false) {
@@ -316,24 +309,24 @@ export const describeScope = ({ subschemaLocation, placeholder, each, none }, in
     return [];
   }
 
-  return [{
-    message: each(context.localization, description.length),
-    // Every location satisfies all of them or there's one that satisfies at least one
-    alternatives: context.localization.isNegated
-      ? limitOptions(description.map((option) => [option]), instance, context)
-      : [limitItems(description, instance, context)],
-    instanceLocation: Instance.uri(instance),
-    schemaLocations: [schemaLocation]
-  }];
+  if (context.localization.isNegated) {
+    // There's a location that satisfies at least one of them
+    return [showSmallestFirst({
+      message: each(context.localization, description.length),
+      alternatives: description.map((option) => [option]),
+      instanceLocation: Instance.uri(instance),
+      schemaLocations: [schemaLocation]
+    })];
+  } else {
+    // Every location satisfies all of them
+    return [{
+      message: each(context.localization, description.length),
+      alternatives: [description],
+      instanceLocation: Instance.uri(instance),
+      schemaLocations: [schemaLocation]
+    }];
+  }
 };
-
-/**
- * @typedef {{
- *   condition: (context: API.ErrorHandlerContext) => API.ErrorObject[];
- *   then?: (context: API.ErrorHandlerContext) => API.ErrorObject[];
- *   else?: (context: API.ErrorHandlerContext) => API.ErrorObject[];
- * }} Conditional
- */
 
 /**
  * Describes subschemas that only apply under some condition, such as a
@@ -341,7 +334,7 @@ export const describeScope = ({ subschemaLocation, placeholder, each, none }, in
  * describes its part using the given context, so `condition` describes the
  * condition holding, or with a negated context, not holding.
  *
- * @type (conditional: Conditional, instance: JsonNode, schemaLocation: string, context: API.ErrorHandlerContext) => API.ErrorObject[]
+ * @type API.describeConditional
  */
 export const describeConditional = (conditional, instance, schemaLocation, context) => {
   const positive = context.localization.isNegated ? negate(context) : context;
@@ -432,7 +425,7 @@ export const getErrors = (normalizedErrors, rootInstance, context) => {
   return errors;
 };
 
-/** @type API.flattenOutput */
+/** @type (normalizedOutput: API.NormalizedOutput) => API.NormalizedOutput */
 export const flattenOutput = (normalizedOutput) => flatten(normalizedOutput, isApplied);
 
 /**
@@ -484,7 +477,7 @@ const isApplied = () => true;
 const isRequired = (keywordUri) => !normalizationHandlers[toAbsoluteIri(keywordUri)]?.conditional;
 
 /** @type API.getSuccesses */
-export const getSuccesses = (normalizedOutput, rootInstance, context) => {
+export const getSuccesses = (subschema, rootInstance, context) => {
   // Descriptions of nested subschemas can get very large, so stop describing
   // past some depth and say that there's more
   if (descriptionDepth >= MAX_DESCRIPTION_DEPTH) {
@@ -497,6 +490,12 @@ export const getSuccesses = (normalizedOutput, rootInstance, context) => {
     detailsNotShownMarkers.add(detailsNotShown);
     return [detailsNotShown];
   }
+
+  // Subschemas the validator didn't evaluate can still be described because
+  // descriptions don't depend on results
+  const normalizedOutput = typeof subschema === "string"
+    ? evaluateRequirements(subschema, rootInstance, context.ast)
+    : subschema;
 
   /** @type API.ErrorObject[] */
   const successes = [];
@@ -553,32 +552,63 @@ const collapseDetailsNotShown = (items) => {
 
 const MAX_ENTRIES = 5;
 
+/** @type WeakSet<API.ErrorObject> */
+const smallestFirstGroups = new WeakSet();
+
 /**
- * A group of things that all need to be true shows only the first few. The
- * rest are summarized so it's clear that the list isn't complete.
+ * Options in a group are shown in the order they're given unless the group is
+ * marked to show the smallest options first so the simplest options are the
+ * ones that are shown. Only use this if the order doesn't change what the
+ * options mean.
  *
- * @type (allItems: API.ErrorObject[], instance: JsonNode, context: API.ErrorHandlerContext) => API.ErrorObject[]
+ * @type (errorObject: API.ErrorObject) => API.ErrorObject
  */
-export const limitItems = (allItems, instance, context) => {
+export const showSmallestFirst = (errorObject) => {
+  smallestFirstGroups.add(errorObject);
+  return errorObject;
+};
+
+/**
+ * Lists of messages can get very long, so only the first few items in a group
+ * and the first few options in a choice are shown. The rest are summarized so
+ * it's clear that the list isn't complete. This is done once for all the
+ * messages so error handlers don't need to.
+ *
+ * @type (errorObjects: API.ErrorObject[], context: API.ErrorHandlerContext) => API.ErrorObject[]
+ */
+export const limitMessages = (errorObjects, context) => errorObjects.map((errorObject) => {
+  if (!errorObject.alternatives) {
+    return errorObject;
+  }
+
+  const alternatives = errorObject.alternatives.map((alternative) => {
+    return limitItems(limitMessages(alternative, context), errorObject.instanceLocation, context);
+  });
+
+  return {
+    ...errorObject,
+    // A single alternative is a group of things that all need to be true
+    alternatives: alternatives.length === 1
+      ? alternatives
+      : limitOptions(alternatives, errorObject.instanceLocation, context, smallestFirstGroups.has(errorObject))
+  };
+});
+
+/** @type (allItems: API.ErrorObject[], instanceLocation: string, context: API.ErrorHandlerContext) => API.ErrorObject[] */
+const limitItems = (allItems, instanceLocation, context) => {
   const items = collapseDetailsNotShown(allItems);
   if (items.length <= MAX_ENTRIES) {
     return items;
   }
 
-  return [...items.slice(0, MAX_ENTRIES), notShown(items.length - MAX_ENTRIES, instance, context)];
+  return [...items.slice(0, MAX_ENTRIES), notShown(items.length - MAX_ENTRIES, instanceLocation, context)];
 };
 
-/**
- * A choice of options shows only the first few. By default, the smallest ones
- * are shown first so the simplest options are the ones that are shown. The
- * order of options doesn't change what they mean.
- *
- * @type (allOptions: API.ErrorObject[][], instance: JsonNode, context: API.ErrorHandlerContext, isSorted?: boolean) => API.ErrorObject[][]
- */
-export const limitOptions = (allOptions, instance, context, isSorted = true) => {
+/** @type (allOptions: API.ErrorObject[][], instanceLocation: string, context: API.ErrorHandlerContext, isSorted: boolean) => API.ErrorObject[][] */
+const limitOptions = (allOptions, instanceLocation, context, isSorted) => {
   // Only one option that's just "details aren't shown" is needed
   let hasDetailsNotShown = false;
-  const options = allOptions.map(collapseDetailsNotShown).filter((option) => {
+  const options = allOptions.filter((option) => {
     const isDetailsNotShown = option.length === 1 && detailsNotShownMarkers.has(option[0]);
     if (isDetailsNotShown && hasDetailsNotShown) {
       return false;
@@ -591,13 +621,13 @@ export const limitOptions = (allOptions, instance, context, isSorted = true) => 
     return sorted;
   }
 
-  return [...sorted.slice(0, MAX_ENTRIES), [notShown(sorted.length - MAX_ENTRIES, instance, context)]];
+  return [...sorted.slice(0, MAX_ENTRIES), [notShown(sorted.length - MAX_ENTRIES, instanceLocation, context)]];
 };
 
-/** @type (count: number, instance: JsonNode, context: API.ErrorHandlerContext) => API.ErrorObject */
-const notShown = (count, instance, context) => ({
+/** @type (count: number, instanceLocation: string, context: API.ErrorHandlerContext) => API.ErrorObject */
+const notShown = (count, instanceLocation, context) => ({
   message: context.localization.getNotShownMessage(count),
-  instanceLocation: Instance.uri(instance),
+  instanceLocation,
   schemaLocations: []
 });
 
@@ -608,36 +638,32 @@ const sizeOf = (errorObjects) => errorObjects.reduce((size, errorObject) => {
   }, 0);
 }, 0);
 
-/** @type (normalizedOutput: API.NormalizedOutput) => boolean */
-export const isPassing = (normalizedOutput) => {
+/**
+ * Whether a subschema passed, based on the results of its keywords. It's
+ * `false` if any keyword failed, `true` if every keyword passed, and
+ * `undefined` if it isn't known.
+ *
+ * @type API.getValidity
+ */
+export const getValidity = (normalizedOutput) => {
+  /** @type boolean | undefined */
+  let validity = true;
+
   const results = flattenOutput(normalizedOutput);
   for (const instanceLocation in results) {
     for (const keywordUri in results[instanceLocation]) {
       for (const schemaLocation in results[instanceLocation][keywordUri]) {
-        if (results[instanceLocation][keywordUri][schemaLocation].valid !== true) {
+        const { valid } = results[instanceLocation][keywordUri][schemaLocation];
+        if (valid === false) {
           return false;
+        } else if (valid === undefined) {
+          validity = undefined;
         }
       }
     }
   }
 
-  return true;
-};
-
-/** @type (normalizedOutput: API.NormalizedOutput) => boolean */
-export const isFailing = (normalizedOutput) => {
-  const results = flattenOutput(normalizedOutput);
-  for (const instanceLocation in results) {
-    for (const keywordUri in results[instanceLocation]) {
-      for (const schemaLocation in results[instanceLocation][keywordUri]) {
-        if (results[instanceLocation][keywordUri][schemaLocation].valid === false) {
-          return true;
-        }
-      }
-    }
-  }
-
-  return false;
+  return validity;
 };
 
 /** @type WeakSet<API.ErrorObject> */
@@ -648,7 +674,7 @@ const allTrueGroups = new WeakSet();
  * are described by a choice of options. Present the options as a group that
  * says how many of the options are true.
  *
- * @type (options: API.ErrorObject[][], range: { min?: number, max?: number }, instance: JsonNode, schemaLocation: string, context: API.ErrorHandlerContext) => API.ErrorObject[]
+ * @type API.countTrue
  */
 export const countTrue = (options, { min = 0, max = Infinity }, instance, schemaLocation, context) => {
   max = Math.min(max, options.length);
@@ -658,18 +684,18 @@ export const countTrue = (options, { min = 0, max = Infinity }, instance, schema
     return [];
   } else if (min === options.length) {
     // All of the options are true
-    return limitItems(options.flat(), instance, context);
+    return options.flat();
   }
 
-  return [{
+  return [showSmallestFirst({
     message: context.localization.getCountTrueMessage(min, max === options.length ? Infinity : max),
-    alternatives: limitOptions(options.map((option) => limitItems(option, instance, context)), instance, context),
+    alternatives: options,
     instanceLocation: Instance.uri(instance),
     schemaLocations: [schemaLocation]
-  }];
+  })];
 };
 
-/** @type (options: API.ErrorObject[][], instance: JsonNode, schemaLocation: string, context: API.ErrorHandlerContext) => API.ErrorObject[] */
+/** @type API.someTrue */
 export const someTrue = (options, instance, schemaLocation, context) => {
   return countTrue(options, { min: 1 }, instance, schemaLocation, context);
 };
@@ -678,7 +704,7 @@ export const someTrue = (options, instance, schemaLocation, context) => {
  * Negated success messages are a list of things where at least one is true, but
  * some keywords need several things to be true. Present those as a group.
  *
- * @type (items: API.ErrorObject[], instance: JsonNode, schemaLocation: string, context: API.ErrorHandlerContext) => API.ErrorObject[]
+ * @type API.allTrue
  */
 export const allTrue = (items, instance, schemaLocation, context) => {
   if (items.length <= 1) {
@@ -688,7 +714,7 @@ export const allTrue = (items, instance, schemaLocation, context) => {
   /** @type API.ErrorObject */
   const group = {
     message: context.localization.getAllTrueMessage(),
-    alternatives: [limitItems(items, instance, context)],
+    alternatives: [items],
     instanceLocation: Instance.uri(instance),
     schemaLocations: [schemaLocation]
   };
@@ -704,14 +730,14 @@ export const isAllTrueGroup = (errorObject) => allTrueGroups.has(errorObject);
  * based on the keyword's value. Return `undefined` if the keyword doesn't
  * require anything.
  *
- * @type <Value>(normalizedOutput: API.InstanceOutput, keywordUri: string, instance: JsonNode, ast: AST, toMessage: (value: Value) => string | undefined) => API.ErrorObject[]
+ * @type <Value>(normalizedOutput: API.InstanceOutput, keywordUri: string, instance: JsonNode, toMessage: (value: Value) => string | undefined) => API.ErrorObject[]
  */
-export const describeKeyword = (normalizedOutput, keywordUri, instance, ast, toMessage) => {
+export const describeKeyword = (normalizedOutput, keywordUri, instance, toMessage) => {
   /** @type API.ErrorObject[] */
   const successes = [];
 
   for (const schemaLocation in normalizedOutput[keywordUri]) {
-    const message = toMessage(/** @type any */ (getCompiledKeywordValue(ast, schemaLocation)));
+    const message = toMessage(/** @type any */ (normalizedOutput[keywordUri][schemaLocation].value));
     if (message !== undefined) {
       successes.push({
         message,

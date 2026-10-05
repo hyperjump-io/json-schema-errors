@@ -1,5 +1,5 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
-import { describeKeyword, getCompiledKeywordValue } from "../json-schema-errors.js";
+import { describeKeyword } from "../json-schema-errors.js";
 
 /**
  * @import { ErrorHandler, ErrorObject } from "../index.d.ts"
@@ -18,7 +18,7 @@ const minLengthErrorHandler = {
         continue;
       }
 
-      const minLength = /** @type number */ (getCompiledKeywordValue(context.ast, schemaLocation));
+      const minLength = /** @type number */ (normalizedErrors["https://json-schema.org/keyword/minLength"][schemaLocation].value);
 
       if (minLength > highestMinLength) {
         highestMinLength = minLength;
@@ -37,7 +37,7 @@ const minLengthErrorHandler = {
   },
 
   success: (normalizedOutput, instance, context) => {
-    return describeKeyword(normalizedOutput, "https://json-schema.org/keyword/minLength", instance, context.ast, (/** @type number */ minLength) => {
+    return describeKeyword(normalizedOutput, "https://json-schema.org/keyword/minLength", instance, (/** @type number */ minLength) => {
       return context.localization.getMinLengthSuccessMessage(minLength);
     });
   }

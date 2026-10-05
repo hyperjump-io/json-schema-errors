@@ -1,5 +1,5 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
-import { describeKeyword, getCompiledKeywordValue } from "../json-schema-errors.js";
+import { describeKeyword } from "../json-schema-errors.js";
 
 /**
  * @import { ErrorHandler, ErrorObject } from "../index.d.ts"
@@ -22,7 +22,7 @@ const multipleOfErrorHandler = {
         hasError = true;
       }
 
-      const multipleOf = /** @type number */ (getCompiledKeywordValue(context.ast, schemaLocation));
+      const multipleOf = /** @type number */ (normalizedErrors["https://json-schema.org/keyword/multipleOf"][schemaLocation].value);
 
       combinedMultipleOf = combinedMultipleOf === null ? multipleOf : lcm(combinedMultipleOf, multipleOf);
       schemaLocations.push(schemaLocation);
@@ -40,7 +40,7 @@ const multipleOfErrorHandler = {
   },
 
   success: (normalizedOutput, instance, context) => {
-    return describeKeyword(normalizedOutput, "https://json-schema.org/keyword/multipleOf", instance, context.ast, (/** @type number */ multipleOf) => {
+    return describeKeyword(normalizedOutput, "https://json-schema.org/keyword/multipleOf", instance, (/** @type number */ multipleOf) => {
       return context.localization.getMultipleOfSuccessMessage(multipleOf);
     });
   }

@@ -139,13 +139,14 @@ export type ErrorIndex = {
 };
 
 /**
- * The result of a keyword. `valid` is `undefined` if the result isn't known. For
- * applicators, `outputs` has the normalized output of each subschema. The
- * results of a simple applicator's subschemas are only in its `outputs`. Use
- * `flattenOutput` to include them in the results of the parent schema.
+ * The result of a keyword. `valid` is `undefined` if the result isn't known.
+ * `value` is the keyword's value as compiled by its `@hyperjump/json-schema`
+ * keyword definition. For applicators, `outputs` has the normalized output of
+ * each subschema.
  */
 export type KeywordOutput = {
   valid?: boolean;
+  value: unknown;
   outputs?: NormalizedOutput[];
 };
 
@@ -226,22 +227,12 @@ export type ErrorHandlerContext = {
 };
 
 /**
- * The results of a simple applicator's subschemas are results of its parent
- * schema, but they're kept with the applicator in its `outputs`. `getErrors`
- * and `getSuccesses` flatten them for error handlers. Use this to get the
- * flattened results of a subschema's output, such as an alternative of an
- * applicator, to inspect them directly.
+ * Whether a subschema passed, based on the results of its keywords. It's
+ * `false` if any keyword failed, `true` if every keyword passed, and
+ * `undefined` if it isn't known. Validators don't usually report what happened
+ * inside an applicator that passed, so results there are often unknown.
  */
-export const flattenOutput: (normalizedOutput: NormalizedOutput) => NormalizedOutput;
-
-/**
- * Gets the compiled value of the keyword at the given schema location, as
- * returned by the keyword's `compile` function in `@hyperjump/json-schema`.
- *
- * @param ast - The compiled schema, from the error handler's context
- * @param schemaLocation - The keyword's schema location
- */
-export const getCompiledKeywordValue: (ast: AST, schemaLocation: string) => unknown;
+export const getValidity: (normalizedOutput: NormalizedOutput) => boolean | undefined;
 
 /**
  * Converts the normalized error format to human readable errors. It's used to
@@ -250,11 +241,19 @@ export const getCompiledKeywordValue: (ast: AST, schemaLocation: string) => unkn
 export const getErrors: (normalizedErrors: NormalizedOutput, instance: JsonNode, context: ErrorHandlerContext) => ErrorObject[];
 
 /**
- * Converts the normalized output of a passing subschema to human readable
- * messages describing how the instance satisfied the subschema. It's used to
- * build errors in applicator error handlers that fail when a subschema passes.
+ * Describes what a subschema requires, or in a negated context, what would make
+ * it fail. It's used to build errors in applicator error handlers that fail
+ * when a subschema passes, such as `not`. Descriptions don't depend on results,
+ * so a subschema the validator didn't evaluate can be described by its schema
+ * location instead of its normalized output, such as the subschema of a
+ * property that isn't present.
+ *
+ * @param subschema - The subschema's normalized output or its schema location
+ * @param instance - The value the subschema applies to. Use `getPlaceholder`
+ *   for a value that isn't present.
+ * @param context
  */
-export const getSuccesses: (normalizedOutput: NormalizedOutput, instance: JsonNode, context: ErrorHandlerContext) => ErrorObject[];
+export const getSuccesses: (subschema: NormalizedOutput | string, instance: JsonNode, context: ErrorHandlerContext) => ErrorObject[];
 
 /**
  * A view of the context where success messages describe what would make
@@ -263,6 +262,77 @@ export const getSuccesses: (normalizedOutput: NormalizedOutput, instance: JsonNo
  * context gives back the original meaning.
  */
 export const negate: (context: ErrorHandlerContext) => ErrorHandlerContext;
+
+/**
+ * A placeholder stands in for a value that isn't present, such as a property
+ * that isn't present or an item that could be added, so what that value would
+ * need to be can be described.
+ *
+ * @param parent - The value that would contain it
+ * @param segment - The property name or item index
+ */
+export const getPlaceholder: (parent: JsonNode, segment: string) => JsonNode;
+
+/**
+ * Whether a value is a placeholder for a value that isn't present. Handlers
+ * that describe values that aren't present, such as properties, shouldn't
+ * describe them for a value that isn't present either.
+ */
+export const isPlaceholder: (instance: JsonNode) => boolean;
+
+/**
+ * Describes subschemas that only apply under some condition, such as a
+ * property's subschema only applying if the property is present. Each function
+ * describes its part using the given context, so `condition` describes the
+ * condition holding, or with a negated context, not holding.
+ */
+export const describeConditional: (conditional: Conditional, instance: JsonNode, schemaLocation: string, context: ErrorHandlerContext) => ErrorObject[];
+
+export type Conditional = {
+  condition: (context: ErrorHandlerContext) => ErrorObject[];
+  then?: (context: ErrorHandlerContext) => ErrorObject[];
+  else?: (context: ErrorHandlerContext) => ErrorObject[];
+};
+
+/**
+ * Describes a subschema that applies to every location in some scope, such as
+ * every item in an array, including locations that could be added.
+ */
+export const describeScope: (scope: Scope, instance: JsonNode, schemaLocation: string, context: ErrorHandlerContext) => ErrorObject[];
+
+export type Scope = {
+  /** The subschema that applies to every location in the scope */
+  subschemaLocation: string;
+
+  /** A placeholder that stands in for any location in the scope */
+  placeholder: JsonNode;
+
+  /** The message for what each location requires, given how many things that is */
+  each: (localization: Localization, count: number) => string;
+
+  /** The message for the scope being empty, which is what a `false` subschema requires */
+  none: (localization: Localization) => string;
+};
+
+/**
+ * Success messages are a list of things that are all true. When something is
+ * a choice of options instead, this groups them with a message that says how
+ * many of the options are true. Each option is a list of things that are all
+ * true.
+ */
+export const countTrue: (options: ErrorObject[][], range: { min?: number; max?: number }, instance: JsonNode, schemaLocation: string, context: ErrorHandlerContext) => ErrorObject[];
+
+/**
+ * Groups options where at least one of them is true. The same as `countTrue`
+ * with a `min` of 1.
+ */
+export const someTrue: (options: ErrorObject[][], instance: JsonNode, schemaLocation: string, context: ErrorHandlerContext) => ErrorObject[];
+
+/**
+ * Negated success messages are a list of things where at least one is true.
+ * When several things need to be true instead, this groups them.
+ */
+export const allTrue: (items: ErrorObject[], instance: JsonNode, schemaLocation: string, context: ErrorHandlerContext) => ErrorObject[];
 
 export type { Localization };
 

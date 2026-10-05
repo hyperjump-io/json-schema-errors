@@ -1,8 +1,6 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
 import {
   describeConditional,
-  evaluateRequirements,
-  getCompiledKeywordValue,
   getPlaceholder,
   getSuccesses,
   isPlaceholder
@@ -30,12 +28,12 @@ const prefixItemsErrorHandler = {
       return successes;
     }
 
-    const schemaLocations = [
-      ...Object.keys(normalizedOutput["https://json-schema.org/keyword/prefixItems"] ?? {}),
-      ...Object.keys(normalizedOutput["https://json-schema.org/keyword/draft-04/items"] ?? {})
+    const keywordOutputs = [
+      ...Object.entries(normalizedOutput["https://json-schema.org/keyword/prefixItems"] ?? {}),
+      ...Object.entries(normalizedOutput["https://json-schema.org/keyword/draft-04/items"] ?? {})
     ];
-    for (const schemaLocation of schemaLocations) {
-      const prefixItems = /** @type string | string[] */ (getCompiledKeywordValue(context.ast, schemaLocation));
+    for (const [schemaLocation, keywordOutput] of keywordOutputs) {
+      const prefixItems = /** @type string | string[] */ (keywordOutput.value);
       if (typeof prefixItems === "string") {
         // A single schema for all items applies to items that can't be named
         continue;
@@ -45,14 +43,13 @@ const prefixItemsErrorHandler = {
       for (let index = length; index < prefixItems.length; index++) {
         // The item's subschema only applies if there's an item at that index
         const item = getPlaceholder(instance, String(index));
-        const output = evaluateRequirements(prefixItems[index], item, context.ast);
         successes.push(...describeConditional({
           condition: (context) => [{
             message: context.localization.getHasItemSuccessMessage(index),
             instanceLocation: Instance.uri(instance),
             schemaLocations: [schemaLocation]
           }],
-          then: (context) => getSuccesses(output, instance, context)
+          then: (context) => getSuccesses(prefixItems[index], item, context)
         }, instance, schemaLocation, context));
       }
     }

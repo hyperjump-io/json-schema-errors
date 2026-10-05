@@ -37,7 +37,7 @@ const eachPropertyErrorHandler = {
     const property = getPlaceholder(instance, unusedPropertyName(instance));
 
     for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/patternProperties"]) {
-      const patternProperties = /** @type [RegExp, string][] */ (getCompiledKeywordValue(context.ast, schemaLocation));
+      const patternProperties = /** @type [RegExp, string][] */ (normalizedOutput["https://json-schema.org/keyword/patternProperties"][schemaLocation].value);
       for (const [pattern, subschemaLocation] of patternProperties) {
         successes.push(...describeScope({
           subschemaLocation,
@@ -49,7 +49,7 @@ const eachPropertyErrorHandler = {
     }
 
     for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/additionalProperties"]) {
-      const [, subschemaLocation] = /** @type [RegExp, string] */ (getCompiledKeywordValue(context.ast, schemaLocation));
+      const [, subschemaLocation] = /** @type [RegExp, string] */ (normalizedOutput["https://json-schema.org/keyword/additionalProperties"][schemaLocation].value);
       const properties = Object.keys(/** @type Record<string, string> */ (
         getSiblingValue(context.ast, schemaLocation, "https://json-schema.org/keyword/properties") ?? {}
       ));
@@ -67,7 +67,7 @@ const eachPropertyErrorHandler = {
     // Property names are at a different location than property values
     const propertyName = getPropertyNamePlaceholder(instance, unusedPropertyName(instance));
     for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/propertyNames"]) {
-      const subschemaLocation = /** @type string */ (getCompiledKeywordValue(context.ast, schemaLocation));
+      const subschemaLocation = /** @type string */ (normalizedOutput["https://json-schema.org/keyword/propertyNames"][schemaLocation].value);
       successes.push(...describeScope({
         subschemaLocation,
         placeholder: propertyName,

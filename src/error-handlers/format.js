@@ -1,5 +1,5 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
-import { describeKeyword, getCompiledKeywordValue } from "../json-schema-errors.js";
+import { describeKeyword } from "../json-schema-errors.js";
 
 /**
  * @import { ErrorHandler, ErrorObject } from "../index.d.ts"
@@ -28,7 +28,7 @@ const formatErrorHandler = {
           continue;
         }
 
-        const format = /** @type string */ (getCompiledKeywordValue(context.ast, schemaLocation));
+        const format = /** @type string */ (normalizedErrors[keywordUri][schemaLocation].value);
 
         errors.push({
           message: context.localization.getFormatErrorMessage(format),
@@ -45,7 +45,7 @@ const formatErrorHandler = {
     // A 'format' that's only an annotation doesn't require anything. If it's
     // not known, the message says that it only applies if formats are validated.
     return keywordUris.flatMap((keywordUri) => {
-      return describeKeyword(normalizedOutput, keywordUri, instance, context.ast, (/** @type string */ format) => {
+      return describeKeyword(normalizedOutput, keywordUri, instance, (/** @type string */ format) => {
         switch (context.isFormatAsserted(keywordUri, format)) {
           case true:
             return context.localization.getFormatSuccessMessage(format);

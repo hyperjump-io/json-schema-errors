@@ -34,13 +34,13 @@ export class JsonSchemaErrorsOutputPlugin {
 
   /** @type NonNullable<EvaluationPlugin<ErrorsContext>["afterKeyword"]> */
   afterKeyword(keywordNode, instance, context, valid, schemaContext) {
-    const [keywordUri, schemaLocation] = keywordNode;
+    const [keywordUri, schemaLocation, value] = keywordNode;
 
     schemaContext.output[Instance.uri(instance)] ??= {};
     schemaContext.output[Instance.uri(instance)][keywordUri] ??= {};
     schemaContext.output[Instance.uri(instance)][keywordUri][schemaLocation] = context.subSchemaOutput
-      ? { valid, outputs: context.subSchemaOutput }
-      : { valid };
+      ? { valid, value, outputs: context.subSchemaOutput }
+      : { valid, value };
   }
 
   /** @type NonNullable<EvaluationPlugin<ErrorsContext>["afterSchema"]> */
@@ -48,7 +48,7 @@ export class JsonSchemaErrorsOutputPlugin {
     if (typeof context.ast[url] === "boolean" && !valid) {
       context.output[Instance.uri(instance)] ??= {};
       context.output[Instance.uri(instance)]["https://json-schema.org/validation"] ??= {};
-      context.output[Instance.uri(instance)]["https://json-schema.org/validation"][url] = { valid };
+      context.output[Instance.uri(instance)]["https://json-schema.org/validation"][url] = { valid, value: false };
     }
 
     context.subSchemaOutput ??= [];

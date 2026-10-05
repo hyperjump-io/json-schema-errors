@@ -1,11 +1,12 @@
 import { getKeyword, setOutputFormat } from "@hyperjump/json-schema/experimental";
 import { getShouldValidateFormat } from "@hyperjump/json-schema/draft-2020-12";
-import { getErrors } from "./json-schema-errors.js";
+import { getErrors, limitMessages } from "./json-schema-errors.js";
 import { Localization } from "./localization.js";
 import { JsonSchemaErrorsOutputPlugin } from "./output-plugin.js";
 
 /**
  * @import { OutputFormatHandler } from "@hyperjump/json-schema/experimental"
+ * @import { ErrorHandlerContext } from "./index.d.ts"
  */
 
 export const JSE = "JSE";
@@ -16,11 +17,13 @@ const jseOutputFormatHandler = (options) => {
   return {
     plugin,
     getErrors: (instance, context) => {
-      return getErrors(plugin.output, instance, {
+      /** @type ErrorHandlerContext */
+      const errorHandlerContext = {
         ast: context.ast,
         localization: Localization.forLocale(options.locale ?? "en-US"),
         isFormatAsserted
-      });
+      };
+      return limitMessages(getErrors(plugin.output, instance, errorHandlerContext), errorHandlerContext);
     }
   };
 };

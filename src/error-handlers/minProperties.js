@@ -1,5 +1,5 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
-import { describeKeyword, getCompiledKeywordValue } from "../json-schema-errors.js";
+import { describeKeyword } from "../json-schema-errors.js";
 
 /**
  * @import { ErrorHandler, ErrorObject } from "../index.d.ts"
@@ -19,7 +19,7 @@ const minPropertiesErrorHandler = {
         continue;
       }
 
-      const minProperties = /** @type number */ (getCompiledKeywordValue(context.ast, schemaLocation));
+      const minProperties = /** @type number */ (normalizedErrors["https://json-schema.org/keyword/minProperties"][schemaLocation].value);
 
       if (minProperties > highestMinProperties) {
         highestMinProperties = minProperties;
@@ -39,7 +39,7 @@ const minPropertiesErrorHandler = {
   },
 
   success: (normalizedOutput, instance, context) => {
-    return describeKeyword(normalizedOutput, "https://json-schema.org/keyword/minProperties", instance, context.ast, (/** @type number */ minProperties) => {
+    return describeKeyword(normalizedOutput, "https://json-schema.org/keyword/minProperties", instance, (/** @type number */ minProperties) => {
       return context.localization.getMinPropertiesSuccessMessage(minProperties);
     });
   }

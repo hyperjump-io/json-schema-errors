@@ -1,4 +1,4 @@
-import { getCompiledKeywordValue, getErrors } from "../../json-schema-errors.js";
+import { getErrors } from "../../json-schema-errors.js";
 import { describeSchemaDependencies } from "../dependentSchemas.js";
 
 /**
@@ -32,7 +32,7 @@ const dependenciesErrorHandler = {
 
     for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/draft-04/dependencies"]) {
       // Array-form dependencies are handled with 'required'
-      const dependencies = /** @type [string, string | string[]][] */ (getCompiledKeywordValue(context.ast, schemaLocation));
+      const dependencies = /** @type [string, string | string[]][] */ (normalizedOutput["https://json-schema.org/keyword/draft-04/dependencies"][schemaLocation].value);
       const schemaDependencies = /** @type [string, string][] */ (dependencies.filter(([, dependency]) => typeof dependency === "string"));
       const outputs = normalizedOutput["https://json-schema.org/keyword/draft-04/dependencies"][schemaLocation].outputs ?? [];
       successes.push(...describeSchemaDependencies(schemaDependencies, outputs, instance, context));

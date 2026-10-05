@@ -1,5 +1,5 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
-import { allTrue, allowsAnyValue, countTrue, describeEach, getCompiledKeywordValue, getPlaceholder, getSiblingKeywordLocation, getSuccesses, isFailing, isPassing, limitItems, negate, someTrue } from "../json-schema-errors.js";
+import { allTrue, allowsAnyValue, countTrue, describeEach, getPlaceholder, getSiblingKeywordLocation, getSuccesses, getValidity, negate, someTrue } from "../json-schema-errors.js";
 
 /**
  * @import { ContainsAst } from "../normalization-handlers/contains.js"
@@ -27,7 +27,7 @@ const containsErrorHandler = {
         /** @type string[] */
         const schemaLocations = [schemaLocation];
 
-        const contains = /** @type ContainsAst */ (getCompiledKeywordValue(context.ast, schemaLocation));
+        const contains = /** @type ContainsAst */ (normalizedErrors[keywordUri][schemaLocation].value);
 
         /** @type ContainsRange */
         const range = {};
@@ -49,7 +49,7 @@ const containsErrorHandler = {
             const itemOutputs = containsOutput.outputs ?? [];
             const matches = items.flatMap((item, index) => {
               const itemOutput = itemOutputs[index];
-              return itemOutput && isPassing(itemOutput) ? [{ item, itemOutput }] : [];
+              return itemOutput && getValidity(itemOutput) === true ? [{ item, itemOutput }] : [];
             });
             if (matches.length > contains.maxContains) {
               const descriptions = matches.map(({ itemOutput }) => {
@@ -61,7 +61,7 @@ const containsErrorHandler = {
                 matches.forEach(({ item }, index) => {
                   errors.push({
                     message: context.localization.getContainsTooManyErrorMessage(contains.maxContains),
-                    alternatives: [limitItems(descriptions[index], item, context)],
+                    alternatives: [descriptions[index]],
                     instanceLocation: Instance.uri(item),
                     schemaLocations: [schemaLocation, maxContainsLocation]
                   });
@@ -89,7 +89,7 @@ const containsErrorHandler = {
         if (description.length > 0) {
           errors.push({
             message: context.localization.getContainsErrorMessage(range, true),
-            alternatives: [limitItems(description, instance, context)],
+            alternatives: [description],
             instanceLocation: Instance.uri(instance),
             schemaLocations: schemaLocations
           });
@@ -121,15 +121,15 @@ const containsErrorHandler = {
       for (const schemaLocation in normalizedOutput[keywordUri]) {
         const itemOutputs = normalizedOutput[keywordUri][schemaLocation].outputs ?? [];
 
-        const contains = /** @type ContainsAst | string */ (getCompiledKeywordValue(context.ast, schemaLocation));
+        const contains = /** @type ContainsAst | string */ (normalizedOutput[keywordUri][schemaLocation].value);
         const minContains = typeof contains === "string" ? 1 : contains.minContains;
         const maxContains = typeof contains === "string" || contains.maxContains === Number.MAX_SAFE_INTEGER
           ? Infinity
           : contains.maxContains;
 
-        const isKnown = itemOutputs.every((itemOutput) => isPassing(itemOutput) || isFailing(itemOutput));
-        const matching = itemOutputs.filter(isPassing);
-        const notMatching = itemOutputs.filter((itemOutput) => !isPassing(itemOutput));
+        const isKnown = itemOutputs.every((itemOutput) => getValidity(itemOutput) !== undefined);
+        const matching = itemOutputs.filter((itemOutput) => getValidity(itemOutput) === true);
+        const notMatching = itemOutputs.filter((itemOutput) => getValidity(itemOutput) !== true);
 
         /** @type (itemOutput: NormalizedOutput, context: ErrorHandlerContext) => ErrorObject[] */
         const describe = (itemOutput, context) => getSuccesses(itemOutput, instance, context);

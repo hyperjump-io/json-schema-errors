@@ -1,5 +1,5 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
-import { describeKeyword, getCompiledKeywordValue } from "../json-schema-errors.js";
+import { describeKeyword } from "../json-schema-errors.js";
 
 /**
  * @import { ErrorHandler, ErrorObject } from "../index.d.ts"
@@ -16,7 +16,7 @@ const patternErrorHandler = {
         continue;
       }
 
-      const compiledPattern = /** @type RegExp */ (getCompiledKeywordValue(context.ast, schemaLocation));
+      const compiledPattern = /** @type RegExp */ (normalizedErrors["https://json-schema.org/keyword/pattern"][schemaLocation].value);
       const pattern = compiledPattern.source;
 
       errors.push({
@@ -30,7 +30,7 @@ const patternErrorHandler = {
   },
 
   success: (normalizedOutput, instance, context) => {
-    return describeKeyword(normalizedOutput, "https://json-schema.org/keyword/pattern", instance, context.ast, (/** @type RegExp */ pattern) => {
+    return describeKeyword(normalizedOutput, "https://json-schema.org/keyword/pattern", instance, (/** @type RegExp */ pattern) => {
       return context.localization.getPatternSuccessMessage(pattern.source);
     });
   }

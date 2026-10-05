@@ -212,6 +212,8 @@ the instance and picks out the ones it handles.
 
 `error` describes keywords that failed. A result's `valid` is `false` if the
 keyword failed, `true` if it passed, and `undefined` if the result isn't known.
+Its `value` is the keyword's value as compiled by the keyword's
+`@hyperjump/json-schema` definition.
 
 `success` describes what keywords require. It's used to explain failures caused
 by a subschema passing, such as with `not`. In a negated context, it describes
@@ -222,7 +224,7 @@ specific.
 
 ```TypeScript
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
-import { getCompiledKeywordValue, setErrorHandler } from "@hyperjump/json-schema-errors";
+import { setErrorHandler } from "@hyperjump/json-schema-errors";
 import type { ErrorObject } from "@hyperjump/json-schema-errors";
 
 const KEYWORD_URI = "https://example.com/keyword/startsWith";
@@ -232,11 +234,12 @@ setErrorHandler("https://example.com/error-handler/startsWith", {
     const errors: ErrorObject[] = [];
 
     for (const schemaLocation in normalizedErrors[KEYWORD_URI]) {
-      if (normalizedErrors[KEYWORD_URI][schemaLocation].valid !== false) {
+      const { valid, value } = normalizedErrors[KEYWORD_URI][schemaLocation];
+      if (valid !== false) {
         continue;
       }
 
-      const prefix = getCompiledKeywordValue(context.ast, schemaLocation) as string;
+      const prefix = value as string;
       errors.push({
         message: context.localization.format("startsWith-message", { prefix }),
         instanceLocation: Instance.uri(instance),
@@ -251,7 +254,7 @@ setErrorHandler("https://example.com/error-handler/startsWith", {
     const successes: ErrorObject[] = [];
 
     for (const schemaLocation in normalizedOutput[KEYWORD_URI]) {
-      const prefix = getCompiledKeywordValue(context.ast, schemaLocation) as string;
+      const prefix = normalizedOutput[KEYWORD_URI][schemaLocation].value as string;
       successes.push({
         message: context.localization.formatRequirement("startsWith", { prefix }),
         instanceLocation: Instance.uri(instance),
@@ -284,8 +287,24 @@ setNormalizationHandler(KEYWORD_URI, {
 });
 ```
 
-See the `anyOf` or `oneOf` normalization and error handlers for an example of
-implementing an applicator that also asserts.
+Applicators that make assertions of their own, like `not` or `anyOf`, need an
+error handler that describes their subschemas. A keyword result's `outputs` has
+the normalized output of each subschema. These functions help describe them.
+
+- `getErrors` and `getSuccesses` describe a subschema's errors or what it
+  requires. `getSuccesses` can describe a subschema the validator didn't
+  evaluate from its schema location.
+- `negate` gives a context that describes what would make a subschema fail
+  instead of what it requires.
+- `getValidity` says whether a subschema passed, failed, or if it isn't known.
+- `someTrue`, `allTrue`, and `countTrue` group descriptions of subschemas, such
+  as when at least one of them needs to be true.
+- `getPlaceholder`, `isPlaceholder`, `describeConditional`, and `describeScope`
+  describe values that aren't present, such as a property that would only need
+  to match a subschema if it were present.
+
+Long lists of messages are shortened automatically. See the `not`, `anyOf`, and
+`properties` error handlers for examples.
 
 ## Examples
 
