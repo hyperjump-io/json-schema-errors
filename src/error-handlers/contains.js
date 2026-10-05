@@ -1,5 +1,5 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
-import { allTrue, allowsAnyValue, countTrue, describeEach, getCompiledKeywordValue, getPlaceholder, getSiblingKeywordLocation, getSuccesses, isFailing, isPassing, someTrue } from "../json-schema-errors.js";
+import { allTrue, allowsAnyValue, countTrue, describeEach, getCompiledKeywordValue, getPlaceholder, getSiblingKeywordLocation, getSuccesses, isFailing, isPassing, limitItems, someTrue } from "../json-schema-errors.js";
 
 /**
  * @import { ContainsAst } from "../normalization-handlers/contains.js"
@@ -61,7 +61,7 @@ const containsErrorHandler = {
                 matches.forEach(({ item }, index) => {
                   errors.push({
                     message: localization.getContainsTooManyErrorMessage(contains.maxContains),
-                    alternatives: [descriptions[index]],
+                    alternatives: [limitItems(descriptions[index], item, localization)],
                     instanceLocation: Instance.uri(item),
                     schemaLocations: [schemaLocation, maxContainsLocation]
                   });
@@ -89,7 +89,7 @@ const containsErrorHandler = {
         if (description.length > 0) {
           errors.push({
             message: localization.getContainsErrorMessage(range, true),
-            alternatives: [description],
+            alternatives: [limitItems(description, instance, localization)],
             instanceLocation: Instance.uri(instance),
             schemaLocations: schemaLocations
           });

@@ -1,6 +1,6 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
 import * as Pact from "@hyperjump/pact";
-import { allTrue, allowsAnyValue, countTrue, getCompiledKeywordValue, getErrors, getSuccesses, isPassing, someTrue } from "../json-schema-errors.js";
+import { allTrue, allowsAnyValue, countTrue, getCompiledKeywordValue, getErrors, getSuccesses, isPassing, limitItems, limitOptions, someTrue } from "../json-schema-errors.js";
 
 /**
  * @import { AST } from "@hyperjump/json-schema/experimental"
@@ -171,7 +171,10 @@ const multipleMatchesError = (matches, schemaLocation, instance, localization, a
 
   return {
     message: localization.getOneOfMultipleMatchesErrorMessage(),
-    alternatives: removeCommonSuccesses(alternatives),
+    // Options are shown in the same order as the alternatives
+    alternatives: limitOptions(removeCommonSuccesses(alternatives).map((alternative) => {
+      return limitItems(alternative, instance, localization);
+    }), instance, localization, false),
     instanceLocation: Instance.uri(instance),
     schemaLocations: [schemaLocation]
   };

@@ -429,6 +429,15 @@ export class Localization {
     }
   }
 
+  /** @type (count: number) => string */
+  getNotShownMessage(count) {
+    return this.#formatMessage("not-shown-message", { count });
+  }
+
+  getDetailsNotShownMessage() {
+    return this.#formatMessage("details-not-shown-message", {});
+  }
+
   getAllTrueMessage() {
     return this.#formatMessage("all-true-message", {});
   }
