@@ -52,7 +52,7 @@ const typeConstEnumErrorHandler = {
 
       const keywordJson = new Set();
       const constValueJson = /** @type string */ (normalizedErrors["https://json-schema.org/keyword/const"][schemaLocation].value);
-      if (allowedTypes.has(jsonTypeOf(constValueJson))) {
+      if (isAllowedType(constValueJson, allowedTypes)) {
         keywordJson.add(constValueJson);
       } else {
         typeFiltered = true;
@@ -70,7 +70,7 @@ const typeConstEnumErrorHandler = {
       const keywordJson = new Set();
       const enumValuesJson = /** @type string[] */ (normalizedErrors["https://json-schema.org/keyword/enum"][schemaLocation].value);
       for (const enumValueJson of enumValuesJson) {
-        if (allowedTypes.has(jsonTypeOf(enumValueJson))) {
+        if (isAllowedType(enumValueJson, allowedTypes)) {
           keywordJson.add(enumValueJson);
         } else {
           typeFiltered = true;
@@ -125,6 +125,13 @@ const typeConstEnumErrorHandler = {
       })
     ];
   }
+};
+
+/** @type (json: string, allowedTypes: Set<string>) => boolean */
+const isAllowedType = (json, allowedTypes) => {
+  const type = jsonTypeOf(json);
+  return allowedTypes.has(type)
+    || (type === "number" && allowedTypes.has("integer") && Number.isInteger(JSON.parse(json)));
 };
 
 /**
