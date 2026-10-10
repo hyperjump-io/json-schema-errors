@@ -22,6 +22,132 @@
       ]
     },
     {
+      "description": "enum with integer type preserves integers",
+      "schema": { "type": "integer", "enum": [1, 2] },
+      "instance": "hello",
+      "errors": [
+        {
+          "messageId": "enum-message",
+          "messageParams": { "expected": { "or": ["1", "2"] }, "count": 2 },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/enum"]
+        }
+      ]
+    },
+    {
+      "description": "enum with integer type filters fractions",
+      "schema": { "type": "integer", "enum": [1, 1.5] },
+      "instance": "hello",
+      "errors": [
+        {
+          "messageId": "const-message",
+          "messageParams": { "expected": "1" },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/type", "#/enum"]
+        }
+      ]
+    },
+    {
+      "description": "enum with number type preserves integers and fractions",
+      "schema": { "type": "number", "enum": [1, 1.5] },
+      "instance": "hello",
+      "errors": [
+        {
+          "messageId": "enum-message",
+          "messageParams": { "expected": { "or": ["1", "1.5"] }, "count": 2 },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/enum"]
+        }
+      ]
+    },
+    {
+      "description": "enum with string type preserves strings",
+      "schema": { "type": "string", "enum": ["a", "b"] },
+      "instance": 42,
+      "errors": [
+        {
+          "messageId": "enum-message",
+          "messageParams": { "expected": { "or": ["\"a\"", "\"b\""] }, "count": 2 },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/enum"]
+        }
+      ]
+    },
+    {
+      "description": "enum with integer and string types filters fractions",
+      "schema": { "type": ["integer", "string"], "enum": [1, "a", 1.5] },
+      "instance": null,
+      "errors": [
+        {
+          "messageId": "enum-message",
+          "messageParams": { "expected": { "or": ["1", "\"a\""] }, "count": 2 },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/type", "#/enum"]
+        }
+      ]
+    },
+    {
+      "description": "enum with integer type preserves negative integers and zero at nested locations",
+      "schema": {
+        "properties": {
+          "value": { "type": "integer", "enum": [-2, 0, -1.5] }
+        }
+      },
+      "instance": { "value": "hello" },
+      "errors": [
+        {
+          "messageId": "enum-message",
+          "messageParams": { "expected": { "or": ["-2", "0"] }, "count": 2 },
+          "instanceLocation": "#/value",
+          "schemaLocations": ["#/properties/value/type", "#/properties/value/enum"]
+        }
+      ]
+    },
+    {
+      "description": "enum with integer type handles exponential notation",
+      "schema": { "type": "integer", "enum": [1e21, 1e-7] },
+      "instance": "hello",
+      "errors": [
+        {
+          "messageId": "const-message",
+          "messageParams": { "expected": "1e+21" },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/type", "#/enum"]
+        }
+      ]
+    },
+    {
+      "description": "enum with integer type rejects fractions and numeric strings",
+      "schema": { "type": "integer", "enum": [1.5, "1"] },
+      "instance": "hello",
+      "errors": [
+        {
+          "messageId": "boolean-schema-message",
+          "messageParams": {},
+          "instanceLocation": "#",
+          "schemaLocations": ["#/type", "#/enum"]
+        }
+      ]
+    },
+    {
+      "description": "enum with integer type passes",
+      "schema": { "type": "integer", "enum": [-2, 0, 1.5] },
+      "instance": 0,
+      "errors": []
+    },
+    {
+      "description": "enum with number type passes for fractions",
+      "schema": { "type": "number", "enum": [1, 1.5] },
+      "instance": 1.5,
+      "errors": []
+    },
+    {
+      "description": "enum with integer and string types passes for strings",
+      "schema": { "type": ["integer", "string"], "enum": [1, "a", 1.5] },
+      "instance": "a",
+      "errors": []
+    },
+    {
       "description": "enum pass",
       "schema": {
         "enum": ["foo", "bar"]

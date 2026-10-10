@@ -22,6 +22,41 @@
       ]
     },
     {
+      "description": "const with integer type preserves integers",
+      "compatibility": "6",
+      "schema": { "type": "integer", "const": 1 },
+      "instance": "hello",
+      "errors": [
+        {
+          "messageId": "const-message",
+          "messageParams": { "expected": "1" },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/const"]
+        }
+      ]
+    },
+    {
+      "description": "const with integer type rejects fractions",
+      "compatibility": "6",
+      "schema": { "type": "integer", "const": 1.5 },
+      "instance": "hello",
+      "errors": [
+        {
+          "messageId": "boolean-schema-message",
+          "messageParams": {},
+          "instanceLocation": "#",
+          "schemaLocations": ["#/type", "#/const"]
+        }
+      ]
+    },
+    {
+      "description": "const with integer type passes",
+      "compatibility": "6",
+      "schema": { "type": "integer", "const": -1 },
+      "instance": -1,
+      "errors": []
+    },
+    {
       "description": "const pass",
       "compatibility": "6",
       "schema": {
