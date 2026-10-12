@@ -1,5 +1,5 @@
 import { translations } from "./translations/index.js";
-import { FluentBundle, FluentResource } from "@fluent/bundle";
+import { FluentBundle, FluentNumber, FluentResource } from "@fluent/bundle";
 
 /**
  * @import { FluentVariable} from "@fluent/bundle"
@@ -213,7 +213,10 @@ export class Localization {
 
   /** @type (multipleOf: number) => string */
   getMultipleOfErrorMessage(multipleOf) {
-    return this.format("multipleOf-message", { multipleOf });
+    return this.format("multipleOf-message", {
+      // Fluent's default three fractional digits would display small multiples as zero.
+      multipleOf: new FluentNumber(multipleOf, { maximumSignificantDigits: 21 })
+    });
   }
 
   /** @type (maxLength: number) => string */

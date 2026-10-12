@@ -11,29 +11,38 @@ const multipleOfErrorHandler = {
     /** @type ErrorObject[] */
     const errors = [];
 
-    /** @type (number | null) */
-    let combinedMultipleOf = null;
+    /** @type number[] */
+    const multiples = [];
     /** @type string[] */
     const schemaLocations = [];
-    let hasError = false;
 
     for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/multipleOf"]) {
+      const multipleOf = /** @type number */ (normalizedErrors["https://json-schema.org/keyword/multipleOf"][schemaLocation].value);
       if (normalizedErrors["https://json-schema.org/keyword/multipleOf"][schemaLocation].valid === false) {
-        hasError = true;
+        errors.push({
+          message: context.localization.getMultipleOfErrorMessage(multipleOf),
+          instanceLocation: Instance.uri(instance),
+          schemaLocations: [schemaLocation]
+        });
       }
 
-      const multipleOf = /** @type number */ (normalizedErrors["https://json-schema.org/keyword/multipleOf"][schemaLocation].value);
-
-      combinedMultipleOf = combinedMultipleOf === null ? multipleOf : lcm(combinedMultipleOf, multipleOf);
+      multiples.push(multipleOf);
       schemaLocations.push(schemaLocation);
     }
 
-    if (combinedMultipleOf !== null && hasError) {
-      errors.push({
+    if (errors.length > 0) {
+      const combinedMultipleOf = lcm(multiples);
+      // If the exact LCM cannot be represented as a number, describe the
+      // original failing constraints rather than a rounded or infinite multiple.
+      if (combinedMultipleOf === null) {
+        return errors;
+      }
+
+      return [{
         message: context.localization.getMultipleOfErrorMessage(combinedMultipleOf),
         instanceLocation: Instance.uri(instance),
         schemaLocations
-      });
+      }];
     }
 
     return errors;
@@ -48,40 +57,59 @@ const multipleOfErrorHandler = {
 
 /**
  * @param {number} value
- * @returns {number}
+ * @returns {{ coefficient: bigint, exponent: number }}
  */
-const countDecimals = (value) => value.toString().split(".")[1]?.length || 0;
+const toDecimal = (value) => {
+  const [mantissa, exponent = "0"] = value.toString().split("e");
+  const decimals = mantissa.split(".")[1]?.length ?? 0;
+  return {
+    coefficient: BigInt(mantissa.replace(".", "")),
+    exponent: Number(exponent) - decimals
+  };
+};
 
 /**
- * @param {number} a
- * @param {number} b
- * @returns {number}
+ * @param {bigint} x
+ * @param {bigint} y
+ * @returns {bigint}
  */
-const gcd = (a, b) => {
-  const m = 10 ** Math.max(countDecimals(a), countDecimals(b));
-  let x = Math.round(a * m);
-  let y = Math.round(b * m);
-
-  while (y !== 0) {
+const gcd = (x, y) => {
+  while (y !== 0n) {
     const temp = y;
     y = x % y;
     x = temp;
   }
 
-  return Math.abs(x) / m;
+  return x;
 };
 
 /**
- * @param {number} a
- * @param {number} b
- * @returns {number}
+ * @param {number[]} multiples
+ * @returns {number | null}
  */
-const lcm = (a, b) => {
-  const m = 10 ** Math.max(countDecimals(a), countDecimals(b));
-  const x = Math.round(a * m);
-  const y = Math.round(b * m);
+const lcm = (multiples) => {
+  // Use the decimal representations of the schema values. Keep a common scale
+  // and exact integers throughout, including when combining three or more values.
+  const decimals = multiples.map(toDecimal);
+  const exponent = decimals.reduce((min, decimal) => Math.min(min, decimal.exponent), Infinity);
+  let combined = 1n;
+  for (const decimal of decimals) {
+    const integer = decimal.coefficient * 10n ** BigInt(decimal.exponent - exponent);
+    combined = (combined / gcd(combined, integer)) * integer;
+  }
 
-  return Math.abs(x * y) / (gcd(x, y) * m);
+  const result = Number(`${combined}e${exponent}`);
+  if (!Number.isFinite(result)) {
+    return null;
+  }
+
+  // A finite result can still have lost significant digits during conversion.
+  const rounded = toDecimal(result);
+  const commonExponent = Math.min(exponent, rounded.exponent);
+  return combined * 10n ** BigInt(exponent - commonExponent)
+    === rounded.coefficient * 10n ** BigInt(rounded.exponent - commonExponent)
+    ? result
+    : null;
 };
 
 export default multipleOfErrorHandler;
