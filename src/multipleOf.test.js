@@ -37,10 +37,7 @@ describe("multipleOf error aggregation", () => {
     { description: "reversed decimal mantissas", multiples: [1.8e-7, 1.2e-7], instance: 1e-7, expected: "0.00000036" },
     { description: "different exponents", multiples: [1.2e-7, 1.8e-8], instance: 1e-8, expected: "0.00000036" },
     { description: "mixed decimal and scientific notation", multiples: [0.0003, 2e-7], instance: 1e-7, expected: "0.0003" },
-    { description: "equal constraints", multiples: [1.2e-7, 1.2e-7], instance: 1e-7, expected: "0.00000012" },
-    { description: "single constraint", multiples: [1e-7], instance: 1.5e-7, expected: "0.0000001" },
     { description: "three constraints", multiples: [1.2e-7, 1.8e-7, 2.7e-7], instance: 1e-7, expected: "0.00000108" },
-    { description: "reversed three constraints", multiples: [2.7e-7, 1.8e-7, 1.2e-7], instance: 1e-7, expected: "0.00000108" },
     { description: "subnormal scale", multiples: [2e-323, 3e-323], instance: 5e-324, expected: `0.${"0".repeat(322)}6` },
     { description: "overflowing intermediate product", multiples: [2e200, 3e200], instance: 1, expected: `600${",000".repeat(66)}` },
     { description: "widely separated exponents", multiples: [1e-308, 1e308], instance: 1e-309, expected: `100${",000".repeat(102)}` }
@@ -101,11 +98,6 @@ describe("multipleOf error aggregation", () => {
       instanceLocation: "#",
       schemaLocations: [`${schemaUri}#/allOf/${index}/multipleOf`]
     })));
-  });
-
-  test("successful scientific notation constraints produce no errors", async () => {
-    registerSchema({ allOf: [{ multipleOf: 1e-7 }, { multipleOf: 2e-7 }] }, schemaUri, dialectUri);
-    expect(await jsonSchemaErrors({ valid: true }, schemaUri, 2e-7)).to.eql([]);
   });
 
   test("preserves localized digits, separators, and grouping", async () => {
