@@ -1,6 +1,7 @@
 import { beforeAll, afterAll, describe, expect, test } from "vitest";
 import { translations } from "./translations/index.js";
 import { addTranslation, Localization } from "./localization.js";
+import { FluentNumber } from "@fluent/bundle";
 
 describe("Localization", () => {
   const fixtureLocale = "fx-TR";
@@ -95,5 +96,51 @@ fx-keyword-negated-message = Fails {$value}
     const localization = Localization.forLocale("en-US");
     expect(localization.or(["a", "b", "c"])).to.equal("a, b, or c");
     expect(localization.and(["a", "b", "c"])).to.equal("a, b, and c");
+  });
+
+  describe("numeric formatting", () => {
+    beforeAll(() => {
+      for (const locale of ["en-US", "de-DE", "ar-EG"]) {
+        addTranslation(locale, `
+fx-number = {$value}
+fx-number-explicit = {NUMBER($value, maximumFractionDigits: 2)}
+fx-number-significant = {NUMBER($value, maximumSignificantDigits: 3)}
+fx-number-select = {$value ->
+  [0] zero
+  [1] exactly one
+  [one] singular
+ *[other] plural
+}
+`);
+      }
+    });
+
+    test("retains significant digits across the finite number range", () => {
+      const localization = Localization.forLocale("en-US");
+      for (const value of [0, -1e-7, 2.5e-8, 1.2345678901234567, 1.0000000000000002, Number.MIN_VALUE, Number.MAX_VALUE, Number.MAX_SAFE_INTEGER, 1000000000000000100]) {
+        const formatted = localization.format("fx-number", { value });
+        expect.soft(Number(formatted.replaceAll(",", "")), formatted).to.equal(value);
+      }
+    });
+
+    test.each([
+      { locale: "de-DE", small: "0,000000025", large: "1.234,56789" },
+      { locale: "ar-EG", small: "٠٫٠٠٠٠٠٠٠٢٥", large: "١٬٢٣٤٫٥٦٧٨٩" }
+    ])("preserves $locale digits, separators, and grouping", ({ locale, small, large }) => {
+      const localization = Localization.forLocale(locale);
+      expect.soft(localization.format("fx-number", { value: 2.5e-8 })).to.equal(small);
+      expect.soft(localization.format("fx-number", { value: 1234.56789 })).to.equal(large);
+    });
+
+    test("preserves explicit Fluent formatting and numeric selectors", () => {
+      const localization = Localization.forLocale("de-DE");
+      expect(localization.format("fx-number-explicit", { value: 1234.56789 })).to.equal("1.234,57");
+      expect(localization.format("fx-number-significant", { value: 1234.56789 })).to.equal("1.230");
+      const args = { value: new FluentNumber(1.2, { minimumFractionDigits: 2 }) };
+      expect(localization.format("fx-number", args)).to.equal("1,20");
+      for (const [value, expected] of [[0, "zero"], [1, "exactly one"], [1.0001, "singular"], [2, "plural"]]) {
+        expect(localization.format("fx-number-select", { value })).to.equal(expected);
+      }
+    });
   });
 });

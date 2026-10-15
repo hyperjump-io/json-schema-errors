@@ -1,5 +1,5 @@
 import { translations } from "./translations/index.js";
-import { FluentBundle, FluentResource } from "@fluent/bundle";
+import { FluentBundle, FluentNumber, FluentResource } from "@fluent/bundle";
 
 /**
  * @import { FluentVariable} from "@fluent/bundle"
@@ -13,6 +13,17 @@ const bundles = new Map();
 
 /** @type Map<string, Localization> */
 const localizationCache = new Map();
+
+// Change implicit number rendering without changing Fluent's plural selection
+// or the formatting chosen explicitly by NUMBER() in a translation.
+class MessageNumber extends FluentNumber {
+  /** @param {Parameters<FluentNumber["toString"]>[0]} [scope] */
+  toString(scope) {
+    // Significant digits cover the full Number range, including subnormals,
+    // without Fluent's default rounding to three fractional digits.
+    return new FluentNumber(this.valueOf(), { maximumSignificantDigits: 21 }).toString(scope);
+  }
+}
 
 /** @type (locale: string, direction: "ltr" | "rtl") => FluentBundle */
 const createBundle = (locale, direction) => {
@@ -106,10 +117,13 @@ export class Localization {
    * @type (messageId: string, args?: Record<string, FluentVariable>) => string
    */
   format(messageId, args = {}) {
+    const localizedArgs = Object.fromEntries(Object.entries(args).map(([name, value]) => [
+      name, typeof value === "number" ? new MessageNumber(value) : value
+    ]));
     for (const bundle of [this.bundle, getBundle(DEFAULT_LOCALE)]) {
       const message = bundle?.getMessage(messageId);
       if (bundle && message?.value) {
-        return bundle.formatPattern(message.value, args);
+        return bundle.formatPattern(message.value, localizedArgs);
       }
     }
 
