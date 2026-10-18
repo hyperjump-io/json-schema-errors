@@ -29,6 +29,23 @@
       "errors": []
     },
     {
+      "description": "maximum with more than three decimal places",
+      "schema": {
+        "maximum": 1.2345
+      },
+      "instance": 2,
+      "errors": [
+        {
+          "messageId": "maximum-message",
+          "messageParams": {
+            "maximum": "1.2345"
+          },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/maximum"]
+        }
+      ]
+    },
+    {
       "description": "exclusiveMaximum",
       "compatibility": "6",
       "schema": {

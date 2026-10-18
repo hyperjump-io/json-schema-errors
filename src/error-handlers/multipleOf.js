@@ -30,22 +30,22 @@ const multipleOfErrorHandler = {
       schemaLocations.push(schemaLocation);
     }
 
-    if (errors.length > 0) {
-      const combinedMultipleOf = lcm(multiples);
-      // If the exact LCM cannot be represented as a number, describe the
-      // original failing constraints rather than a rounded or infinite multiple.
-      if (combinedMultipleOf === null) {
-        return errors;
-      }
-
-      return [{
-        message: context.localization.getMultipleOfErrorMessage(combinedMultipleOf),
-        instanceLocation: Instance.uri(instance),
-        schemaLocations
-      }];
+    if (errors.length === 0 || multiples.length === 1) {
+      return errors;
     }
 
-    return errors;
+    const combinedMultipleOf = lcm(multiples);
+    // If the LCM can't be computed exactly, describe the original failing
+    // constraints instead.
+    if (combinedMultipleOf === null) {
+      return errors;
+    }
+
+    return [{
+      message: context.localization.getMultipleOfErrorMessage(combinedMultipleOf),
+      instanceLocation: Instance.uri(instance),
+      schemaLocations
+    }];
   },
 
   success: (normalizedOutput, instance, context) => {
@@ -55,61 +55,32 @@ const multipleOfErrorHandler = {
   }
 };
 
-/**
- * @param {number} value
- * @returns {{ coefficient: bigint, exponent: number }}
- */
-const toDecimal = (value) => {
+/** @type (value: number) => number */
+const countDecimals = (value) => {
   const [mantissa, exponent = "0"] = value.toString().split("e");
-  const decimals = mantissa.split(".")[1]?.length ?? 0;
-  return {
-    coefficient: BigInt(mantissa.replace(".", "")),
-    exponent: Number(exponent) - decimals
-  };
+  return Math.max((mantissa.split(".")[1]?.length ?? 0) - Number(exponent), 0);
 };
 
-/**
- * @param {bigint} x
- * @param {bigint} y
- * @returns {bigint}
- */
-const gcd = (x, y) => {
-  while (y !== 0n) {
-    const temp = y;
-    y = x % y;
-    x = temp;
-  }
+/** @type (a: number, b: number) => number */
+const gcd = (a, b) => b === 0 ? Math.abs(a) : gcd(b, a % b);
 
-  return x;
-};
-
-/**
- * @param {number[]} multiples
- * @returns {number | null}
- */
+/** @type (multiples: number[]) => number | null */
 const lcm = (multiples) => {
-  // Use the decimal representations of the schema values. Keep a common scale
-  // and exact integers throughout, including when combining three or more values.
-  const decimals = multiples.map(toDecimal);
-  const exponent = decimals.reduce((min, decimal) => Math.min(min, decimal.exponent), Infinity);
-  let combined = 1n;
-  for (const decimal of decimals) {
-    const integer = decimal.coefficient * 10n ** BigInt(decimal.exponent - exponent);
-    combined = (combined / gcd(combined, integer)) * integer;
+  const m = 10 ** Math.max(...multiples.map(countDecimals));
+  let combined = 1;
+  for (const multiple of multiples) {
+    const integer = Math.round(multiple * m);
+    if (!Number.isSafeInteger(integer)) {
+      return null;
+    }
+
+    combined = Math.abs(combined / gcd(combined, integer) * integer);
+    if (!Number.isSafeInteger(combined)) {
+      return null;
+    }
   }
 
-  const result = Number(`${combined}e${exponent}`);
-  if (!Number.isFinite(result)) {
-    return null;
-  }
-
-  // A finite result can still have lost significant digits during conversion.
-  const rounded = toDecimal(result);
-  const commonExponent = Math.min(exponent, rounded.exponent);
-  return combined * 10n ** BigInt(exponent - commonExponent)
-    === rounded.coefficient * 10n ** BigInt(rounded.exponent - commonExponent)
-    ? result
-    : null;
+  return combined / m;
 };
 
 export default multipleOfErrorHandler;

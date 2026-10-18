@@ -29,6 +29,23 @@
       "errors": []
     },
     {
+      "description": "minimum with more than three decimal places",
+      "schema": {
+        "minimum": 1e-7
+      },
+      "instance": 0,
+      "errors": [
+        {
+          "messageId": "minimum-message",
+          "messageParams": {
+            "minimum": "0.0000001"
+          },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/minimum"]
+        }
+      ]
+    },
+    {
       "description": "exclusiveMinimum",
       "compatibility": "6",
       "schema": {
