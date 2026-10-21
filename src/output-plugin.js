@@ -21,7 +21,7 @@ export class JsonSchemaErrorsOutputPlugin {
 
   /** @type NonNullable<EvaluationPlugin<ErrorsContext>["beforeSchema"]> */
   beforeSchema(_url, _instance, context) {
-    context.output = {};
+    context.output = Object.create(null);
   }
 
   /** @type NonNullable<EvaluationPlugin<ErrorsContext>["beforeKeyword"]> */
@@ -36,8 +36,8 @@ export class JsonSchemaErrorsOutputPlugin {
   afterKeyword(keywordNode, instance, context, valid, schemaContext) {
     const [keywordUri, schemaLocation, value] = keywordNode;
 
-    const instanceOutput = schemaContext.output[Instance.uri(instance)] ??= {};
-    const keywordOutput = instanceOutput[keywordUri] ??= {};
+    const instanceOutput = schemaContext.output[Instance.uri(instance)] ??= Object.create(null);
+    const keywordOutput = instanceOutput[keywordUri] ??= Object.create(null);
     keywordOutput[schemaLocation] = context.subSchemaOutput
       ? { valid, value, outputs: context.subSchemaOutput }
       : { valid, value };
@@ -46,8 +46,8 @@ export class JsonSchemaErrorsOutputPlugin {
   /** @type NonNullable<EvaluationPlugin<ErrorsContext>["afterSchema"]> */
   afterSchema(url, instance, context, valid) {
     if (typeof context.ast[url] === "boolean" && !valid) {
-      const instanceOutput = context.output[Instance.uri(instance)] ??= {};
-      const validationOutput = instanceOutput["https://json-schema.org/validation"] ??= {};
+      const instanceOutput = context.output[Instance.uri(instance)] ??= Object.create(null);
+      const validationOutput = instanceOutput["https://json-schema.org/validation"] ??= Object.create(null);
       validationOutput[url] = { valid, value: false };
     }
 
