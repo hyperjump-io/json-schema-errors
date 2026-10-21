@@ -36,9 +36,9 @@ export class JsonSchemaErrorsOutputPlugin {
   afterKeyword(keywordNode, instance, context, valid, schemaContext) {
     const [keywordUri, schemaLocation, value] = keywordNode;
 
-    schemaContext.output[Instance.uri(instance)] ??= {};
-    schemaContext.output[Instance.uri(instance)][keywordUri] ??= {};
-    schemaContext.output[Instance.uri(instance)][keywordUri][schemaLocation] = context.subSchemaOutput
+    const instanceOutput = schemaContext.output[Instance.uri(instance)] ??= {};
+    const keywordOutput = instanceOutput[keywordUri] ??= {};
+    keywordOutput[schemaLocation] = context.subSchemaOutput
       ? { valid, value, outputs: context.subSchemaOutput }
       : { valid, value };
   }
@@ -46,9 +46,9 @@ export class JsonSchemaErrorsOutputPlugin {
   /** @type NonNullable<EvaluationPlugin<ErrorsContext>["afterSchema"]> */
   afterSchema(url, instance, context, valid) {
     if (typeof context.ast[url] === "boolean" && !valid) {
-      context.output[Instance.uri(instance)] ??= {};
-      context.output[Instance.uri(instance)]["https://json-schema.org/validation"] ??= {};
-      context.output[Instance.uri(instance)]["https://json-schema.org/validation"][url] = { valid, value: false };
+      const instanceOutput = context.output[Instance.uri(instance)] ??= {};
+      const validationOutput = instanceOutput["https://json-schema.org/validation"] ??= {};
+      validationOutput[url] = { valid, value: false };
     }
 
     context.subSchemaOutput ??= [];
