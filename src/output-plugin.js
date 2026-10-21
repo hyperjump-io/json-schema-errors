@@ -8,6 +8,7 @@ import * as Instance from "@hyperjump/json-schema/instance/experimental";
 /**
  * @typedef {ValidationContext & {
  *   output: NormalizedOutput;
+ *   instanceUri: string;
  *   subSchemaOutput?: NormalizedOutput[];
  * }} ErrorsContext
  */
@@ -20,8 +21,10 @@ export class JsonSchemaErrorsOutputPlugin {
   }
 
   /** @type NonNullable<EvaluationPlugin<ErrorsContext>["beforeSchema"]> */
-  beforeSchema(_url, _instance, context) {
+  beforeSchema(_url, instance, context) {
     context.output = Object.create(null);
+    // A schema's keywords all apply to the same instance location
+    context.instanceUri = Instance.uri(instance);
   }
 
   /** @type NonNullable<EvaluationPlugin<ErrorsContext>["beforeKeyword"]> */
@@ -33,10 +36,10 @@ export class JsonSchemaErrorsOutputPlugin {
   // subschemas can be described
 
   /** @type NonNullable<EvaluationPlugin<ErrorsContext>["afterKeyword"]> */
-  afterKeyword(keywordNode, instance, context, valid, schemaContext) {
+  afterKeyword(keywordNode, _instance, context, valid, schemaContext) {
     const [keywordUri, schemaLocation, value] = keywordNode;
 
-    const instanceOutput = schemaContext.output[Instance.uri(instance)] ??= Object.create(null);
+    const instanceOutput = schemaContext.output[schemaContext.instanceUri] ??= Object.create(null);
     const keywordOutput = instanceOutput[keywordUri] ??= Object.create(null);
     keywordOutput[schemaLocation] = context.subSchemaOutput
       ? { valid, value, outputs: context.subSchemaOutput }
@@ -44,9 +47,9 @@ export class JsonSchemaErrorsOutputPlugin {
   }
 
   /** @type NonNullable<EvaluationPlugin<ErrorsContext>["afterSchema"]> */
-  afterSchema(url, instance, context, valid) {
+  afterSchema(url, _instance, context, valid) {
     if (typeof context.ast[url] === "boolean" && !valid) {
-      const instanceOutput = context.output[Instance.uri(instance)] ??= Object.create(null);
+      const instanceOutput = context.output[context.instanceUri] ??= Object.create(null);
       const validationOutput = instanceOutput["https://json-schema.org/validation"] ??= Object.create(null);
       validationOutput[url] = { valid, value: false };
     }
