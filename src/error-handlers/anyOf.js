@@ -1,6 +1,6 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
 import * as Pact from "@hyperjump/pact";
-import { allTrue, flattenOutput, getErrors, getSuccesses, someTrue } from "../json-schema-errors.js";
+import { allTrue, flattenOutput, getErrorsFromFlattenedOutput, getSuccesses, someTrue } from "../json-schema-errors.js";
 
 /**
  * @import { ErrorHandler, ErrorObject, InstanceOutput } from "../index.d.ts"
@@ -34,9 +34,7 @@ const anyOfErrorHandler = {
       const alternatives = [];
       const instanceLocation = Instance.uri(instance);
 
-      for (const [index, alternative] of anyOf.entries()) {
-        const results = alternativeResults[index];
-
+      for (const results of alternativeResults) {
         // Filter alternatives whose declared type doesn't match the instance type
         const typeResults = results[instanceLocation]?.["https://json-schema.org/keyword/type"];
         if (typeResults && !Object.values(typeResults).every(({ valid }) => valid)) {
@@ -56,13 +54,13 @@ const anyOfErrorHandler = {
         }
 
         // The alternative passed all the filters
-        alternatives.push(getErrors(alternative, instance, context));
+        alternatives.push(getErrorsFromFlattenedOutput(results, instance, context));
       }
 
       // If all alternatives were filtered out, default to returning all of them
       if (alternatives.length === 0) {
-        for (const alternative of anyOf) {
-          alternatives.push(getErrors(alternative, instance, context));
+        for (const results of alternativeResults) {
+          alternatives.push(getErrorsFromFlattenedOutput(results, instance, context));
         }
       }
 

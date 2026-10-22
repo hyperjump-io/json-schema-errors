@@ -668,6 +668,38 @@
           "schemaLocations": ["#/anyOf/1/properties/b/type"]
         }
       ]
+    },
+    {
+      "description": "anyOf reports an applied conditional in a selected alternative",
+      "compatibility": "7",
+      "schema": {
+        "anyOf": [
+          {
+            "if": {
+              "type": "number"
+            },
+            "then": {
+              "minimum": 5
+            }
+          },
+          {
+            "type": "string"
+          }
+        ]
+      },
+      "instance": 1,
+      "errors": [
+        {
+          "messageId": "minimum-message",
+          "messageParams": {
+            "minimum": 5
+          },
+          "instanceLocation": "#",
+          "schemaLocations": [
+            "#/anyOf/0/then/minimum"
+          ]
+        }
+      ]
     }
   ]
 }
