@@ -443,10 +443,14 @@ export const removeErrorHandler = (errorHandlerUri) => {
 
 /** @type API.getErrors */
 export const getErrors = (normalizedErrors, rootInstance, context) => {
+  return getErrorsFromFlattenedOutput(flattenOutput(normalizedErrors), rootInstance, context);
+};
+
+/** @type API.getErrors */
+export const getErrorsFromFlattenedOutput = (reportedOutput, rootInstance, context) => {
   /** @type API.ErrorObject[] */
   const errors = [];
 
-  const reportedOutput = flattenOutput(normalizedErrors);
   for (const instanceLocation in reportedOutput) {
     const instance = /** @type JsonNode */ (Instance.get(instanceLocation, rootInstance));
     for (const errorHandlerUri in errorHandlers) {
@@ -679,10 +683,14 @@ const sizeOf = (errorObjects) => errorObjects.reduce((size, errorObject) => {
  * @type API.getValidity
  */
 export const getValidity = (normalizedOutput) => {
+  return getValidityFromFlattenedOutput(flattenOutput(normalizedOutput));
+};
+
+/** @type API.getValidity */
+export const getValidityFromFlattenedOutput = (results) => {
   /** @type boolean | undefined */
   let validity = true;
 
-  const results = flattenOutput(normalizedOutput);
   for (const instanceLocation in results) {
     for (const keywordUri in results[instanceLocation]) {
       for (const schemaLocation in results[instanceLocation][keywordUri]) {
