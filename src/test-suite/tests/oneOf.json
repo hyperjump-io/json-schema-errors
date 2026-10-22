@@ -2324,6 +2324,178 @@
           "schemaLocations": ["#/oneOf"]
         }
       ]
+    },
+    {
+      "description": "oneOf reports an applied conditional in a selected alternative",
+      "compatibility": "7",
+      "schema": {
+        "oneOf": [
+          {
+            "if": {
+              "type": "number"
+            },
+            "then": {
+              "minimum": 5
+            }
+          },
+          {
+            "type": "string"
+          }
+        ]
+      },
+      "instance": 1,
+      "errors": [
+        {
+          "messageId": "minimum-message",
+          "messageParams": {
+            "minimum": 5
+          },
+          "instanceLocation": "#",
+          "schemaLocations": [
+            "#/oneOf/0/then/minimum"
+          ]
+        }
+      ]
+    },
+    {
+      "description": "oneOf matching alternative keeps direct and conditional references separate",
+      "compatibility": "2019",
+      "schema": {
+        "oneOf": [
+          {
+            "$ref": "#/$defs/user"
+          },
+          {
+            "required": [
+              "other"
+            ]
+          }
+        ],
+        "$defs": {
+          "base": {
+            "required": [
+              "id"
+            ]
+          },
+          "admin": {
+            "$ref": "#/$defs/base",
+            "required": [
+              "permissions"
+            ]
+          },
+          "user": {
+            "$ref": "#/$defs/base",
+            "if": {
+              "required": [
+                "admin"
+              ]
+            },
+            "then": {
+              "$ref": "#/$defs/admin"
+            }
+          }
+        }
+      },
+      "instance": {
+        "id": 1,
+        "admin": true,
+        "permissions": [],
+        "other": true
+      },
+      "errors": [
+        {
+          "messageId": "oneOf-multiple-matches-message",
+          "alternatives": [
+            [
+              {
+                "messageId": "count-true-message",
+                "messageParams": {
+                  "kind": "atLeast",
+                  "min": 1
+                },
+                "alternatives": [
+                  [
+                    {
+                      "messageId": "required-negated-message",
+                      "messageParams": {
+                        "count": 1,
+                        "required": {
+                          "or": [
+                            "'admin'"
+                          ]
+                        }
+                      },
+                      "instanceLocation": "#",
+                      "schemaLocations": [
+                        "#/$defs/user/if/required"
+                      ]
+                    }
+                  ],
+                  [
+                    {
+                      "messageId": "required-success-message",
+                      "messageParams": {
+                        "count": 2,
+                        "required": {
+                          "and": [
+                            "'id'",
+                            "'permissions'"
+                          ]
+                        }
+                      },
+                      "instanceLocation": "#",
+                      "schemaLocations": [
+                        "#/$defs/base/required",
+                        "#/$defs/admin/required"
+                      ]
+                    }
+                  ]
+                ],
+                "instanceLocation": "#",
+                "schemaLocations": [
+                  "#/$defs/user/if"
+                ]
+              },
+              {
+                "messageId": "required-success-message",
+                "messageParams": {
+                  "count": 1,
+                  "required": {
+                    "and": [
+                      "'id'"
+                    ]
+                  }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": [
+                  "#/$defs/base/required"
+                ]
+              }
+            ],
+            [
+              {
+                "messageId": "required-success-message",
+                "messageParams": {
+                  "count": 1,
+                  "required": {
+                    "and": [
+                      "'other'"
+                    ]
+                  }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": [
+                  "#/oneOf/1/required"
+                ]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": [
+            "#/oneOf"
+          ]
+        }
+      ]
     }
   ]
 }

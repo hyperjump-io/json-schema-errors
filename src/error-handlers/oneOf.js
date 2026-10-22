@@ -1,6 +1,6 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
 import * as Pact from "@hyperjump/pact";
-import { allowsAnyValue, allTrue, countTrue, flattenOutput, getErrors, getSuccesses, getValidity, negate, someTrue } from "../json-schema-errors.js";
+import { allowsAnyValue, allTrue, countTrue, flattenOutput, getErrorsFromFlattenedOutput, getSuccesses, getValidityFromFlattenedOutput, negate, someTrue } from "../json-schema-errors.js";
 
 /**
  * @import { JsonNode } from "@hyperjump/json-schema/instance/experimental"
@@ -19,10 +19,12 @@ const oneOfErrorHandler = {
         continue;
       }
       const oneOf = oneOfOutput.outputs ?? [];
+      const alternativeResults = oneOf.map(flattenOutput);
 
       const alternativeLocations = /** @type string[] */ (normalizedErrors["https://json-schema.org/keyword/oneOf"][schemaLocation].value);
+      // Descriptions need the original output to keep conditional requirements separate.
       const matches = alternativeLocations.flatMap((alternativeLocation, index) => {
-        return getValidity(oneOf[index]) === true ? [{ alternativeLocation, output: oneOf[index] }] : [];
+        return getValidityFromFlattenedOutput(alternativeResults[index]) === true ? [{ alternativeLocation, output: oneOf[index] }] : [];
       });
       if (matches.length > 1) {
         errors.push(multipleMatchesError(matches, schemaLocation, instance, context));
@@ -35,7 +37,6 @@ const oneOfErrorHandler = {
         Pact.collectArray
       );
 
-      const alternativeResults = oneOf.map(flattenOutput);
       const discriminators = propertyLocations.filter((propertyLocation) => {
         return alternativeResults.some((results) => isPassingProperty(results[propertyLocation]));
       });
@@ -43,9 +44,7 @@ const oneOfErrorHandler = {
       const alternatives = [];
       const instanceLocation = Instance.uri(instance);
 
-      for (const [index, alternative] of oneOf.entries()) {
-        const results = alternativeResults[index];
-
+      for (const results of alternativeResults) {
         // Filter alternatives whose declared type doesn't match the instance type
         const typeResults = results[instanceLocation]?.["https://json-schema.org/keyword/type"];
         if (typeResults && !Object.values(typeResults).every(({ valid }) => valid)) {
@@ -65,7 +64,7 @@ const oneOfErrorHandler = {
         }
 
         // The alternative passed all the filters
-        const alternativeErrors = getErrors(alternative, instance, context);
+        const alternativeErrors = getErrorsFromFlattenedOutput(results, instance, context);
         if (alternativeErrors.length) {
           alternatives.push(alternativeErrors);
         }
@@ -73,8 +72,8 @@ const oneOfErrorHandler = {
 
       // If all alternatives were filtered out, default to returning all of them
       if (alternatives.length === 0) {
-        for (const alternative of oneOf) {
-          const alternativeErrors = getErrors(alternative, instance, context);
+        for (const results of alternativeResults) {
+          const alternativeErrors = getErrorsFromFlattenedOutput(results, instance, context);
           if (alternativeErrors.length) {
             alternatives.push(alternativeErrors);
           }
