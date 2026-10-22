@@ -1,0 +1,38 @@
+{
+  "$schema": "../test-suite.schema.json",
+
+  "description": "The OpenAPI nullable keyword",
+  "tests": [
+    {
+      "description": "nullable expands the allowed types",
+      "compatibility": "=30",
+      "schema": {
+        "type": "string",
+        "nullable": true
+      },
+      "instance": 5,
+      "errors": [
+        {
+          "messageId": "type-message",
+          "messageParams": {
+            "count": 2,
+            "type": "null",
+            "expectedTypes": { "or": ["null", "string"] }
+          },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/type"]
+        }
+      ]
+    },
+    {
+      "description": "nullable allows null",
+      "compatibility": "=30",
+      "schema": {
+        "type": "string",
+        "nullable": true
+      },
+      "instance": null,
+      "errors": []
+    }
+  ]
+}

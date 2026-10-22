@@ -1,0 +1,34 @@
+{
+  "$schema": "../test-suite.schema.json",
+
+  "description": "The OpenAPI type keyword",
+  "tests": [
+    {
+      "description": "OpenAPI type",
+      "schema": {
+        "type": "string"
+      },
+      "instance": 5,
+      "errors": [
+        {
+          "messageId": "type-message",
+          "messageParams": {
+            "count": 1,
+            "type": "string",
+            "expectedTypes": { "or": ["string"] }
+          },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/type"]
+        }
+      ]
+    },
+    {
+      "description": "OpenAPI type pass",
+      "schema": {
+        "type": "string"
+      },
+      "instance": "foo",
+      "errors": []
+    }
+  ]
+}

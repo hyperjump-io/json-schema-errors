@@ -92,6 +92,9 @@ defineKeyword("https://json-schema.org/keyword/comment", { annotation: true });
 defineKeyword("https://json-schema.org/keyword/const", {});
 defineKeyword("https://json-schema.org/keyword/contains", containsKeyword);
 defineKeyword("https://json-schema.org/keyword/draft-06/contains", containsDraft06Keyword);
+defineKeyword("https://json-schema.org/keyword/contentEncoding", { annotation: true });
+defineKeyword("https://json-schema.org/keyword/contentMediaType", { annotation: true });
+defineKeyword("https://json-schema.org/keyword/contentSchema", { annotation: true });
 defineKeyword("https://json-schema.org/keyword/default", { annotation: true });
 defineKeyword("https://json-schema.org/keyword/definitions", { annotation: true });
 defineKeyword("https://json-schema.org/keyword/draft-04/dependencies", dependenciesKeyword);
@@ -149,6 +152,14 @@ defineKeyword("https://json-schema.org/keyword/unevaluatedProperties", unevaluat
 defineKeyword("https://json-schema.org/keyword/uniqueItems", {});
 defineKeyword("https://json-schema.org/keyword/unknown", { annotation: true });
 defineKeyword("https://json-schema.org/keyword/writeOnly", { annotation: true });
+
+// OpenAPI keywords
+defineKeyword("https://spec.openapis.org/oas/3.0/keyword/discriminator", { annotation: true });
+defineKeyword("https://spec.openapis.org/oas/3.0/keyword/example", { annotation: true });
+defineKeyword("https://spec.openapis.org/oas/3.0/keyword/externalDocs", { annotation: true });
+defineKeyword("https://spec.openapis.org/oas/3.0/keyword/nullable", { annotation: true });
+defineKeyword("https://spec.openapis.org/oas/3.0/keyword/type", {});
+defineKeyword("https://spec.openapis.org/oas/3.0/keyword/xml", { annotation: true });
 
 export {
   allTrue,

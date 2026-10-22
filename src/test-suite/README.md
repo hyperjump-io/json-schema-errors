@@ -63,3 +63,12 @@ Some of the message parameters take a list combined using "or". For example,
 parameters, you would use `{ "or": ["string", "number", "boolean"]}`. The test
 runner should combine those using an "or" appropriate for the language under
 test.
+
+## OpenAPI
+
+The tests in the `tests` folder are also run against the OpenAPI 3.1 and 3.2
+dialects. The `openapi` folder has tests for the keywords OpenAPI adds and is
+only run against the OpenAPI dialects. In those tests, `compatibility` uses
+`30`, `31`, and `32` for OpenAPI 3.0, 3.1, and 3.2.
+
+**Example**: `"compatibility": "=30"`

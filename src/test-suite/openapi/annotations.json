@@ -1,0 +1,41 @@
+{
+  "$schema": "../test-suite.schema.json",
+
+  "description": "The OpenAPI annotation keywords",
+  "tests": [
+    {
+      "description": "OpenAPI annotation keywords are ignored",
+      "schema": {
+        "type": "string",
+        "example": "an example",
+        "externalDocs": { "url": "https://example.com" },
+        "xml": { "name": "value" },
+        "discriminator": { "propertyName": "value" }
+      },
+      "instance": 5,
+      "errors": [
+        {
+          "messageId": "type-message",
+          "messageParams": {
+            "count": 1,
+            "type": "string",
+            "expectedTypes": { "or": ["string"] }
+          },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/type"]
+        }
+      ]
+    },
+    {
+      "description": "a schema with only OpenAPI annotation keywords allows any value",
+      "schema": {
+        "example": "an example",
+        "externalDocs": { "url": "https://example.com" },
+        "xml": { "name": "value" },
+        "discriminator": { "propertyName": "value" }
+      },
+      "instance": 5,
+      "errors": []
+    }
+  ]
+}

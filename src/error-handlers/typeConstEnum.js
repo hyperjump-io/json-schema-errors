@@ -7,6 +7,11 @@ import { describeKeyword } from "../json-schema-errors.js";
 
 const ALL_TYPES = new Set(["null", "boolean", "number", "string", "array", "object", "integer"]);
 
+const TYPE_KEYWORDS = [
+  "https://json-schema.org/keyword/type",
+  "https://spec.openapis.org/oas/3.0/keyword/type"
+];
+
 /** @type {ErrorHandler} */
 const typeConstEnumErrorHandler = {
   error: (normalizedErrors, instance, context) => {
@@ -14,19 +19,21 @@ const typeConstEnumErrorHandler = {
     /** @type {string[]} */
     const failedTypeLocations = [];
 
-    for (const schemaLocation in normalizedErrors["https://json-schema.org/keyword/type"]) {
-      if (normalizedErrors["https://json-schema.org/keyword/type"][schemaLocation].valid === false) {
-        failedTypeLocations.push(schemaLocation);
+    for (const typeKeyword of TYPE_KEYWORDS) {
+      for (const schemaLocation in normalizedErrors[typeKeyword] ?? {}) {
+        if (normalizedErrors[typeKeyword][schemaLocation].valid === false) {
+          failedTypeLocations.push(schemaLocation);
 
-        /** @type {string | string[]} */
-        const value = /** @type {string | string[]} */ (normalizedErrors["https://json-schema.org/keyword/type"][schemaLocation].value);
-        const types = Array.isArray(value) ? value : [value];
-        /** @type {Set<string>} */
-        const keywordTypes = new Set(types);
-        if (keywordTypes.has("number")) {
-          keywordTypes.add("integer");
+          /** @type {string | string[]} */
+          const value = /** @type {string | string[]} */ (normalizedErrors[typeKeyword][schemaLocation].value);
+          const types = Array.isArray(value) ? value : [value];
+          /** @type {Set<string>} */
+          const keywordTypes = new Set(types);
+          if (keywordTypes.has("number")) {
+            keywordTypes.add("integer");
+          }
+          allowedTypes = allowedTypes.intersection(keywordTypes);
         }
-        allowedTypes = allowedTypes.intersection(keywordTypes);
       }
     }
     if (allowedTypes.has("number")) {
@@ -114,9 +121,9 @@ const typeConstEnumErrorHandler = {
 
   success: (normalizedOutput, instance, context) => {
     return [
-      ...describeKeyword(normalizedOutput, "https://json-schema.org/keyword/type", instance, (/** @type string | string[] */ type) => {
+      ...TYPE_KEYWORDS.flatMap((typeKeyword) => describeKeyword(normalizedOutput, typeKeyword, instance, (/** @type string | string[] */ type) => {
         return context.localization.getTypeSuccessMessage(Array.isArray(type) ? type : [type]);
-      }),
+      })),
       ...describeKeyword(normalizedOutput, "https://json-schema.org/keyword/const", instance, (/** @type string */ constJson) => {
         return context.localization.getEnumSuccessMessage([JSON.parse(constJson)]);
       }),

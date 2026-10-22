@@ -1,0 +1,61 @@
+{
+  "$schema": "../test-suite.schema.json",
+
+  "description": "The content keywords",
+  "tests": [
+    {
+      "description": "contentMediaType and contentEncoding are annotations",
+      "compatibility": "7",
+      "schema": {
+        "type": "string",
+        "contentMediaType": "application/json",
+        "contentEncoding": "base64"
+      },
+      "instance": 5,
+      "errors": [
+        {
+          "messageId": "type-message",
+          "messageParams": {
+            "count": 1,
+            "type": "string",
+            "expectedTypes": { "or": ["string"] }
+          },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/type"]
+        }
+      ]
+    },
+    {
+      "description": "contentSchema is an annotation",
+      "compatibility": "2019",
+      "schema": {
+        "type": "string",
+        "contentMediaType": "application/json",
+        "contentSchema": { "type": "object" }
+      },
+      "instance": 5,
+      "errors": [
+        {
+          "messageId": "type-message",
+          "messageParams": {
+            "count": 1,
+            "type": "string",
+            "expectedTypes": { "or": ["string"] }
+          },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/type"]
+        }
+      ]
+    },
+    {
+      "description": "a schema with only content keywords allows any value",
+      "compatibility": "7",
+      "schema": {
+        "contentMediaType": "application/json",
+        "contentEncoding": "base64"
+      },
+      "instance": 5,
+      "errors": []
+    }
+  ]
+}

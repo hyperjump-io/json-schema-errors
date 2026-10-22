@@ -11,6 +11,9 @@ import "@hyperjump/json-schema/draft-07";
 import "@hyperjump/json-schema/draft-06";
 import "@hyperjump/json-schema/draft-04";
 import "@hyperjump/json-schema/formats";
+import "@hyperjump/json-schema/openapi-3-0";
+import "@hyperjump/json-schema/openapi-3-1";
+import "@hyperjump/json-schema/openapi-3-2";
 import { BASIC } from "@hyperjump/json-schema/experimental";
 import { JSE, jsonSchemaErrors } from "../src/index.js";
 import { FluentBundle, FluentResource } from "@fluent/bundle";
@@ -55,8 +58,8 @@ import { translations } from "./translations/index.js";
  * }} TestSuite
  */
 
-/** @type (dialectUri: string, dialect: number) => void */
-const runTests = (dialectUri, dialect) => {
+/** @type (dialectUri: string, dialect: number, suite?: string) => void */
+const runTests = (dialectUri, dialect, suite = "tests") => {
   describe(`JSON Schema Errors - ${dialectUri}`, async () => {
     setShouldValidateFormat(true);
 
@@ -66,7 +69,7 @@ const runTests = (dialectUri, dialect) => {
       unregisterSchema(schemaUri);
     });
 
-    for (const entry of await readdir(`${import.meta.dirname}/test-suite/tests`, { withFileTypes: true })) {
+    for (const entry of await readdir(`${import.meta.dirname}/test-suite/${suite}`, { withFileTypes: true })) {
       if (!entry.isFile() || !entry.name.endsWith(".json")) {
         continue;
       }
@@ -215,3 +218,9 @@ runTests("https://json-schema.org/draft/2019-09/schema", 2019);
 runTests("http://json-schema.org/draft-07/schema", 7);
 runTests("http://json-schema.org/draft-06/schema", 6);
 runTests("http://json-schema.org/draft-04/schema", 4);
+runTests("https://spec.openapis.org/oas/3.2/dialect", 2020);
+runTests("https://spec.openapis.org/oas/3.1/dialect/base", 2020);
+
+runTests("https://spec.openapis.org/oas/3.2/dialect", 32, "openapi");
+runTests("https://spec.openapis.org/oas/3.1/dialect/base", 31, "openapi");
+runTests("https://spec.openapis.org/oas/3.0/dialect", 30, "openapi");
