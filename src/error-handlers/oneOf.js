@@ -23,8 +23,9 @@ const oneOfErrorHandler = {
 
       const alternativeLocations = /** @type string[] */ (normalizedErrors["https://json-schema.org/keyword/oneOf"][schemaLocation].value);
       // Descriptions need the original output to keep conditional requirements separate.
-      const matches = alternativeLocations.flatMap((alternativeLocation, index) => {
-        return getValidityFromFlattenedOutput(alternativeResults[index]) === true ? [{ alternativeLocation, output: oneOf[index] }] : [];
+      // An alternative without output has unknown validity, so it isn't a match.
+      const matches = alternativeResults.flatMap((results, index) => {
+        return getValidityFromFlattenedOutput(results) === true ? [{ alternativeLocation: alternativeLocations[index], output: oneOf[index] }] : [];
       });
       if (matches.length > 1) {
         errors.push(multipleMatchesError(matches, schemaLocation, instance, context));
