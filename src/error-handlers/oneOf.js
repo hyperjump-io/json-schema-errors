@@ -44,8 +44,11 @@ const oneOfErrorHandler = {
 
       const alternatives = [];
       const instanceLocation = Instance.uri(instance);
+      // Errors of alternatives that passed the filters, kept for the fallback
+      /** @type ErrorObject[][] */
+      const errorsByAlternative = [];
 
-      for (const results of alternativeResults) {
+      for (const [index, results] of alternativeResults.entries()) {
         // Filter alternatives whose declared type doesn't match the instance type
         const typeResults = results[instanceLocation]?.["https://json-schema.org/keyword/type"];
         if (typeResults && !Object.values(typeResults).every(({ valid }) => valid)) {
@@ -66,6 +69,7 @@ const oneOfErrorHandler = {
 
         // The alternative passed all the filters
         const alternativeErrors = getErrorsFromFlattenedOutput(results, instance, context);
+        errorsByAlternative[index] = alternativeErrors;
         if (alternativeErrors.length) {
           alternatives.push(alternativeErrors);
         }
@@ -73,8 +77,8 @@ const oneOfErrorHandler = {
 
       // If all alternatives were filtered out, default to returning all of them
       if (alternatives.length === 0) {
-        for (const results of alternativeResults) {
-          const alternativeErrors = getErrorsFromFlattenedOutput(results, instance, context);
+        for (const [index, results] of alternativeResults.entries()) {
+          const alternativeErrors = errorsByAlternative[index] ?? getErrorsFromFlattenedOutput(results, instance, context);
           if (alternativeErrors.length) {
             alternatives.push(alternativeErrors);
           }
