@@ -12,6 +12,14 @@ import { Localization } from "./localization.js";
  * @import { JsonNode } from "@hyperjump/json-schema/instance/experimental"
  */
 
+/**
+ * Normalized output with the results of simple applicators' subschemas
+ * flattened into the parent schema's results. The brand keeps unflattened
+ * output from being passed where flattened output is expected.
+ *
+ * @typedef {API.NormalizedOutput & { readonly __flattened: true }} FlattenedOutput
+ */
+
 /** @type API.jsonSchemaErrors */
 export const jsonSchemaErrors = async (errorOutput, schemaUri, instance, options = {}) => {
   const rootInstance = Instance.fromJs(instance);
@@ -458,7 +466,7 @@ export const getErrors = (normalizedErrors, rootInstance, context) => {
   return getErrorsFromFlattenedOutput(flattenOutput(normalizedErrors), rootInstance, context);
 };
 
-/** @type API.getErrors */
+/** @type (results: FlattenedOutput, rootInstance: JsonNode, context: API.ErrorHandlerContext) => API.ErrorObject[] */
 export const getErrorsFromFlattenedOutput = (reportedOutput, rootInstance, context) => {
   /** @type API.ErrorObject[] */
   const errors = [];
@@ -474,8 +482,8 @@ export const getErrorsFromFlattenedOutput = (reportedOutput, rootInstance, conte
   return errors;
 };
 
-/** @type (normalizedOutput: API.NormalizedOutput) => API.NormalizedOutput */
-export const flattenOutput = (normalizedOutput) => flatten(normalizedOutput, isApplied);
+/** @type (normalizedOutput: API.NormalizedOutput) => FlattenedOutput */
+export const flattenOutput = (normalizedOutput) => /** @type FlattenedOutput */ (flatten(normalizedOutput, isApplied));
 
 /**
  * The results of a simple applicator's subschemas are results of its parent
@@ -698,7 +706,7 @@ export const getValidity = (normalizedOutput) => {
   return getValidityFromFlattenedOutput(flattenOutput(normalizedOutput));
 };
 
-/** @type API.getValidity */
+/** @type (results: FlattenedOutput) => boolean | undefined */
 export const getValidityFromFlattenedOutput = (results) => {
   /** @type boolean | undefined */
   let validity = true;
