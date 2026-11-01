@@ -12,6 +12,14 @@ import { Localization } from "./localization.js";
  * @import { JsonNode } from "@hyperjump/json-schema/instance/experimental"
  */
 
+/**
+ * Normalized output with the results of simple applicators' subschemas
+ * flattened into the parent schema's results. The brand keeps unflattened
+ * output from being passed where flattened output is expected.
+ *
+ * @typedef {API.NormalizedOutput & { readonly __flattened: true }} FlattenedOutput
+ */
+
 /** @type API.jsonSchemaErrors */
 export const jsonSchemaErrors = async (errorOutput, schemaUri, instance, options = {}) => {
   const rootInstance = Instance.fromJs(instance);
@@ -455,10 +463,14 @@ export const removeErrorHandler = (errorHandlerUri) => {
 
 /** @type API.getErrors */
 export const getErrors = (normalizedErrors, rootInstance, context) => {
+  return getErrorsFromFlattenedOutput(flattenOutput(normalizedErrors), rootInstance, context);
+};
+
+/** @type (results: FlattenedOutput, rootInstance: JsonNode, context: API.ErrorHandlerContext) => API.ErrorObject[] */
+export const getErrorsFromFlattenedOutput = (reportedOutput, rootInstance, context) => {
   /** @type API.ErrorObject[] */
   const errors = [];
 
-  const reportedOutput = flattenOutput(normalizedErrors);
   for (const instanceLocation in reportedOutput) {
     const instance = /** @type JsonNode */ (Instance.get(instanceLocation, rootInstance));
     for (const errorHandlerUri in errorHandlers) {
@@ -470,8 +482,8 @@ export const getErrors = (normalizedErrors, rootInstance, context) => {
   return errors;
 };
 
-/** @type (normalizedOutput: API.NormalizedOutput) => API.NormalizedOutput */
-export const flattenOutput = (normalizedOutput) => flatten(normalizedOutput, isApplied);
+/** @type (normalizedOutput: API.NormalizedOutput) => FlattenedOutput */
+export const flattenOutput = (normalizedOutput) => /** @type FlattenedOutput */ (flatten(normalizedOutput, isApplied));
 
 /**
  * The results of a simple applicator's subschemas are results of its parent
@@ -691,10 +703,14 @@ const sizeOf = (errorObjects) => errorObjects.reduce((size, errorObject) => {
  * @type API.getValidity
  */
 export const getValidity = (normalizedOutput) => {
+  return getValidityFromFlattenedOutput(flattenOutput(normalizedOutput));
+};
+
+/** @type (results: FlattenedOutput) => boolean | undefined */
+export const getValidityFromFlattenedOutput = (results) => {
   /** @type boolean | undefined */
   let validity = true;
 
-  const results = flattenOutput(normalizedOutput);
   for (const instanceLocation in results) {
     for (const keywordUri in results[instanceLocation]) {
       for (const schemaLocation in results[instanceLocation][keywordUri]) {

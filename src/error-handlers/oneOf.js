@@ -1,6 +1,6 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
 import * as Pact from "@hyperjump/pact";
-import { allowsAnyValue, allTrue, countTrue, flattenOutput, getErrors, getSuccesses, getValidity, negate, someTrue } from "../json-schema-errors.js";
+import { allowsAnyValue, allTrue, countTrue, flattenOutput, getErrorsFromFlattenedOutput, getSuccesses, getValidityFromFlattenedOutput, negate, someTrue } from "../json-schema-errors.js";
 
 /**
  * @import { JsonNode } from "@hyperjump/json-schema/instance/experimental"
@@ -19,10 +19,13 @@ const oneOfErrorHandler = {
         continue;
       }
       const oneOf = oneOfOutput.outputs ?? [];
+      const alternativeResults = oneOf.map(flattenOutput);
 
       const alternativeLocations = /** @type string[] */ (normalizedErrors["https://json-schema.org/keyword/oneOf"][schemaLocation].value);
-      const matches = alternativeLocations.flatMap((alternativeLocation, index) => {
-        return getValidity(oneOf[index]) === true ? [{ alternativeLocation, output: oneOf[index] }] : [];
+      // Descriptions need the original output to keep conditional requirements separate.
+      // An alternative without output has unknown validity, so it isn't a match.
+      const matches = alternativeResults.flatMap((results, index) => {
+        return getValidityFromFlattenedOutput(results) === true ? [{ alternativeLocation: alternativeLocations[index], output: oneOf[index] }] : [];
       });
       if (matches.length > 1) {
         errors.push(multipleMatchesError(matches, schemaLocation, instance, context));
@@ -35,17 +38,17 @@ const oneOfErrorHandler = {
         Pact.collectArray
       );
 
-      const alternativeResults = oneOf.map(flattenOutput);
       const discriminators = propertyLocations.filter((propertyLocation) => {
         return alternativeResults.some((results) => isPassingProperty(results[propertyLocation]));
       });
 
       const alternatives = [];
       const instanceLocation = Instance.uri(instance);
+      // Errors of alternatives that passed the filters, kept for the fallback
+      /** @type ErrorObject[][] */
+      const errorsByAlternative = [];
 
-      for (const [index, alternative] of oneOf.entries()) {
-        const results = alternativeResults[index];
-
+      for (const [index, results] of alternativeResults.entries()) {
         // Filter alternatives whose declared type doesn't match the instance type
         const typeResults = results[instanceLocation]?.["https://json-schema.org/keyword/type"];
         if (typeResults && !Object.values(typeResults).every(({ valid }) => valid)) {
@@ -65,7 +68,8 @@ const oneOfErrorHandler = {
         }
 
         // The alternative passed all the filters
-        const alternativeErrors = getErrors(alternative, instance, context);
+        const alternativeErrors = getErrorsFromFlattenedOutput(results, instance, context);
+        errorsByAlternative[index] = alternativeErrors;
         if (alternativeErrors.length) {
           alternatives.push(alternativeErrors);
         }
@@ -73,8 +77,8 @@ const oneOfErrorHandler = {
 
       // If all alternatives were filtered out, default to returning all of them
       if (alternatives.length === 0) {
-        for (const alternative of oneOf) {
-          const alternativeErrors = getErrors(alternative, instance, context);
+        for (const [index, results] of alternativeResults.entries()) {
+          const alternativeErrors = errorsByAlternative[index] ?? getErrorsFromFlattenedOutput(results, instance, context);
           if (alternativeErrors.length) {
             alternatives.push(alternativeErrors);
           }
