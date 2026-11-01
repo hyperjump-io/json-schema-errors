@@ -1,4 +1,5 @@
 import * as Instance from "@hyperjump/json-schema/instance/experimental";
+import { toOutputKeywordUri } from "./json-schema-errors.js";
 
 /**
  * @import { EvaluationPlugin, Node, ValidationContext } from "@hyperjump/json-schema/experimental"
@@ -86,8 +87,9 @@ const toNormalizedOutput = ({ url, instance, valid, isBoolean, keywords }) => {
   } else if (keywords.length > 0) {
     const instanceOutput = output[Instance.uri(instance)] = Object.create(null);
     for (const { node: [keywordUri, schemaLocation, value], valid, subschemas } of keywords) {
-      instanceOutput[keywordUri] ??= Object.create(null);
-      instanceOutput[keywordUri][schemaLocation] = subschemas
+      const outputKeywordUri = toOutputKeywordUri(keywordUri);
+      instanceOutput[outputKeywordUri] ??= Object.create(null);
+      instanceOutput[outputKeywordUri][schemaLocation] = subschemas
         ? { valid, value, outputs: subschemas.map(toNormalizedOutput) }
         : { valid, value };
     }
