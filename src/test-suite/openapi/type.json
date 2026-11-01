@@ -29,6 +29,46 @@
       },
       "instance": "foo",
       "errors": []
+    },
+    {
+      "description": "anyOf drops alternatives that don't match the OpenAPI type",
+      "schema": {
+        "anyOf": [
+          { "type": "string", "minLength": 3 },
+          { "type": "number", "minimum": 10 }
+        ]
+      },
+      "instance": "a",
+      "errors": [
+        {
+          "messageId": "minLength-message",
+          "messageParams": {
+            "minLength": 3
+          },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/anyOf/0/minLength"]
+        }
+      ]
+    },
+    {
+      "description": "oneOf drops alternatives that don't match the OpenAPI type",
+      "schema": {
+        "oneOf": [
+          { "type": "string", "minLength": 3 },
+          { "type": "number", "minimum": 10 }
+        ]
+      },
+      "instance": "a",
+      "errors": [
+        {
+          "messageId": "minLength-message",
+          "messageParams": {
+            "minLength": 3
+          },
+          "instanceLocation": "#",
+          "schemaLocations": ["#/oneOf/0/minLength"]
+        }
+      ]
     }
   ]
 }

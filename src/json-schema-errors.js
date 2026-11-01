@@ -35,6 +35,17 @@ export const jsonSchemaErrors = async (errorOutput, schemaUri, instance, options
 /** @type Record<string, API.KeywordDefinition<any>> */
 const keywordDefinitions = {};
 
+/**
+ * The URI a keyword's results are normalized under. An alias's results are
+ * normalized under the keyword it's an alias of.
+ *
+ * @type (keywordUri: string) => string
+ */
+export const toOutputKeywordUri = (keywordUri) => {
+  const normalizedKeywordUri = toAbsoluteIri(keywordUri);
+  return keywordDefinitions[normalizedKeywordUri]?.alias ?? normalizedKeywordUri;
+};
+
 /** @type (schemaLocation: string, ast: AST) => boolean */
 export const allowsAnyValue = (schemaLocation, ast) => {
   const schemaNode = ast[schemaLocation];
@@ -136,6 +147,7 @@ export const evaluateSchema = (schemaLocation, instance, context) => {
         throw Error(`Encountered unsupported keyword ${keywordUri}. Use the 'defineKeyword' function to add support for this keyword.`);
       }
       const keyword = keywordDefinitions[normalizedKeywordUri];
+      const outputKeywordUri = toOutputKeywordUri(keywordUri);
 
       const validationKeyword = getKeyword(keywordUri);
 
@@ -168,8 +180,8 @@ export const evaluateSchema = (schemaLocation, instance, context) => {
       }
 
       output[instanceLocation] ??= {};
-      output[instanceLocation][normalizedKeywordUri] ??= {};
-      output[instanceLocation][normalizedKeywordUri][keywordLocation] = keywordOutput
+      output[instanceLocation][outputKeywordUri] ??= {};
+      output[instanceLocation][outputKeywordUri][keywordLocation] = keywordOutput
         ? { valid: isKeywordValid, value: keywordValue, outputs: keywordOutput }
         : { valid: isKeywordValid, value: keywordValue };
 

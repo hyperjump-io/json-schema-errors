@@ -60,6 +60,15 @@ export type KeywordDefinition<Value = unknown, Context extends EvaluationContext
   annotation?: true;
 
   /**
+   * The URI of a keyword that means the same thing. The keyword's results are
+   * normalized under that URI, so everything that handles that keyword handles
+   * this one too. The compiled values must have the same shape. For example,
+   * the OpenAPI 3.0 `type` keyword is an alias of the JSON Schema `type`
+   * keyword.
+   */
+  alias?: string;
+
+  /**
    * The message for an occurrence of the keyword that failed.
    *
    * @param value - The keyword's value as compiled by its `@hyperjump/json-schema` definition

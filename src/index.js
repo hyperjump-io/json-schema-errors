@@ -158,7 +158,8 @@ defineKeyword("https://spec.openapis.org/oas/3.0/keyword/discriminator", { annot
 defineKeyword("https://spec.openapis.org/oas/3.0/keyword/example", { annotation: true });
 defineKeyword("https://spec.openapis.org/oas/3.0/keyword/externalDocs", { annotation: true });
 defineKeyword("https://spec.openapis.org/oas/3.0/keyword/nullable", { annotation: true });
-defineKeyword("https://spec.openapis.org/oas/3.0/keyword/type", {});
+// Compiles `nullable` into its value, so it has the same shape as `type`
+defineKeyword("https://spec.openapis.org/oas/3.0/keyword/type", { alias: "https://json-schema.org/keyword/type" });
 defineKeyword("https://spec.openapis.org/oas/3.0/keyword/xml", { annotation: true });
 
 export {
