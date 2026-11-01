@@ -5,7 +5,7 @@
   "tests": [
     {
       "description": "nullable expands the allowed types",
-      "compatibility": "=30",
+      "compatibility": "=4",
       "schema": {
         "type": "string",
         "nullable": true
@@ -26,7 +26,7 @@
     },
     {
       "description": "nullable allows null",
-      "compatibility": "=30",
+      "compatibility": "=4",
       "schema": {
         "type": "string",
         "nullable": true

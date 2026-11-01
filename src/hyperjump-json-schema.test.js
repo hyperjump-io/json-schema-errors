@@ -58,8 +58,8 @@ import { translations } from "./translations/index.js";
  * }} TestSuite
  */
 
-/** @type (dialectUri: string, dialect: number, suite?: string, skip?: Record<string, string[]>) => void */
-const runTests = (dialectUri, dialect, suite = "tests", skip = {}) => {
+/** @type (dialectUri: string, dialect: number, suites?: string[], skip?: Record<string, string[]>) => void */
+const runTests = (dialectUri, dialect, suites = ["tests"], skip = {}) => {
   describe(`JSON Schema Errors - ${dialectUri}`, async () => {
     setShouldValidateFormat(true);
 
@@ -69,34 +69,36 @@ const runTests = (dialectUri, dialect, suite = "tests", skip = {}) => {
       unregisterSchema(schemaUri);
     });
 
-    for (const entry of await readdir(`${import.meta.dirname}/test-suite/${suite}`, { withFileTypes: true })) {
-      if (!entry.isFile() || !entry.name.endsWith(".json")) {
-        continue;
-      }
-
-      const file = `${entry.parentPath}/${entry.name}`;
-      const suite = /** @type TestSuite */ (JSON.parse(await readFile(file, "utf8")));
-
-      for (const testCase of suite.tests) {
-        if (!isCompatible(testCase.compatibility, dialect)) {
+    for (const suite of suites) {
+      for (const entry of await readdir(`${import.meta.dirname}/test-suite/${suite}`, { withFileTypes: true })) {
+        if (!entry.isFile() || !entry.name.endsWith(".json")) {
           continue;
         }
-        const testOrSkip = skip[entry.name]?.includes(testCase.description) ? test.skip : test;
-        testOrSkip(testCase.description, async () => {
-          registerSchema(testCase.schema, schemaUri, dialectUri);
 
-          const instance = testCase.instance;
-          const output = await validate(schemaUri, instance, BASIC);
-          const errors = await jsonSchemaErrors(output, schemaUri, instance, { isFormatAsserted: true });
+        const file = `${entry.parentPath}/${entry.name}`;
+        const testSuite = /** @type TestSuite */ (JSON.parse(await readFile(file, "utf8")));
 
-          expect(errors).to.eql(buildErrors(testCase.errors, schemaUri));
-          expectNestedLocations(errors);
+        for (const testCase of testSuite.tests) {
+          if (!isCompatible(testCase.compatibility, dialect)) {
+            continue;
+          }
+          const testOrSkip = skip[`${suite}/${entry.name}`]?.includes(testCase.description) ? test.skip : test;
+          testOrSkip(testCase.description, async () => {
+            registerSchema(testCase.schema, schemaUri, dialectUri);
 
-          const result = await validate(schemaUri, instance, JSE);
-          const fullResultsErrors = result.valid ? [] : result.errors;
-          expect(fullResultsErrors).to.eql(buildErrors(testCase.errorsWithFullResults ?? testCase.errors, schemaUri));
-          expectNestedLocations(fullResultsErrors);
-        });
+            const instance = testCase.instance;
+            const output = await validate(schemaUri, instance, BASIC);
+            const errors = await jsonSchemaErrors(output, schemaUri, instance, { isFormatAsserted: true });
+
+            expect(errors).to.eql(buildErrors(testCase.errors, schemaUri));
+            expectNestedLocations(errors);
+
+            const result = await validate(schemaUri, instance, JSE);
+            const fullResultsErrors = result.valid ? [] : result.errors;
+            expect(fullResultsErrors).to.eql(buildErrors(testCase.errorsWithFullResults ?? testCase.errors, schemaUri));
+            expectNestedLocations(fullResultsErrors);
+          });
+        }
       }
     }
   });
@@ -223,22 +225,22 @@ const getMessage = (function () {
  * @type Record<string, string[]>
  */
 const oas30Skip = {
-  "additionalProperties.json": [
+  "tests/additionalProperties.json": [
     "additionalProperties with false schema",
     "additionalProperties with object schema",
     "additionalProperties on a non-object",
     "additionalProperties pass"
   ],
-  "anyOf.json": [
+  "tests/anyOf.json": [
     "anyOf with $ref alternatives filters by type"
   ],
-  "comment.json": [
+  "tests/comment.json": [
     "format"
   ],
-  "contains.json": [
+  "tests/contains.json": [
     "contains passing"
   ],
-  "dependencies.json": [
+  "tests/dependencies.json": [
     "array-form dependencies",
     "array-form dependencies pass",
     "schema-form dependencies",
@@ -247,17 +249,17 @@ const oas30Skip = {
     "schem-form dependencies pass",
     "schema-form and array-form dependencies together"
   ],
-  "enum.json": [
+  "tests/enum.json": [
     "enum with integer and string types filters fractions",
     "enum with integer and string types passes for strings"
   ],
-  "items.json": [
+  "tests/items.json": [
     "items/additionalItems with false schema",
     "items/additionalItems with object schema",
     "additionalItems on a non-array",
     "additionalItems pass"
   ],
-  "not.json": [
+  "tests/not.json": [
     "not with multiple types",
     "not with dependencies",
     "not with schema dependencies",
@@ -268,35 +270,35 @@ const oas30Skip = {
     "not with patternProperties that aren't present",
     "not with descriptions nested too deeply to show"
   ],
-  "oneOf.json": [
+  "tests/oneOf.json": [
     "oneOf with $ref alternatives filters by type",
     "oneOf more than one match with array-form items that aren't present",
     "oneOf more than one match with patternProperties that aren't present"
   ],
-  "patternProperties.json": [
+  "tests/patternProperties.json": [
     "patternProperties",
     "patternProperties on a non-object",
     "patternProperties pass"
   ],
-  "prefixItems.json": [
+  "tests/prefixItems.json": [
     "array-form items",
     "array-form items with fewer items than are defined",
     "array-form items on an non-array",
     "prefixItems pass",
     "array-form items pass"
   ],
-  "propertyNames.json": [
+  "tests/propertyNames.json": [
     "propertyNames pass"
   ],
-  "ref.json": [
+  "tests/ref.json": [
     "$ref",
     "$ref pass"
   ],
-  "type.json": [
+  "tests/type.json": [
     "multiple types",
     "collapsed type errors"
   ],
-  "unknown.json": [
+  "tests/unknown.json": [
     "unknown keyword"
   ]
 };
@@ -306,10 +308,6 @@ runTests("https://json-schema.org/draft/2019-09/schema", 2019);
 runTests("http://json-schema.org/draft-07/schema", 7);
 runTests("http://json-schema.org/draft-06/schema", 6);
 runTests("http://json-schema.org/draft-04/schema", 4);
-runTests("https://spec.openapis.org/oas/3.2/dialect", 2020);
-runTests("https://spec.openapis.org/oas/3.1/dialect/base", 2020);
-runTests("https://spec.openapis.org/oas/3.0/dialect", 4, "tests", oas30Skip);
-
-runTests("https://spec.openapis.org/oas/3.2/dialect", 32, "openapi");
-runTests("https://spec.openapis.org/oas/3.1/dialect/base", 31, "openapi");
-runTests("https://spec.openapis.org/oas/3.0/dialect", 30, "openapi");
+runTests("https://spec.openapis.org/oas/3.2/dialect", 2020, ["tests", "openapi"]);
+runTests("https://spec.openapis.org/oas/3.1/dialect/base", 2020, ["tests", "openapi"]);
+runTests("https://spec.openapis.org/oas/3.0/dialect", 4, ["tests", "openapi"], oas30Skip);

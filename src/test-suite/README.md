@@ -66,11 +66,12 @@ test.
 
 ## OpenAPI
 
-The tests in the `tests` folder are also run against the OpenAPI dialects, with
-`compatibility` treating OpenAPI 3.0 as `4` and OpenAPI 3.1 and 3.2 as `2020`.
-OpenAPI 3.0 doesn't have every draft-04 keyword, so the test runner skips tests
-with schemas that aren't valid OpenAPI 3.0. The `openapi` folder has tests for the keywords OpenAPI adds and is
-only run against the OpenAPI dialects. In those tests, `compatibility` uses
-`30`, `31`, and `32` for OpenAPI 3.0, 3.1, and 3.2.
+OpenAPI dialects use the number of the JSON Schema release they're based on:
+`4` for OpenAPI 3.0 and `2020` for OpenAPI 3.1 and 3.2. They run the tests in
+the `tests` folder and the tests in the `openapi` folder, which has tests for
+the keywords OpenAPI adds. The `openapi` folder isn't run for JSON Schema
+dialects, so in those tests, `"=4"` means OpenAPI 3.0. OpenAPI 3.0 doesn't have
+every draft-04 keyword, so the test runner skips tests with schemas that aren't
+valid OpenAPI 3.0.
 
-**Example**: `"compatibility": "=30"`
+**Example**: `"compatibility": "=4"`
