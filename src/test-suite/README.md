@@ -66,8 +66,10 @@ test.
 
 ## OpenAPI
 
-The tests in the `tests` folder are also run against the OpenAPI 3.1 and 3.2
-dialects. The `openapi` folder has tests for the keywords OpenAPI adds and is
+The tests in the `tests` folder are also run against the OpenAPI dialects, with
+`compatibility` treating OpenAPI 3.0 as `4` and OpenAPI 3.1 and 3.2 as `2020`.
+OpenAPI 3.0 doesn't have every draft-04 keyword, so the test runner skips tests
+with schemas that aren't valid OpenAPI 3.0. The `openapi` folder has tests for the keywords OpenAPI adds and is
 only run against the OpenAPI dialects. In those tests, `compatibility` uses
 `30`, `31`, and `32` for OpenAPI 3.0, 3.1, and 3.2.
 
