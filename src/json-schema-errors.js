@@ -126,6 +126,8 @@ async function toAbsoluteKeywordLocation(schema, keywordLocation) {
 /** @type API.evaluateSchema */
 export const evaluateSchema = (schemaLocation, instance, context) => {
   const instanceLocation = Instance.uri(instance);
+  // The error index stores property name locations ("#*/foo") without the "*"
+  const indexedInstanceLocation = instanceLocation.replace(/^#\*/, "#");
 
   let valid = true;
   /** @type API.NormalizedOutput */
@@ -137,7 +139,7 @@ export const evaluateSchema = (schemaLocation, instance, context) => {
 
   const schemaNode = context.ast[schemaLocation];
   if (typeof schemaNode === "boolean") {
-    const isSchemaValid = getReportedValidity(schemaLocation, instanceLocation, context);
+    const isSchemaValid = getReportedValidity(schemaLocation, indexedInstanceLocation, context);
     if (schemaNode === false && isSchemaValid !== true) {
       valid = false;
       output[instanceLocation] = {
@@ -159,8 +161,7 @@ export const evaluateSchema = (schemaLocation, instance, context) => {
 
       const validationKeyword = getKeyword(keywordUri);
 
-      const keywordInstanceLocation = instanceLocation.replace(/^#\*/, "#");
-      let isKeywordValid = getReportedValidity(keywordLocation, keywordInstanceLocation, context);
+      let isKeywordValid = getReportedValidity(keywordLocation, indexedInstanceLocation, context);
 
       /** @type API.EvaluationContext */
       const keywordContext = {
@@ -178,7 +179,7 @@ export const evaluateSchema = (schemaLocation, instance, context) => {
 
       const keywordOutput = keyword.evaluate?.(keywordValue, instance, keywordContext);
 
-      const isReported = context.errorIndex[keywordLocation]?.[keywordInstanceLocation] !== undefined;
+      const isReported = context.errorIndex[keywordLocation]?.[indexedInstanceLocation] !== undefined;
       if (validationKeyword.simpleApplicator && !isReported && keywordOutput?.some((suboutput) => getValidity(suboutput) === false)) {
         isKeywordValid = false;
       }
