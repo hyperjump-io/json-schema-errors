@@ -49,6 +49,93 @@
       "errors": []
     },
     {
+      "description": "propertyNames false",
+      "compatibility": "6",
+      "schema": {
+        "propertyNames": false
+      },
+      "instance": { "foo": 42 },
+      "errors": [
+        {
+          "messageId": "boolean-schema-message",
+          "instanceLocation": "#*/foo",
+          "schemaLocations": ["#/propertyNames"]
+        }
+      ]
+    },
+    {
+      "description": "propertyNames with a false schema in allOf",
+      "compatibility": "6",
+      "schema": {
+        "propertyNames": { "allOf": [false] }
+      },
+      "instance": { "foo": 42 },
+      "errors": [
+        {
+          "messageId": "boolean-schema-message",
+          "instanceLocation": "#*/foo",
+          "schemaLocations": ["#/propertyNames/allOf/0"]
+        }
+      ]
+    },
+    {
+      "description": "propertyNames with a $ref to a false schema",
+      "compatibility": "6",
+      "schema": {
+        "propertyNames": { "$ref": "#/$defs/never" },
+        "$defs": {
+          "never": false
+        }
+      },
+      "instance": { "foo": 42 },
+      "errors": [
+        {
+          "messageId": "boolean-schema-message",
+          "instanceLocation": "#*/foo",
+          "schemaLocations": ["#/$defs/never"]
+        }
+      ]
+    },
+    {
+      "description": "propertyNames false in anyOf",
+      "compatibility": "6",
+      "schema": {
+        "anyOf": [
+          { "propertyNames": false },
+          { "type": "string" }
+        ]
+      },
+      "instance": { "foo": 42 },
+      "errors": [
+        {
+          "messageId": "anyOf-message",
+          "alternatives": [
+            [
+              {
+                "messageId": "boolean-schema-message",
+                "instanceLocation": "#*/foo",
+                "schemaLocations": ["#/anyOf/0/propertyNames"]
+              }
+            ],
+            [
+              {
+                "messageId": "type-message",
+                "messageParams": {
+                  "count": 1,
+                  "type": "string",
+                  "expectedTypes": { "or": ["string"] }
+                },
+                "instanceLocation": "#",
+                "schemaLocations": ["#/anyOf/1/type"]
+              }
+            ]
+          ],
+          "instanceLocation": "#",
+          "schemaLocations": ["#/anyOf"]
+        }
+      ]
+    },
+    {
       "description": "propertyNames pass",
       "schema": {
         "propertyNames": { "minLength": 5 }
