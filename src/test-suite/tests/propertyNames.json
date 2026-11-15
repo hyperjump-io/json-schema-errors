@@ -136,6 +136,50 @@
       ]
     },
     {
+      "description": "propertyNames and a property value share a subschema and only the value fails",
+      "compatibility": "6",
+      "schema": {
+        "properties": {
+          "foo": { "$ref": "#/definitions/short" }
+        },
+        "propertyNames": { "$ref": "#/definitions/short" },
+        "definitions": {
+          "short": { "maxLength": 4 }
+        }
+      },
+      "instance": { "foo": "abcdef" },
+      "errors": [
+        {
+          "messageId": "maxLength-message",
+          "messageParams": { "maxLength": 4 },
+          "instanceLocation": "#/foo",
+          "schemaLocations": ["#/definitions/short/maxLength"]
+        }
+      ]
+    },
+    {
+      "description": "propertyNames and a property value share a subschema and only the name fails",
+      "compatibility": "6",
+      "schema": {
+        "properties": {
+          "foobar": { "$ref": "#/definitions/short" }
+        },
+        "propertyNames": { "$ref": "#/definitions/short" },
+        "definitions": {
+          "short": { "maxLength": 4 }
+        }
+      },
+      "instance": { "foobar": "abc" },
+      "errors": [
+        {
+          "messageId": "maxLength-message",
+          "messageParams": { "maxLength": 4 },
+          "instanceLocation": "#*/foobar",
+          "schemaLocations": ["#/definitions/short/maxLength"]
+        }
+      ]
+    },
+    {
       "description": "propertyNames pass",
       "schema": {
         "propertyNames": { "minLength": 5 }
