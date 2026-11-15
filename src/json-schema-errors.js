@@ -99,7 +99,7 @@ const indexOutputUnits = async (outputUnit, schema, errorIndex) => {
       const absoluteKeywordLocation = subOutputUnit.absoluteKeywordLocation
         ?? await toAbsoluteKeywordLocation(schema, /** @type string */ (subOutputUnit.keywordLocation));
       const instanceLocation = /** @type string */ (subOutputUnit.instanceLocation)
-        .replace(/^#?\*?/, "#");
+        .replace(/^#?/, "#");
 
       errorIndex[absoluteKeywordLocation] ??= {};
       // If results conflict, the error wins
@@ -126,8 +126,6 @@ async function toAbsoluteKeywordLocation(schema, keywordLocation) {
 /** @type API.evaluateSchema */
 export const evaluateSchema = (schemaLocation, instance, context) => {
   const instanceLocation = Instance.uri(instance);
-  // The error index stores property name locations ("#*/foo") without the "*"
-  const indexedInstanceLocation = instanceLocation.replace(/^#\*/, "#");
 
   let valid = true;
   /** @type API.NormalizedOutput */
@@ -139,7 +137,7 @@ export const evaluateSchema = (schemaLocation, instance, context) => {
 
   const schemaNode = context.ast[schemaLocation];
   if (typeof schemaNode === "boolean") {
-    const isSchemaValid = getReportedValidity(schemaLocation, indexedInstanceLocation, context);
+    const isSchemaValid = getReportedValidity(schemaLocation, instanceLocation, context);
     if (schemaNode === false && isSchemaValid !== true) {
       valid = false;
       output[instanceLocation] = {
@@ -161,7 +159,7 @@ export const evaluateSchema = (schemaLocation, instance, context) => {
 
       const validationKeyword = getKeyword(keywordUri);
 
-      let isKeywordValid = getReportedValidity(keywordLocation, indexedInstanceLocation, context);
+      let isKeywordValid = getReportedValidity(keywordLocation, instanceLocation, context);
 
       /** @type API.EvaluationContext */
       const keywordContext = {
@@ -179,7 +177,7 @@ export const evaluateSchema = (schemaLocation, instance, context) => {
 
       const keywordOutput = keyword.evaluate?.(keywordValue, instance, keywordContext);
 
-      const isReported = context.errorIndex[keywordLocation]?.[indexedInstanceLocation] !== undefined;
+      const isReported = context.errorIndex[keywordLocation]?.[instanceLocation] !== undefined;
       if (validationKeyword.simpleApplicator && !isReported && keywordOutput?.some((suboutput) => getValidity(suboutput) === false)) {
         isKeywordValid = false;
       }

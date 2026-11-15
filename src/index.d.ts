@@ -163,7 +163,10 @@ export type EvaluationContext = {
 
 /**
  * The validation results found in the validator's output. `true` means the
- * keyword failed and `false` means the output says it passed.
+ * keyword failed and `false` means the output says it passed. Instance
+ * locations are as the validator reported them, prefixed with `#`. A property
+ * name's location is only distinct from its value's if the validator marks it
+ * with a `*` after the `#`.
  */
 export type ErrorIndex = {
   [schemaLocation: string]: {
