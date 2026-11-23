@@ -109,7 +109,8 @@ export class Localization {
     // Fluent rounds to three fractional digits by default, which would display
     // a value like 0.0000001 as 0.
     const localizedArgs = Object.fromEntries(Object.entries(args).map(([name, value]) => [
-      name, typeof value === "number" ? new FluentNumber(value, { maximumSignificantDigits: 21 }) : value
+      name,
+      typeof value === "number" ? new FluentNumber(value, { maximumSignificantDigits: 21 }) : value
     ]));
     for (const bundle of [this.bundle, getBundle(DEFAULT_LOCALE)]) {
       const message = bundle?.getMessage(messageId);

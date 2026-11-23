@@ -50,9 +50,9 @@ const eachPropertyErrorHandler = {
 
     for (const schemaLocation in normalizedOutput["https://json-schema.org/keyword/additionalProperties"]) {
       const [, subschemaLocation] = /** @type [RegExp, string] */ (normalizedOutput["https://json-schema.org/keyword/additionalProperties"][schemaLocation].value);
-      const properties = Object.keys(/** @type Record<string, string> */ (
-        getSiblingValue(context.ast, schemaLocation, "https://json-schema.org/keyword/properties") ?? {}
-      ));
+      const properties = Object.keys(
+        /** @type Record<string, string> */ (getSiblingValue(context.ast, schemaLocation, "https://json-schema.org/keyword/properties") ?? {})
+      );
       const patterns = /** @type [RegExp, string][] */ (
         getSiblingValue(context.ast, schemaLocation, "https://json-schema.org/keyword/patternProperties") ?? []
       ).map(([pattern]) => pattern.source);
